@@ -38,7 +38,6 @@ serial line using RTU. This header is 7 bytes long::
     >>> mbap
     b'\x00\x08\x00\x00\x00\x06\x01'
 
-
 The MBAP header contains the following fields:
 
 +------------------------+--------------------+--------------------------------------+
@@ -70,9 +69,10 @@ When unpacked, these fields have the following values::
     >>> unit_id
     b'\0x01'
 
-The request in words: a request with transaction ID 8 for unit/slave 1. The
-request uses protocol ID 0, which is the Modbus protocol. The length of the
+The request in words: a request with Transaction ID 8 for unit/slave 1. The
+request uses Protocol ID 0, which is the Modbus protocol. The length of the
 bytes after the Length field is 6 bytes. These 6 bytes are Unit Identifier (1
 byte) + PDU (5 bytes).
+
 
 .. _MODBUS Messaging on TCP/IP Implementation Guide V1.0b: http://modbus.org/docs/Modbus_Messaging_Implementation_Guide_V1_0b.pdf
