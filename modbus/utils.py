@@ -1,4 +1,5 @@
 import struct
+from functools import wraps
 
 
 def unpack_mbap(mbap):
@@ -7,7 +8,7 @@ def unpack_mbap(mbap):
         >>> parse_mbap(b'\x00\x08\x00\x00\x00\x06\x01')
         (8, 0, 6, 1)
 
-    :param mbap: Array of bytes.
+    :param mbap: Array of 7 bytes.
     :return: Tuple with 4 values: Transaction identifier,  Protocol identifier,
         Length and Unit identifier.
     """
@@ -18,3 +19,17 @@ def unpack_mbap(mbap):
     # TODO What it right exception to raise? Error code 04, Server failure,
     # seems most appropriate.
     return struct.unpack('>HHHB', mbap)
+
+
+def memoize(f):
+    """ Decorator which caches function's return value each it is called.
+    If called later with same arguments, the cached value is returned.
+    """
+    cache = {}
+
+    @wraps(f)
+    def inner(arg):
+        if arg not in cache:
+            cache[arg] = f(arg)
+        return cache[arg]
+    return inner
