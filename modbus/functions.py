@@ -58,7 +58,7 @@ function_code_to_function_map = {
 
 @memoize
 def function_factory(pdu):
-    """ Return function instance, based on PDU.
+    """ Return function instance, based on request PDU.
 
     :param pdu: Array of bytes.
     :return: Instance of a function.
