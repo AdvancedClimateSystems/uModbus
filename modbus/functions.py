@@ -1,7 +1,11 @@
+import sys
 import struct
 from collections import namedtuple
+from logbook import StreamHandler, debug, info
 
 from modbus.utils import memoize
+
+StreamHandler(sys.stdout).push_application()
 
 # Function related to data access.
 READ_COILS = 1
@@ -63,7 +67,9 @@ def function_factory(pdu):
     :param pdu: Array of bytes.
     :return: Instance of a function.
     """
+    debug('PDU: {0}, length: {1}'.format(pdu, len(pdu)))
     function_code, = struct.unpack('>B', pdu[:1])
+    debug('PDU: {0}, function_code: {1}'.format(pdu, function_code))
     function = function_code_to_function_map[function_code]
 
     return function._make(struct.unpack('>BHH', pdu))
