@@ -12,8 +12,8 @@ StreamHandler(sys.stdout).push_application()
 server = get_server('localhost', 1026)
 
 
-@server.route(slave_ids={1}, function_codes=[1], addresses=set(range(100, 200)))
-def read_coils():
+@server.route(slave_ids=[1], function_codes=[1], addresses=set(range(100, 200)))
+def read_coils(slave, address):
     info('Execute read_coils')
     return 1
 

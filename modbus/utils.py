@@ -21,9 +21,9 @@ def unpack_mbap(mbap):
     return struct.unpack('>HHHB', mbap)
 
 
-def pack_mbap(transaction_id, protocol_id, unit_id, data):
-    return struct.pack('>HHHB', transaction_id, protocol_id, 4,
-                       unit_id)
+def pack_mbap(transaction_id, protocol_id, length, unit_id):
+    return struct.pack('>HHHB', transaction_id, protocol_id, length, unit_id)
+
 
 def memoize(f):
     """ Decorator which caches function's return value each it is called.

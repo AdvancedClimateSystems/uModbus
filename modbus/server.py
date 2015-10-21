@@ -26,7 +26,6 @@ class Server(TCPServer):
 
     def __init__(self, server_address, RequestHandlerClass):
         TCPServer.__init__(self, server_address, RequestHandlerClass)
-        self._endpoints = {}
         self._route_map = Map()
 
     def route(self, slave_ids=None, function_codes=None, addresses=None):
@@ -35,39 +34,14 @@ class Server(TCPServer):
 
         """
         def inner(f):
-            self.add_route_rule(f, slave_ids=slave_ids,
-                                function_codes=function_codes,
-                                addresses=addresses)
+            self._route_map.add_rule(f, slave_ids, function_codes,
+                                     addresses)
             return f
 
         return inner
 
-    def add_route_rule(self, endpoint, slave_ids, function_codes, addresses):
-        self._endpoints[endpoint.__name__] = endpoint
-        self._route_map.add_rule(endpoint.__name__, slave_ids, function_codes,
-                                 addresses)
-
 
 class RequestHandler(BaseRequestHandler):
-
-    def dispatch_request(self, slave_id, function_code, addresses):
-        values = []
-
-        for address in addresses:
-            endpoint_name = self.server._route_map.match(slave_id,
-                                                         function_code, address)
-
-            if endpoint_name is None:
-                raise Exception('Slave or address doesn\'t exists.')
-
-            endpoint = self.server._endpoints[endpoint_name]
-
-            values.append(endpoint())
-
-        number = bin(reduce(lambda a, b: (a << 1) + b, values))
-        debug('Values {0} reduced to {1}.'.format(values, number))
-
-        return number
 
     def handle(self):
         adu = self.request.recv(1024).strip()
@@ -78,16 +52,13 @@ class RequestHandler(BaseRequestHandler):
               '{3}'.format(transaction_id, protocol_id, length, unit_id))
 
         function = function_factory(adu[7:])
+        response = function.execute(unit_id, self.server._route_map)
+        response_pdu = function.create_response_pdu(response)
 
-        values = self.dispatch_request(unit_id, function.function_code,
-                                       range(function.starting_address,
-                                             function.starting_address + function.quantity))
+        mbap = pack_mbap(transaction_id, protocol_id, len(response_pdu) + 1,
+                         unit_id)
 
-        mbap = pack_mbap(transaction_id, protocol_id, unit_id, values)
         debug('Response MBAP: {0}.'.format(mbap))
-        print(values)
-        pdu = struct.pack('>BBB', 1, 1, 0b11)
-        debug('Response PDU: {0}'.format(pdu))
+        debug('Response PDU: {0}'.format(response_pdu))
 
-
-        self.request.sendall(mbap + pdu)
+        self.request.sendall(mbap + response_pdu)
