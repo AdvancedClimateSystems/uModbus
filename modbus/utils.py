@@ -22,6 +22,14 @@ def unpack_mbap(mbap):
 
 
 def pack_mbap(transaction_id, protocol_id, length, unit_id):
+    """ Create and return response MBAP.
+
+    :param transaction_id: Transaction id.
+    :param protocol_id: Protocol id.
+    :param length: Length of following bytes in ADU.
+    :param unit_id: Unit id.
+    :return: Byte array of 7 bytes.
+    """
     return struct.pack('>HHHB', transaction_id, protocol_id, length, unit_id)
 
 

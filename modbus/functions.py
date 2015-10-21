@@ -1,6 +1,4 @@
-import sys
 import struct
-from logbook import StreamHandler, debug
 
 from modbus.utils import memoize
 
@@ -8,8 +6,6 @@ try:
     from functools import reduce
 except ImportError:
     pass
-
-StreamHandler(sys.stdout).push_application()
 
 # Function related to data access.
 READ_COILS = 1
@@ -44,9 +40,7 @@ def function_factory(pdu):
     :param pdu: Array of bytes.
     :return: Instance of a function.
     """
-    debug('PDU: {0}, length: {1}'.format(pdu, len(pdu)))
     function_code, = struct.unpack('>B', pdu[:1])
-    debug('PDU: {0}, function_code: {1}'.format(pdu, function_code))
     function_class = function_code_to_function_map[function_code]
 
     return function_class.create_from_pdu(pdu)
@@ -59,17 +53,25 @@ class Function:
 
     @staticmethod
     def create_from_request_pdu(pdu):
-        """ Create instance from request PDU. """
+        """ Create instance from request PDU.
+
+        :param pdu: A response PDU.
+        """
         raise NotImplementedError
 
-    def execute(self, endpoint):
-        """ Execute the Modbus function on endpoint . """
+    def execute(self, slave_id, route_map):
+        """ Execute the Modbus function registered for a route.
+
+        :param slave_id: Slave id.
+        :param eindpoint: Instance of modbus.route.Map.
+        :return: Result of call to endpoint.
+        """
         raise NotImplementedError
 
-    def get_response_pdu(self, response):
+    def get_response_pdu(self, data):
         """ Return response PDU.
 
-        :param response: Response of execution.
+        :param data: Reponse data of endpoint.
         :return pdu: Array of bytes.
         """
         raise NotImplementedError
@@ -123,6 +125,10 @@ class ReadCoils(Function):
 
     @staticmethod
     def create_from_pdu(pdu):
+        """ Create instance from request PDU.
+
+        :param pdu: A series of 5 bytes.
+        """
         _, starting_address, quantity = struct.unpack('>BHH', pdu)
 
         return ReadCoils(starting_address, quantity)
@@ -138,10 +144,24 @@ class ReadCoils(Function):
         return values
 
     def create_response_pdu(self, data):
-        """ Create response from request. """
+        """ Create response from request.
+
+        :param data: A list with 0's and/or 1's.
+        :return: Byte string of at least 3 bytes.
+        """
+        # The list is reduced to a decimal. A list like [0, 1, 1] will be
+        # reduced to decimal 3. A list like [1, 0, 0, 0, 0, 0, 0, 1] will be
+        # reduced to 257.
         decimal_total = reduce(lambda a, b: (a << 1) + b, data)
+
+        # The decimal is split into a list of 'bytes', with a maximum value of
+        # 256 per byte. 3 becomes [3], 257 becomes [256, 1].
         bytes_ = [b for b in range(decimal_total, 0, -256)]
 
+        # The first 2 B's of the format encode the function code (1 byte)
+        # and the length (1 byte) of the following byte series. Followed by
+        # a B for every byte in the series of bytes. 3 lead to the format '>BBB'
+        # and 257 lead to the format '>BBBB'.
         fmt = '>BB' + 'B' * len(bytes_)
         return struct.pack(fmt, self.function_code, len(bytes_), *bytes_)
 
