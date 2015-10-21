@@ -43,7 +43,7 @@ def function_factory(pdu):
     function_code, = struct.unpack('>B', pdu[:1])
     function_class = function_code_to_function_map[function_code]
 
-    return function_class.create_from_pdu(pdu)
+    return function_class.create_from_request_pdu(pdu)
 
 
 class Function:
@@ -124,7 +124,7 @@ class ReadCoils(Function):
         self.quantity = quantity
 
     @staticmethod
-    def create_from_pdu(pdu):
+    def create_from_request_pdu(pdu):
         """ Create instance from request PDU.
 
         :param pdu: A series of 5 bytes.
@@ -139,7 +139,7 @@ class ReadCoils(Function):
         for address in range(self.starting_address,
                              self.starting_address + self.quantity):
             endpoint = route_map.match(slave_id, self.function_code, address)
-            values.append(endpoint(slave_id, address))
+            values.append(endpoint(slave_id=slave_id, address=address))
 
         return values
 
@@ -149,14 +149,15 @@ class ReadCoils(Function):
         :param data: A list with 0's and/or 1's.
         :return: Byte string of at least 3 bytes.
         """
-        # The list is reduced to a decimal. A list like [0, 1, 1] will be
-        # reduced to decimal 3. A list like [1, 0, 0, 0, 0, 0, 0, 1] will be
-        # reduced to 257.
-        decimal_total = reduce(lambda a, b: (a << 1) + b, data)
+        # Reverse data list so it's easy to split it chunks (bytes) of 8 bits.
+        data = list(reversed(data))
+        bytes_ = [data[i:i + 8] for i in range(0, len(data), 8)]
 
-        # The decimal is split into a list of 'bytes', with a maximum value of
-        # 256 per byte. 3 becomes [3], 257 becomes [256, 1].
-        bytes_ = [b for b in range(decimal_total, 0, -256)]
+        # Reduce each all bits per byte to a number. Byte
+        # [0, 0, 0, 0, 0, 1, 1, 1] is intepreted as binary en is decimal 3.
+        for index, byte in enumerate(bytes_):
+            bytes_[index] = \
+                reduce(lambda a, b: (a << 1) + b, list(reversed(byte)))
 
         # The first 2 B's of the format encode the function code (1 byte)
         # and the length (1 byte) of the following byte series. Followed by
