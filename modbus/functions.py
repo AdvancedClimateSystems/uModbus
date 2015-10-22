@@ -1,6 +1,7 @@
 import struct
 
 from modbus.utils import memoize
+from modbus.exceptions import (IllegalDataValueError, IllegalDataAddressError)
 
 try:
     from functools import reduce
@@ -119,6 +120,15 @@ class ReadCoils(Function):
 
     """
     def __init__(self, starting_address, quantity):
+        """ "This function code is used to read from 1 to 2000 contiguous status
+        of coils in a remote device."
+
+            - MODBUS Application Protocol Specification V1.1b3, chapter 6.1
+        """
+        if quantity < 1 or quantity > 2000:
+            raise IllegalDataValueError('Quantify field of request must be a '
+                                        'value between 0 and 2000.')
+
         Function.__init__(self, READ_COILS)
         self.starting_address = starting_address
         self.quantity = quantity
@@ -134,14 +144,20 @@ class ReadCoils(Function):
         return ReadCoils(starting_address, quantity)
 
     def execute(self, slave_id, route_map):
-        values = []
+        try:
+            values = []
 
-        for address in range(self.starting_address,
-                             self.starting_address + self.quantity):
-            endpoint = route_map.match(slave_id, self.function_code, address)
-            values.append(endpoint(slave_id=slave_id, address=address))
+            for address in range(self.starting_address,
+                                 self.starting_address + self.quantity):
+                endpoint = route_map.match(slave_id, self.function_code,
+                                           address)
+                values.append(endpoint(slave_id=slave_id, address=address))
 
-        return values
+            return values
+        # route_map.match() returns None if no match is found. Calling None
+        # results in TypeError.
+        except TypeError:
+            raise IllegalDataAddressError()
 
     def create_response_pdu(self, data):
         """ Create response from request.

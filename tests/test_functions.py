@@ -3,6 +3,7 @@ import struct
 
 from modbus.route import Map
 from modbus.functions import function_factory, Function, ReadCoils
+from modbus.exceptions import IllegalDataValueError, IllegalDataAddressError
 
 
 @pytest.fixture
@@ -54,6 +55,17 @@ class TestFunction:
 
 
 class TestReadCoils:
+    @pytest.mark.parametrize('quantity', [
+        0,
+        2001,
+    ])
+    def test_create_read_coils_with_invalid_quantity(self, quantity):
+        """ When initiated with incorrect quantity, constructor should raise
+        an error.
+        """
+        with pytest.raises(IllegalDataValueError):
+            ReadCoils(100, quantity)
+
     def test_create_from_request_pdu_using_function_factory(self):
         """ Call should return instance with correct attributes and vaules. """
         function_code = 1
@@ -77,6 +89,14 @@ class TestReadCoils:
 
         monkeypatch.setattr(route_map, 'match', match_mock)
         assert read_coils.execute(1, route_map) == [0, 1, 0]
+
+    def test_execute_raising_illegal_data_error(self, read_coils, route_map,
+                                                monkeypatch):
+        """ When no route is found for request, execute should raise an
+        IllegalDataAddressError.
+        """
+        with pytest.raises(IllegalDataAddressError):
+            read_coils.execute(1, route_map)
 
     @pytest.mark.parametrize('data,expectation', [
         ([0, 1, 1], b'\x01\x01\x03'),
