@@ -48,8 +48,7 @@ def function_factory(pdu):
 
 
 class Function:
-     """ Abstract base class for Modbus functions. """
-
+    """ Abstract base class for Modbus functions. """
     @classmethod
     def create_from_request_pdu(cls, pdu):
         """ Create instance from request PDU.
