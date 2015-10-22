@@ -1,7 +1,7 @@
 import struct
 
 from modbus.utils import memoize
-from modbus.exceptions import (IllegalDataValueError, IllegalDataAddressError)
+from modbus.exceptions import IllegalDataValueError, IllegalDataAddressError
 
 try:
     from functools import reduce
@@ -47,48 +47,13 @@ def function_factory(pdu):
     return function_class.create_from_request_pdu(pdu)
 
 
-class Function:
+class DataFunction:
     """ Abstract base class for Modbus functions. """
-    @classmethod
-    def create_from_request_pdu(cls, pdu):
-        """ Create instance from request PDU.
-
-        :param pdu: A response PDU.
-        """
-        raise NotImplementedError
-
-    def execute(self, slave_id, route_map):
-        """ Execute the Modbus function registered for a route.
-
-        :param slave_id: Slave id.
-        :param eindpoint: Instance of modbus.route.Map.
-        :return: Result of call to endpoint.
-        """
-        raise NotImplementedError
-
-    def get_response_pdu(self, data):
-        """ Return response PDU.
-
-        :param data: Reponse data of endpoint.
-        :return pdu: Array of bytes.
-        """
-        raise NotImplementedError
-
-
-class SingleBitFunction(Function):
-    """ Base class with common logic for so called 'single bit' functions.
-    These functions operate on single bit values, like coils and discrete
-    inputs.
-
-    """
     def __init__(self, starting_address, quantity):
-        # "This function code is used to read from 1 to 2000 contiguous status
-        # of coils in a remote device."
-        #
-        #       - MODBUS Application Protocol Specification V1.1b3, chapter 6.1
-        if quantity < 1 or quantity > 2000:
+        if quantity < 1 or quantity > self.max_quantity:
             raise IllegalDataValueError('Quantify field of request must be a '
-                                        'value between 0 and 2000.')
+                                        'value between 0 and '
+                                        '{0}.'.format(self.max_quantity))
 
         self.starting_address = starting_address
         self.quantity = quantity
@@ -97,13 +62,19 @@ class SingleBitFunction(Function):
     def create_from_request_pdu(cls, pdu):
         """ Create instance from request PDU.
 
-        :param pdu: A series of 5 bytes.
+        :param pdu: A response PDU.
         """
         _, starting_address, quantity = struct.unpack('>BHH', pdu)
 
         return cls(starting_address, quantity)
 
     def execute(self, slave_id, route_map):
+        """ Execute the Modbus function registered for a route.
+
+        :param slave_id: Slave id.
+        :param eindpoint: Instance of modbus.route.Map.
+        :return: Result of call to endpoint.
+        """
         try:
             values = []
 
@@ -119,11 +90,18 @@ class SingleBitFunction(Function):
         except TypeError:
             raise IllegalDataAddressError()
 
+
+class SingleBitResponse():
+    """ Base class with common logic for so called 'single bit' functions.
+    These functions operate on single bit values, like coils and discrete
+    inputs.
+
+    """
     def create_response_pdu(self, data):
-        """ Create response from request.
+        """ Create response pdu.
 
         :param data: A list with 0's and/or 1's.
-        :return: Byte string of at least 3 bytes.
+        :return: Byte array of at least 3 bytes.
         """
         # Reverse data list so it's easy to split it chunks (bytes) of 8 bits.
         data = list(reversed(data))
@@ -143,7 +121,25 @@ class SingleBitFunction(Function):
         return struct.pack(fmt, self.function_code, len(bytes_), *bytes_)
 
 
-class ReadCoils(SingleBitFunction):
+class MultiBitResponse():
+    """ Base class with common logic for so called 'multi bit' functions.
+    These functions operate on byte values, like input registers and holding
+    registers. By default values are 16 bit and unsigned.
+
+    """
+    def create_response_pdu(self, data):
+        """ Create response pdu.
+
+        :param data: A list with values.
+        :return: Byte array of at least 4 bytes.
+        """
+        data = list(reversed(data))
+        fmt = '>BB' + 'H' * len(data)
+
+        return struct.pack(fmt, self.function_code, len(data) * 2, *data)
+
+
+class ReadCoils(DataFunction, SingleBitResponse):
     """ Implement Modbus function code 01.
 
     The request PDU with function code 1 must be 5 bytes:
@@ -185,12 +181,17 @@ class ReadCoils(SingleBitFunction):
 
     """
     function_code = READ_COILS
+    max_quantity = 2000
+    # "This function code is used to read from 1 to 2000 contiguous status
+    # of coils in a remote device."
+    #
+    #       - MODBUS Application Protocol Specification V1.1b3, chapter 6.1
 
     def __init__(self, starting_address, quantity):
-        SingleBitFunction.__init__(self, starting_address, quantity)
+        DataFunction.__init__(self, starting_address, quantity)
 
 
-class ReadDiscreteInputs(SingleBitFunction):
+class ReadDiscreteInputs(DataFunction, SingleBitResponse):
     """ Implement Modbus function code 02.
 
     The request PDU with function code 1 must be 5 bytes:
@@ -232,11 +233,35 @@ class ReadDiscreteInputs(SingleBitFunction):
 
     """
     function_code = READ_DISCRETE_INPUTS
+    max_quantity = 2000
+    # "This function code is used to read from 1 to 2000 contiguous status
+    # of coils in a remote device."
+    #
+    #       - MODBUS Application Protocol Specification V1.1b3, chapter 6.2
 
     def __init__(self, starting_address, quantity):
-        SingleBitFunction.__init__(self, starting_address, quantity)
+        DataFunction.__init__(self, starting_address, quantity)
+
+
+class ReadHoldingRegisters(DataFunction, MultiBitResponse):
+    function_code = READ_HOLDING_REGISTERS
+    max_quantity = 125
+
+    def __init__(self, starting_address, quantity):
+        DataFunction.__init__(self, starting_address, quantity)
+
+
+class ReadInputRegisters(DataFunction, MultiBitResponse):
+    function_code = READ_INPUT_REGISTERS
+    max_quantity = 125
+
+    def __init__(self, starting_address, quantity):
+        DataFunction.__init__(self, starting_address, quantity)
+
 
 function_code_to_function_map = {
     READ_COILS: ReadCoils,
     READ_DISCRETE_INPUTS: ReadDiscreteInputs,
+    READ_HOLDING_REGISTERS: ReadHoldingRegisters,
+    READ_INPUT_REGISTERS: ReadInputRegisters,
 }
