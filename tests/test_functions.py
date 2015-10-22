@@ -2,18 +2,19 @@ import pytest
 import struct
 
 from modbus.route import Map
-from modbus.functions import function_factory, Function, ReadCoils
+from modbus.functions import (function_factory, Function, SingleBitFunction,
+                              ReadCoils, ReadDiscreteInputs)
 from modbus.exceptions import IllegalDataValueError, IllegalDataAddressError
 
 
 @pytest.fixture
 def function():
     """ Return instance of :class:`modbus.functions.Function`. """
-    return Function('no function code')
+    return Function()
 
 
 @pytest.fixture
-def read_coils():
+def single_bit_function():
     function_code = 1
     starting_address = 100
     quantity = 3
@@ -54,19 +55,19 @@ class TestFunction:
             function.get_response_pdu('data')
 
 
-class TestReadCoils:
+class TestSingleBitFunction:
     @pytest.mark.parametrize('quantity', [
         0,
         2001,
     ])
-    def test_create_read_coils_with_invalid_quantity(self, quantity):
+    def test_create_single_bit_function_with_invalid_quantity(self, quantity):
         """ When initiated with incorrect quantity, constructor should raise
         an error.
         """
         with pytest.raises(IllegalDataValueError):
             ReadCoils(100, quantity)
 
-    def test_create_from_request_pdu_using_function_factory(self):
+    def test_create_from_request_pdu(self):
         """ Call should return instance with correct attributes and vaules. """
         function_code = 1
         starting_address = 100
@@ -74,36 +75,42 @@ class TestReadCoils:
 
         pdu = struct.pack('>BHH', function_code, starting_address, quantity)
 
-        function = function_factory(pdu)
-        assert isinstance(function, ReadCoils)
-        assert function.function_code == function_code
+        function = SingleBitFunction.create_from_request_pdu(pdu)
         assert function.starting_address == starting_address
         assert function.quantity == quantity
 
-    def test_execute(self, read_coils, route_map, monkeypatch):
-        """ Readcoils.execute should execute endpoints an return correct
+    def test_execute(self, single_bit_function, route_map, monkeypatch):
+        """ SingleBitFunction.execute should execute endpoints an return correct
         result.
         """
         def match_mock(*args, **kwargs):
             return lambda slave_id, address: address % 2
 
         monkeypatch.setattr(route_map, 'match', match_mock)
-        assert read_coils.execute(1, route_map) == [0, 1, 0]
+        assert single_bit_function.execute(1, route_map) == [0, 1, 0]
 
-    def test_execute_raising_illegal_data_error(self, read_coils, route_map,
-                                                monkeypatch):
+    def test_execute_raising_illegal_data_error(self, single_bit_function,
+                                                route_map, monkeypatch):
         """ When no route is found for request, execute should raise an
         IllegalDataAddressError.
         """
         with pytest.raises(IllegalDataAddressError):
-            read_coils.execute(1, route_map)
+            single_bit_function.execute(1, route_map)
 
     @pytest.mark.parametrize('data,expectation', [
         ([0, 1, 1], b'\x01\x01\x03'),
         ([1, 0, 0, 0, 0, 0, 0, 1, 0], b'\x01\x02\x02\x01'),
     ])
-    def test_create_response_pdu(self, read_coils, data, expectation):
-        assert read_coils.create_response_pdu(data) == expectation
+    def test_create_response_pdu(self, single_bit_function, data, expectation):
+        assert single_bit_function.create_response_pdu(data) == expectation
+
+
+@pytest.mark.parametrize('pdu,cls', [
+    (b'\x01\x00d\x00\x03', ReadCoils),
+    (b'\x02\x00d\x00\x03', ReadDiscreteInputs),
+])
+def test_function_factory(pdu, cls):
+    assert isinstance(function_factory(pdu), cls)
 
 
 def test_caching_of_function_factory():

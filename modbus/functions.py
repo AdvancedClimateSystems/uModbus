@@ -48,12 +48,10 @@ def function_factory(pdu):
 
 
 class Function:
-    """ Abstract base class for functions. """
-    def __init__(self, function_code):
-        self.function_code = function_code
+     """ Abstract base class for Modbus functions. """
 
-    @staticmethod
-    def create_from_request_pdu(pdu):
+    @classmethod
+    def create_from_request_pdu(cls, pdu):
         """ Create instance from request PDU.
 
         :param pdu: A response PDU.
@@ -78,70 +76,33 @@ class Function:
         raise NotImplementedError
 
 
-class ReadCoils(Function):
-    """ Implement Modbus function code 01.
-
-    The request PDU with function code 1 must be 5 bytes:
-
-        +------------------+----------------+
-        | Field            | Length (bytes) |
-        +------------------+----------------+
-        | Function code    | 1              |
-        | Starting address | 2              |
-        | Quantity         | 2              |
-        +------------------+----------------+
-
-    The PDU can unpacked to this::
-
-        >>> struct.unpack('>BHH', b'\x01\x00d\x00\x03')
-        (1, 100, 3)
-
-    The reponse PDU varies in length, depending on the request. Each 8 coils
-    require 1 byte. The amount of bytes needed represent status of the coils to
-    can be calculated with: bytes = round(quantity / 8) + 1. This response
-    contains (3 / 8 + 1) = 1 byte to describe the status of the coils. The
-    structure of a compleet response PDU looks like this:
-
-        +------------------+----------------+
-        | Field            | Length (bytes) |
-        +------------------+----------------+
-        | Function code    | 1              |
-        | Byte count       | 1              |
-        | Coil status      | n              |
-        +------------------+----------------+
-
-    Assume the status of 102 is 0, 101 is 1 and 100 is also 1. This is binary
-    011 which is decimal 3.
-
-    The PDU can packed like this::
-
-        >>> struct.pack('>BBB', function_code, byte_count, 3)
-        b'\x01\x01\x03'
+class SingleBitFunction(Function):
+    """ Base class with common logic for so called 'single bit' functions.
+    These functions operate on single bit values, like coils and discrete
+    inputs.
 
     """
     def __init__(self, starting_address, quantity):
-        """ "This function code is used to read from 1 to 2000 contiguous status
-        of coils in a remote device."
-
-            - MODBUS Application Protocol Specification V1.1b3, chapter 6.1
-        """
+        # "This function code is used to read from 1 to 2000 contiguous status
+        # of coils in a remote device."
+        #
+        #       - MODBUS Application Protocol Specification V1.1b3, chapter 6.1
         if quantity < 1 or quantity > 2000:
             raise IllegalDataValueError('Quantify field of request must be a '
                                         'value between 0 and 2000.')
 
-        Function.__init__(self, READ_COILS)
         self.starting_address = starting_address
         self.quantity = quantity
 
-    @staticmethod
-    def create_from_request_pdu(pdu):
+    @classmethod
+    def create_from_request_pdu(cls, pdu):
         """ Create instance from request PDU.
 
         :param pdu: A series of 5 bytes.
         """
         _, starting_address, quantity = struct.unpack('>BHH', pdu)
 
-        return ReadCoils(starting_address, quantity)
+        return cls(starting_address, quantity)
 
     def execute(self, slave_id, route_map):
         try:
@@ -183,6 +144,100 @@ class ReadCoils(Function):
         return struct.pack(fmt, self.function_code, len(bytes_), *bytes_)
 
 
+class ReadCoils(SingleBitFunction):
+    """ Implement Modbus function code 01.
+
+    The request PDU with function code 1 must be 5 bytes:
+
+        +------------------+----------------+
+        | Field            | Length (bytes) |
+        +------------------+----------------+
+        | Function code    | 1              |
+        | Starting address | 2              |
+        | Quantity         | 2              |
+        +------------------+----------------+
+
+    The PDU can unpacked to this::
+
+        >>> struct.unpack('>BHH', b'\x01\x00d\x00\x03')
+        (1, 100, 3)
+
+    The reponse PDU varies in length, depending on the request. Each 8 coils
+    require 1 byte. The amount of bytes needed represent status of the coils to
+    can be calculated with: bytes = round(quantity / 8) + 1. This response
+    contains (3 / 8 + 1) = 1 byte to describe the status of the coils. The
+    structure of a compleet response PDU looks like this:
+
+        +------------------+----------------+
+        | Field            | Length (bytes) |
+        +------------------+----------------+
+        | Function code    | 1              |
+        | Byte count       | 1              |
+        | Coil status      | n              |
+        +------------------+----------------+
+
+    Assume the status of 102 is 0, 101 is 1 and 100 is also 1. This is binary
+    011 which is decimal 3.
+
+    The PDU can packed like this::
+
+        >>> struct.pack('>BBB', function_code, byte_count, 3)
+        b'\x01\x01\x03'
+
+    """
+    function_code = READ_COILS
+
+    def __init__(self, starting_address, quantity):
+        SingleBitFunction.__init__(self, starting_address, quantity)
+
+
+class ReadDiscreteInputs(SingleBitFunction):
+    """ Implement Modbus function code 02.
+
+    The request PDU with function code 1 must be 5 bytes:
+
+        +------------------+----------------+
+        | Field            | Length (bytes) |
+        +------------------+----------------+
+        | Function code    | 1              |
+        | Starting address | 2              |
+        | Quantity         | 2              |
+        +------------------+----------------+
+
+    The PDU can unpacked to this::
+
+        >>> struct.unpack('>BHH', b'\x01\x00d\x00\x03')
+        (1, 100, 3)
+
+    The reponse PDU varies in length, depending on the request. 8 inputs
+    require 1 byte. The amount of bytes needed represent status of the inputs to
+    can be calculated with: bytes = round(quantity / 8) + 1. This response
+    contains (3 / 8 + 1) = 1 byte to describe the status of the inputs. The
+    structure of a compleet response PDU looks like this:
+
+        +------------------+----------------+
+        | Field            | Length (bytes) |
+        +------------------+----------------+
+        | Function code    | 1              |
+        | Byte count       | 1              |
+        | Input status     | n              |
+        +------------------+----------------+
+
+    Assume the status of 102 is 0, 101 is 1 and 100 is also 1. This is binary
+    011 which is decimal 3.
+
+    The PDU can packed like this::
+
+        >>> struct.pack('>BBB', function_code, byte_count, 3)
+        b'\x01\x01\x03'
+
+    """
+    function_code = READ_DISCRETE_INPUTS
+
+    def __init__(self, starting_address, quantity):
+        SingleBitFunction.__init__(self, starting_address, quantity)
+
 function_code_to_function_map = {
     READ_COILS: ReadCoils,
+    READ_DISCRETE_INPUTS: ReadDiscreteInputs,
 }
