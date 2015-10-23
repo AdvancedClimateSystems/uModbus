@@ -103,8 +103,6 @@ class SingleBitResponse():
         :param data: A list with 0's and/or 1's.
         :return: Byte array of at least 3 bytes.
         """
-        # Reverse data list so it's easy to split it chunks (bytes) of 8 bits.
-        data = list(reversed(data))
         bytes_ = [data[i:i + 8] for i in range(0, len(data), 8)]
 
         # Reduce each all bits per byte to a number. Byte
@@ -133,7 +131,6 @@ class MultiBitResponse():
         :param data: A list with values.
         :return: Byte array of at least 4 bytes.
         """
-        data = list(reversed(data))
         fmt = '>BB' + 'H' * len(data)
 
         return struct.pack(fmt, self.function_code, len(data) * 2, *data)

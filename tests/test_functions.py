@@ -124,8 +124,8 @@ class TestDataFunction:
 
 class TestSingleBitResponse:
     @pytest.mark.parametrize('data,expectation', [
-        ([0, 1, 1], b'\x01\x01\x03'),
-        ([1, 0, 0, 0, 0, 0, 0, 1, 0], b'\x01\x02\x02\x01'),
+        ([1, 1, 0], b'\x01\x01\x03'),
+        ([0,1, 0, 0, 0, 0, 0, 0, 1], b'\x01\x02\x02\x01'),
     ])
     def test_create_response_pdu(self, read_coils, data, expectation):
         assert read_coils.create_response_pdu(data) == expectation
@@ -134,7 +134,7 @@ class TestSingleBitResponse:
 class TestMultiBitResponse:
     def test_create_response_pdu(self, read_holding_registers):
         assert read_holding_registers.create_response_pdu([0, 1337]) == \
-            b'\x03\x04\x059\x00\x00'
+            b'\x03\x04\x00\x00\x059'
 
 
 class TestReadCoils:
