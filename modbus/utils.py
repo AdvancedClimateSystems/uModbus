@@ -1,5 +1,26 @@
+import sys
 import struct
+import logging
+from logging import StreamHandler, Formatter
 from functools import wraps
+
+from modbus import log
+
+
+def log_to_stream(stream=sys.stdout, level=logging.WARNING,
+                  fmt=logging.BASIC_FORMAT):
+    """ Add :class:`logging.StreamHandler` to logger which logs to a stream.
+
+    :param stream. Stream to log to, default STDOUT.
+    :param level: Log level, default WARNING.
+    :param fmt: String with log format, default is BASIC_FORMAT.
+    """
+    fmt = Formatter(fmt)
+    handler = StreamHandler()
+    handler.setFormatter(fmt)
+
+    log.setLevel(level)
+    log.addHandler(handler)
 
 
 def unpack_mbap(mbap):

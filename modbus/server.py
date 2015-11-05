@@ -2,7 +2,9 @@ try:
     from socketserver import TCPServer, BaseRequestHandler
 except ImportError:
     from SocketServer import TCPServer, BaseRequestHandler
+from binascii import hexlify
 
+from modbus import log
 from modbus.route import Map
 from modbus.functions import function_factory
 from modbus.utils import unpack_mbap, pack_mbap
@@ -54,14 +56,19 @@ class RequestHandler(BaseRequestHandler):
 
     """
     def handle(self):
-        response_adu = self.request.recv(1024).strip()
-        transaction_id, protocol_id, _, unit_id = unpack_mbap(response_adu[:7])
+        request_adu = self.request.recv(1024).strip()
+        log.info('<-- {0} - {1}.'.format(self.client_address[0],
+                 hexlify(request_adu)))
+        transaction_id, protocol_id, _, unit_id = unpack_mbap(request_adu[:7])
 
-        function = function_factory(response_adu[7:])
+        function = function_factory(request_adu[7:])
         response = function.execute(unit_id, self.server.route_map)
         response_pdu = function.create_response_pdu(response)
 
         response_mbap = pack_mbap(transaction_id, protocol_id,
                                   len(response_pdu) + 1, unit_id)
 
+        response_adu = response_mbap + response_pdu
+        log.info('--> {0} - {1}.'.format(self.client_address[0],
+                 hexlify(response_adu)))
         self.request.sendall(response_mbap + response_pdu)

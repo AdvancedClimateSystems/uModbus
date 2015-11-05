@@ -1,5 +1,6 @@
 import struct
 
+from modbus import log
 from modbus.utils import memoize
 from modbus.exceptions import IllegalDataValueError, IllegalDataAddressError
 
@@ -103,6 +104,7 @@ class SingleBitResponse():
         :param data: A list with 0's and/or 1's.
         :return: Byte array of at least 3 bytes.
         """
+        log.debug('Create single bit response pdu {0}.'.format(data))
         bytes_ = [data[i:i + 8] for i in range(0, len(data), 8)]
 
         # Reduce each all bits per byte to a number. Byte
@@ -111,10 +113,11 @@ class SingleBitResponse():
             bytes_[index] = \
                 reduce(lambda a, b: (a << 1) + b, list(reversed(byte)))
 
+        log.debug('Reduced single bit data to {0}.'.format(bytes_))
         # The first 2 B's of the format encode the function code (1 byte)
         # and the length (1 byte) of the following byte series. Followed by
-        # a B for every byte in the series of bytes. 3 lead to the format '>BBB'
-        # and 257 lead to the format '>BBBB'.
+        # a B for every byte in the series of bytes. 3 lead to the format
+        # '>BBB' and 257 lead to the format '>BBBB'.
         fmt = '>BB' + 'B' * len(bytes_)
         return struct.pack(fmt, self.function_code, len(bytes_), *bytes_)
 
@@ -131,6 +134,7 @@ class MultiBitResponse():
         :param data: A list with values.
         :return: Byte array of at least 4 bytes.
         """
+        log.debug('Create multi bit response pdu {0}.'.format(data))
         fmt = '>BB' + 'H' * len(data)
 
         return struct.pack(fmt, self.function_code, len(data) * 2, *data)

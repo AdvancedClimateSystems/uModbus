@@ -1,9 +1,6 @@
 #!/usr/bin/env python
-import sys
-from logbook import StreamHandler, info
-from socketserver import BaseRequestHandler, TCPServer
-
-StreamHandler(sys.stdout).push_application()
+from logging import info
+from SocketServer import BaseRequestHandler, TCPServer
 
 
 class LogHandler(BaseRequestHandler):
@@ -14,7 +11,7 @@ class LogHandler(BaseRequestHandler):
 
 
 if __name__ == '__main__':
-    HOST, PORT = 'localhost',1337
+    HOST, PORT = 'localhost', 1337
     server = TCPServer((HOST, PORT), LogHandler)
 
     try:

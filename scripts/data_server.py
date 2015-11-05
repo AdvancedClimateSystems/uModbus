@@ -1,16 +1,18 @@
 #!/usr/bin/env python
 import os
+import logging
 import sys
 sys.path.insert(0, os.path.join(os.path.dirname(os.path.abspath(__file__)),
                                 '../'))
 
-from logbook import StreamHandler, info
 from modbus.server import get_server
+from modbus.utils import log_to_stream
 
-StreamHandler(sys.stdout).push_application()
+fmt = '%(asctime)s - %(name)s - %(levelname)-8s - %(module)s.%(funcName)s: ' +\
+      '%(message)s'
 
-server = get_server('localhost', 1026)
-
+log_to_stream(level=logging.DEBUG, fmt=fmt)
+server = get_server('localhost', 1027)
 
 @server.route(slave_ids=[1], function_codes=[1, 2], addresses=set(range(100, 200)))
 def single_bit(slave_id, address):
