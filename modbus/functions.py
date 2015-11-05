@@ -108,29 +108,23 @@ class WriteSingleValueFunction(object):
 
         return cls(address, value)
 
-    def create_response_pdu(self):
-        return struct.pack('>BHH', self.function_code, self.address,
-                           self.value)
-
     def execute(self, slave_id, route_map):
         """ Execute the Modbus function registered for a route.
 
         :param slave_id: Slave id.
         :param eindpoint: Instance of modbus.route.Map.
-        :return: Result of call to endpoint.
         """
+        endpoint = route_map.match(slave_id, self.function_code, self.address)
         try:
-            values = []
-            endpoint = route_map.match(slave_id, self.function_code,
-                                       self.address)
-            values.append(endpoint(slave_id=slave_id, address=self.address,
-                                   value=self.value))
-
-            return values
+            endpoint(slave_id=slave_id, address=self.address, value=self.value)
         # route_map.match() returns None if no match is found. Calling None
         # results in TypeError.
         except TypeError:
             raise IllegalDataAddressError()
+
+    def create_response_pdu(self):
+        return struct.pack('>BHH', self.function_code, self.address,
+                           self.value)
 
 
 class SingleBitResponse(object):

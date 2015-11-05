@@ -1,5 +1,6 @@
 import pytest
 import struct
+from mock import MagicMock
 
 from modbus.route import Map
 from modbus.functions import (function_factory, ReadCoils,
@@ -28,6 +29,17 @@ def read_holding_registers():
     pdu = struct.pack('>BHH', function_code, starting_address, quantity)
 
     return ReadHoldingRegisters.create_from_request_pdu(pdu)
+
+
+@pytest.fixture
+def write_single_coil():
+    function_code = 5
+    address = 100
+    value = 0xFF00
+
+    pdu = struct.pack('>BHH', function_code, address, value)
+
+    return WriteSingleCoil.create_from_request_pdu(pdu)
 
 
 @pytest.fixture
@@ -106,8 +118,8 @@ class TestReadFunction:
             ReadCoils.create_from_request_pdu(pdu)
 
     def test_execute(self, read_coils, route_map, monkeypatch):
-        """ SingleBitFunction.execute should execute endpoints an return correct
-        result.
+        """ SingleBitFunction.execute should execute endpoints and return
+        correct result.
         """
         def match_mock(*args, **kwargs):
             return lambda slave_id, address: address % 2
@@ -121,6 +133,38 @@ class TestReadFunction:
         """
         with pytest.raises(IllegalDataAddressError):
             read_coils.execute(1, route_map)
+
+
+class TestWriteSingleFunction:
+    def test_execute(self, write_single_coil, route_map, monkeypatch):
+        """ Mock route_map so it returns endpoint for request. This endpoint
+        should be called once with specific parameters.
+        """
+        endpoint_mock = MagicMock()
+
+        def match_mock(*args, **kwargs):
+            return endpoint_mock
+
+        monkeypatch.setattr(route_map, 'match', match_mock)
+        write_single_coil.execute(1, route_map)
+
+        endpoint_mock.assert_called_once_with(slave_id=1,
+                                              address=write_single_coil.address,
+                                              value=write_single_coil.value)
+
+    def test_execute_raising_illegal_data_error(self, write_single_coil,
+                                                route_map):
+        """ When no route is found for request, execute should raise an
+        IllegalDataAddressError.
+        """
+        with pytest.raises(IllegalDataAddressError):
+            write_single_coil.execute(1, route_map)
+
+    def test_create_response_pdu(self):
+        request_pdu = b'\x05\x00d\x00\x00'
+
+        write_single_coil = function_factory(request_pdu)
+        assert write_single_coil.create_response_pdu() == request_pdu
 
 
 class TestSingleBitResponse:

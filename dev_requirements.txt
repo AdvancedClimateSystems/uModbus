@@ -1,3 +1,3 @@
 pytest==2.8.2
 Sphinx==1.3.1
-Logbook==0.11.2
+mock==1.3.0
