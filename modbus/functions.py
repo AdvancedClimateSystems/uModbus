@@ -143,7 +143,7 @@ class MultiBitResponse():
 class ReadCoils(DataFunction, SingleBitResponse):
     """ Implement Modbus function code 01.
 
-    The request PDU with function code 1 must be 5 bytes:
+    The request PDU with function code 01 must be 5 bytes:
 
         +------------------+----------------+
         | Field            | Length (bytes) |
@@ -195,7 +195,7 @@ class ReadCoils(DataFunction, SingleBitResponse):
 class ReadDiscreteInputs(DataFunction, SingleBitResponse):
     """ Implement Modbus function code 02.
 
-    The request PDU with function code 1 must be 5 bytes:
+    The request PDU with function code 02 must be 5 bytes:
 
         +------------------+----------------+
         | Field            | Length (bytes) |
@@ -207,8 +207,8 @@ class ReadDiscreteInputs(DataFunction, SingleBitResponse):
 
     The PDU can unpacked to this::
 
-        >>> struct.unpack('>BHH', b'\x01\x00d\x00\x03')
-        (1, 100, 3)
+        >>> struct.unpack('>BHH', b'\x02\x00d\x00\x03')
+        (2, 100, 3)
 
     The reponse PDU varies in length, depending on the request. 8 inputs
     require 1 byte. The amount of bytes needed represent status of the inputs to
@@ -230,7 +230,7 @@ class ReadDiscreteInputs(DataFunction, SingleBitResponse):
     The PDU can packed like this::
 
         >>> struct.pack('>BBB', function_code, byte_count, 3)
-        b'\x01\x01\x03'
+        b'\x02\x01\x03'
 
     """
     function_code = READ_DISCRETE_INPUTS
@@ -245,6 +245,44 @@ class ReadDiscreteInputs(DataFunction, SingleBitResponse):
 
 
 class ReadHoldingRegisters(DataFunction, MultiBitResponse):
+    """ Implement Modbus function code 03.
+
+    The request PDU with function code 03 must be 5 bytes:
+
+        +------------------+----------------+
+        | Field            | Length (bytes) |
+        +------------------+----------------+
+        | Function code    | 1              |
+        | Starting address | 2              |
+        | Quantity         | 2              |
+        +------------------+----------------+
+
+    The PDU can unpacked to this::
+
+        >>> struct.unpack('>BHH', b'\x03\x00d\x00\x03')
+        (3, 100, 3)
+
+    The reponse PDU varies in length, depending on the request. By default,
+    holding registers are 16 bit (2 bytes) values. So values of 3 holding
+    registers is expressed in 2 * 3 = 6 bytes.
+
+        +------------------+----------------+
+        | Field            | Length (bytes) |
+        +------------------+----------------+
+        | Function code    | 1              |
+        | Byte count       | 1              |
+        | Register value   | quantity * 2   |
+        +------------------+----------------+
+
+    Assume the value of 100 is 8, 101 is 0 and 102 is also 15.
+
+    The PDU can packed like this::
+
+        >>> data = [8, 0, 15]
+        >>> struct.pack('>BBHHH', function_code, len(data) * 2, *data)
+        '\x03\x06\x00\x08\x00\x00\x00\x0f'
+
+    """
     function_code = READ_HOLDING_REGISTERS
     max_quantity = 125
 
@@ -253,6 +291,44 @@ class ReadHoldingRegisters(DataFunction, MultiBitResponse):
 
 
 class ReadInputRegisters(DataFunction, MultiBitResponse):
+    """ Implement Modbus function code 04.
+
+    The request PDU with function code 04 must be 5 bytes:
+
+        +------------------+----------------+
+        | Field            | Length (bytes) |
+        +------------------+----------------+
+        | Function code    | 1              |
+        | Starting address | 2              |
+        | Quantity         | 2              |
+        +------------------+----------------+
+
+    The PDU can unpacked to this::
+
+        >>> struct.unpack('>BHH', b'\x04\x00d\x00\x03')
+        (4, 100, 3)
+
+    The reponse PDU varies in length, depending on the request. By default,
+    holding registers are 16 bit (2 bytes) values. So values of 3 holding
+    registers is expressed in 2 * 3 = 6 bytes.
+
+        +------------------+----------------+
+        | Field            | Length (bytes) |
+        +------------------+----------------+
+        | Function code    | 1              |
+        | Byte count       | 1              |
+        | Register value   | quantity * 2   |
+        +------------------+----------------+
+
+    Assume the value of 100 is 8, 101 is 0 and 102 is also 15.
+
+    The PDU can packed like this::
+
+        >>> data = [8, 0, 15]
+        >>> struct.pack('>BBHHH', function_code, len(data) * 2, *data)
+        '\x04\x06\x00\x08\x00\x00\x00\x0f'
+
+    """
     function_code = READ_INPUT_REGISTERS
     max_quantity = 125
 
