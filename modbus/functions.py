@@ -48,7 +48,7 @@ def function_factory(pdu):
     return function_class.create_from_request_pdu(pdu)
 
 
-class ReadFunction:
+class ReadFunction(object):
     """ Abstract base class for Modbus read functions. """
     def __init__(self, starting_address, quantity):
         if quantity < 1 or quantity > self.max_quantity:
@@ -92,7 +92,7 @@ class ReadFunction:
             raise IllegalDataAddressError()
 
 
-class WriteSingleValueFunction:
+class WriteSingleValueFunction(object):
     """ Abstract base class for Modbus write functions. """
     def __init__(self, address, value):
         self.address = address
@@ -133,7 +133,7 @@ class WriteSingleValueFunction:
             raise IllegalDataAddressError()
 
 
-class SingleBitResponse:
+class SingleBitResponse(object):
     """ Base class with common logic for so called 'single bit' functions.
     These functions operate on single bit values, like coils and discrete
     inputs.
@@ -163,7 +163,7 @@ class SingleBitResponse:
         return struct.pack(fmt, self.function_code, len(bytes_), *bytes_)
 
 
-class MultiBitResponse():
+class MultiBitResponse(object):
     """ Base class with common logic for so called 'multi bit' functions.
     These functions operate on byte values, like input registers and holding
     registers. By default values are 16 bit and unsigned.
@@ -380,6 +380,9 @@ class ReadInputRegisters(ReadFunction, MultiBitResponse):
 class WriteSingleCoil(WriteSingleValueFunction):
     function_code = WRITE_SINGLE_COIL
 
+    def __init__(self, address, value):
+        WriteSingleValueFunction.__init__(self, address, value)
+
     @property
     def value(self):
         return self._value
@@ -396,6 +399,7 @@ class WriteSingleCoil(WriteSingleValueFunction):
             raise IllegalDataValueError
 
         self._value = value
+
 
 function_code_to_function_map = {
     READ_COILS: ReadCoils,
