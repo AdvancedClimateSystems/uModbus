@@ -48,8 +48,8 @@ def function_factory(pdu):
     return function_class.create_from_request_pdu(pdu)
 
 
-class DataFunction:
-    """ Abstract base class for Modbus functions. """
+class ReadFunction:
+    """ Abstract base class for Modbus read functions. """
     def __init__(self, starting_address, quantity):
         if quantity < 1 or quantity > self.max_quantity:
             raise IllegalDataValueError('Quantify field of request must be a '
@@ -92,7 +92,48 @@ class DataFunction:
             raise IllegalDataAddressError()
 
 
-class SingleBitResponse():
+class WriteSingleValueFunction:
+    """ Abstract base class for Modbus write functions. """
+    def __init__(self, address, value):
+        self.address = address
+        self.value = value
+
+    @classmethod
+    def create_from_request_pdu(cls, pdu):
+        """ Create instance from request PDU.
+
+        :param pdu: A response PDU.
+        """
+        _, address, value = struct.unpack('>BHH', pdu)
+
+        return cls(address, value)
+
+    def create_response_pdu(self):
+        return struct.pack('>BHH', self.function_code, self.address,
+                           self.value)
+
+    def execute(self, slave_id, route_map):
+        """ Execute the Modbus function registered for a route.
+
+        :param slave_id: Slave id.
+        :param eindpoint: Instance of modbus.route.Map.
+        :return: Result of call to endpoint.
+        """
+        try:
+            values = []
+            endpoint = route_map.match(slave_id, self.function_code,
+                                       self.address)
+            values.append(endpoint(slave_id=slave_id, address=self.address,
+                                   value=self.value))
+
+            return values
+        # route_map.match() returns None if no match is found. Calling None
+        # results in TypeError.
+        except TypeError:
+            raise IllegalDataAddressError()
+
+
+class SingleBitResponse:
     """ Base class with common logic for so called 'single bit' functions.
     These functions operate on single bit values, like coils and discrete
     inputs.
@@ -140,7 +181,7 @@ class MultiBitResponse():
         return struct.pack(fmt, self.function_code, len(data) * 2, *data)
 
 
-class ReadCoils(DataFunction, SingleBitResponse):
+class ReadCoils(ReadFunction, SingleBitResponse):
     """ Implement Modbus function code 01.
 
     The request PDU with function code 01 must be 5 bytes:
@@ -189,10 +230,10 @@ class ReadCoils(DataFunction, SingleBitResponse):
     #       - MODBUS Application Protocol Specification V1.1b3, chapter 6.1
 
     def __init__(self, starting_address, quantity):
-        DataFunction.__init__(self, starting_address, quantity)
+        ReadFunction.__init__(self, starting_address, quantity)
 
 
-class ReadDiscreteInputs(DataFunction, SingleBitResponse):
+class ReadDiscreteInputs(ReadFunction, SingleBitResponse):
     """ Implement Modbus function code 02.
 
     The request PDU with function code 02 must be 5 bytes:
@@ -211,8 +252,8 @@ class ReadDiscreteInputs(DataFunction, SingleBitResponse):
         (2, 100, 3)
 
     The reponse PDU varies in length, depending on the request. 8 inputs
-    require 1 byte. The amount of bytes needed represent status of the inputs to
-    can be calculated with: bytes = round(quantity / 8) + 1. This response
+    require 1 byte. The amount of bytes needed represent status of the inputs
+    to can be calculated with: bytes = round(quantity / 8) + 1. This response
     contains (3 / 8 + 1) = 1 byte to describe the status of the inputs. The
     structure of a compleet response PDU looks like this:
 
@@ -241,10 +282,10 @@ class ReadDiscreteInputs(DataFunction, SingleBitResponse):
     #       - MODBUS Application Protocol Specification V1.1b3, chapter 6.2
 
     def __init__(self, starting_address, quantity):
-        DataFunction.__init__(self, starting_address, quantity)
+        ReadFunction.__init__(self, starting_address, quantity)
 
 
-class ReadHoldingRegisters(DataFunction, MultiBitResponse):
+class ReadHoldingRegisters(ReadFunction, MultiBitResponse):
     """ Implement Modbus function code 03.
 
     The request PDU with function code 03 must be 5 bytes:
@@ -287,10 +328,10 @@ class ReadHoldingRegisters(DataFunction, MultiBitResponse):
     max_quantity = 125
 
     def __init__(self, starting_address, quantity):
-        DataFunction.__init__(self, starting_address, quantity)
+        ReadFunction.__init__(self, starting_address, quantity)
 
 
-class ReadInputRegisters(DataFunction, MultiBitResponse):
+class ReadInputRegisters(ReadFunction, MultiBitResponse):
     """ Implement Modbus function code 04.
 
     The request PDU with function code 04 must be 5 bytes:
@@ -333,12 +374,33 @@ class ReadInputRegisters(DataFunction, MultiBitResponse):
     max_quantity = 125
 
     def __init__(self, starting_address, quantity):
-        DataFunction.__init__(self, starting_address, quantity)
+        ReadFunction.__init__(self, starting_address, quantity)
 
+
+class WriteSingleCoil(WriteSingleValueFunction):
+    function_code = WRITE_SINGLE_COIL
+
+    @property
+    def value(self):
+        return self._value
+
+    @value.setter
+    def value(self, value):
+        """ Validate if value is 0 or 0xFF00. """
+        # "A value of FF00 hex requests the output to be ON. A value of 0000
+        # requests to be OFF. All other values are illegal and will not affect
+        # the output."
+        #
+        #    - MODBUS Application Protocol Specification V1.1b3, chapter 6.5.
+        if value not in [0, 0xFF00]:
+            raise IllegalDataValueError
+
+        self._value = value
 
 function_code_to_function_map = {
     READ_COILS: ReadCoils,
     READ_DISCRETE_INPUTS: ReadDiscreteInputs,
     READ_HOLDING_REGISTERS: ReadHoldingRegisters,
     READ_INPUT_REGISTERS: ReadInputRegisters,
+    WRITE_SINGLE_COIL: WriteSingleCoil,
 }

@@ -62,8 +62,14 @@ class RequestHandler(BaseRequestHandler):
         transaction_id, protocol_id, _, unit_id = unpack_mbap(request_adu[:7])
 
         function = function_factory(request_adu[7:])
-        response = function.execute(unit_id, self.server.route_map)
-        response_pdu = function.create_response_pdu(response)
+        results = function.execute(unit_id, self.server.route_map)
+
+        try:
+            # ReadFunction's use results of callbacks to build response PDU...
+            response_pdu = function.create_response_pdu(results)
+        except TypeError:
+            # ...other functions don't.
+            response_pdu = function.create_response_pdu()
 
         response_mbap = pack_mbap(transaction_id, protocol_id,
                                   len(response_pdu) + 1, unit_id)

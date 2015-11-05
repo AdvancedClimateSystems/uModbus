@@ -4,7 +4,7 @@ import struct
 from modbus.route import Map
 from modbus.functions import (function_factory, ReadCoils,
                               ReadDiscreteInputs, ReadInputRegisters,
-                              ReadHoldingRegisters)
+                              ReadHoldingRegisters, WriteSingleCoil)
 from modbus.exceptions import IllegalDataValueError, IllegalDataAddressError
 
 
@@ -49,6 +49,7 @@ def route_map():
     (b'\x02\x00d\x00\x03', ReadDiscreteInputs),
     (b'\x03\x00d\x00\x03', ReadHoldingRegisters),
     (b'\x04\x00d\x00\x03', ReadInputRegisters),
+    (b'\x05\x00d\x00\x00', WriteSingleCoil),
 
 ])
 def test_function_factory(pdu, cls):
@@ -81,7 +82,7 @@ def test_caching_of_function_factory():
     assert id(function_1) is not id(function_3)
 
 
-class TestDataFunction:
+class TestReadFunction:
     def test_create_from_request_pdu(self):
         """ Call should return instance with correct attributes and vaules. """
         function_code = 1
@@ -125,7 +126,7 @@ class TestDataFunction:
 class TestSingleBitResponse:
     @pytest.mark.parametrize('data,expectation', [
         ([1, 1, 0], b'\x01\x01\x03'),
-        ([0,1, 0, 0, 0, 0, 0, 0, 1], b'\x01\x02\x02\x01'),
+        ([0, 1, 0, 0, 0, 0, 0, 0, 1], b'\x01\x02\x02\x01'),
     ])
     def test_create_response_pdu(self, read_coils, data, expectation):
         assert read_coils.create_response_pdu(data) == expectation
@@ -159,3 +160,19 @@ class TestReadInputRegisters:
     def test_class_attributes(self):
         assert ReadInputRegisters.function_code == 4
         assert ReadInputRegisters.max_quantity == 125
+
+
+class TestWriteSingleCoil:
+    @pytest.mark.parametrize('status', [
+        0,
+        0xFF00,
+    ])
+    def test_write_valid_status(self, status):
+        """ Call should not raise exception. """
+        write_single_coil = WriteSingleCoil(100, status)
+        assert write_single_coil.value == status
+
+    def test_write_invalid_status(self):
+        """ Creating instance with invalid status should raise exception. """
+        with pytest.raises(IllegalDataValueError):
+            WriteSingleCoil(100, 5)
