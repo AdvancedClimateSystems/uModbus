@@ -155,7 +155,7 @@ class TestWriteSingleFunction:
         write_single_coil.execute(1, route_map)
 
         endpoint_mock.assert_called_once_with(slave_id=1,
-                                              address=write_single_coil.address,
+                                              address=write_single_coil.address,  # NOQA
                                               value=write_single_coil.value)
 
     def test_execute_raising_illegal_data_error(self, write_single_coil,
@@ -213,17 +213,17 @@ class TestReadInputRegisters:
 
 
 class TestWriteSingleCoil:
-    @pytest.mark.parametrize('status', [
+    @pytest.mark.parametrize('value', [
         0,
         0xFF00,
     ])
-    def test_write_valid_status(self, status):
+    def test_write_valid_status(self, value):
         """ Call should not raise exception. """
-        write_single_coil = WriteSingleCoil(100, status)
-        assert write_single_coil.value == status
+        write_single_coil = WriteSingleCoil(100, value)
+        assert write_single_coil.value == value
 
     def test_write_invalid_status(self):
-        """ Creating instance with invalid status should raise exception. """
+        """ Creating instance with invalid value should raise exception. """
         with pytest.raises(IllegalDataValueError):
             WriteSingleCoil(100, 5)
 
@@ -235,6 +235,7 @@ class TestWriteSingleRegister:
         0xFFFF,
     ])
     def test_write_valid_value(self, value):
+        """ Call should not raise exception. """
         write_single_register = WriteSingleRegister(100, value)
         assert write_single_register.value == value
 
@@ -243,5 +244,6 @@ class TestWriteSingleRegister:
         0xFFFF + 1,
     ])
     def test_write_invalid_value(self, value):
+        """ Creating instance with invalid values should raise exception. """
         with pytest.raises(IllegalDataValueError):
             WriteSingleRegister(100, value)

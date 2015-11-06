@@ -178,6 +178,25 @@ class MultiBitResponse(object):
 class ReadCoils(ReadFunction, SingleBitResponse):
     """ Implement Modbus function code 01.
 
+    "This function code is used to read from 1 to 2000 contiguous status of
+    coils in a remote device. The Request PDU specifies the starting address,
+    i.e. the address of the first coil specified, and the number of coils. In
+    the PDU Coils are addressed starting at zero. Therefore coils numbered 1-16
+    are addressed as 0-15.
+
+    The coils in the response message are packed as one coil per bit of the
+    data field. Status is indicated as 1= ON and 0= OFF. The LSB of the first
+    data byte contains the output addressed in the query. The other coils
+    follow toward the high order end of this byte, and from low order to high
+    order in subsequent bytes.
+
+    If the returned output quantity is not a multiple of eight, the remaining
+    bits in the final data byte will be padded with zeros (toward the high
+    order end of the byte). The Byte Count field specifies the quantity of
+    complete bytes of data."
+
+            - MODBUS Application Protocol Specification V1.1b3, chapter 6.1
+
     The request PDU with function code 01 must be 5 bytes:
 
         +------------------+----------------+
@@ -218,10 +237,6 @@ class ReadCoils(ReadFunction, SingleBitResponse):
     """
     function_code = READ_COILS
     max_quantity = 2000
-    # "This function code is used to read from 1 to 2000 contiguous status
-    # of coils in a remote device."
-    #
-    #       - MODBUS Application Protocol Specification V1.1b3, chapter 6.1
 
     def __init__(self, starting_address, quantity):
         ReadFunction.__init__(self, starting_address, quantity)
@@ -229,6 +244,25 @@ class ReadCoils(ReadFunction, SingleBitResponse):
 
 class ReadDiscreteInputs(ReadFunction, SingleBitResponse):
     """ Implement Modbus function code 02.
+
+    "This function code is used to read from 1 to 2000 contiguous status of
+    discrete inputs in a remote device. The Request PDU specifies the starting
+    address, i.e. the address of the first input specified, and the number of
+    inputs. In the PDU Discrete Inputs are addressed starting at zero.
+    Therefore Discrete inputs numbered 1-16 are addressed as 0-15.
+
+    The discrete inputs in the response message are packed as one input per bit
+    of the data field.  Status is indicated as 1= ON; 0= OFF. The LSB of the
+    first data byte contains the input addressed in the query. The other inputs
+    follow toward the high order end of this byte, and from low order to high
+    order in subsequent bytes.
+
+    If the returned input quantity is not a multiple of eight, the remaining
+    bits in the final d ata byte will be padded with zeros (toward the high
+    order end of the byte). The Byte Count field specifies the quantity of
+    complete bytes of data."
+
+            - MODBUS Application Protocol Specification V1.1b3, chapter 6.2
 
     The request PDU with function code 02 must be 5 bytes:
 
@@ -270,10 +304,6 @@ class ReadDiscreteInputs(ReadFunction, SingleBitResponse):
     """
     function_code = READ_DISCRETE_INPUTS
     max_quantity = 2000
-    # "This function code is used to read from 1 to 2000 contiguous status
-    # of coils in a remote device."
-    #
-    #       - MODBUS Application Protocol Specification V1.1b3, chapter 6.2
 
     def __init__(self, starting_address, quantity):
         ReadFunction.__init__(self, starting_address, quantity)
@@ -281,6 +311,19 @@ class ReadDiscreteInputs(ReadFunction, SingleBitResponse):
 
 class ReadHoldingRegisters(ReadFunction, MultiBitResponse):
     """ Implement Modbus function code 03.
+
+    "This function code is used to read the contents of a contiguous block of
+    holding registers in a remote device. The Request PDU specifies the
+    starting register address and the number of registers. In the PDU Registers
+    are addressed starting at zero. Therefore registers numbered 1-16 are
+    addressed as 0-15.
+
+    The register data in the response message are packed as two bytes per
+    register, with the binary contents right justified within each byte. For
+    each register, the first byte contains the high order bits and the second
+    contains the low order bits."
+
+            - MODBUS Application Protocol Specification V1.1b3, chapter 6.3
 
     The request PDU with function code 03 must be 5 bytes:
 
@@ -328,6 +371,19 @@ class ReadHoldingRegisters(ReadFunction, MultiBitResponse):
 class ReadInputRegisters(ReadFunction, MultiBitResponse):
     """ Implement Modbus function code 04.
 
+    "This function code is used to read from 1 to 125 contiguous input
+    registers in a remote device. The Request PDU specifies the starting
+    register address and the number of registers. In the PDU Registers are
+    addressed starting at zero. Therefore input registers numbered 1-16 are
+    addressed as 0-15.
+
+    The register data in the response message are packed as two bytes
+    per register, with the binary contents right justified within each byte.
+    For each register, the first byte contains the high order bits and the
+    second contains the low order bits."
+
+            - MODBUS Application Protocol Specification V1.1b3, chapter 6.4
+
     The request PDU with function code 04 must be 5 bytes:
 
         +------------------+----------------+
@@ -372,6 +428,52 @@ class ReadInputRegisters(ReadFunction, MultiBitResponse):
 
 
 class WriteSingleCoil(WriteSingleValueFunction):
+    """ Implement Modbus function code 05.
+
+    "This function code is used to write a single output to either ON or OFF in
+    a remote device. The requested ON/OFF state is specified by a constant in
+    the request data field. A value of FF 00 hex requests the output to be ON.
+    A value of 00 00 requests it to be OFF. All other values are illegal and
+    will not affect the output.
+
+    The Request PDU specifies the address of the coil to be forced. Coils are
+    addressed starting at zero. Therefore coil numbered 1 is addressed as 0.
+    The requested ON/OFF state is specified by a constant in the Coil Value
+    field. A value of 0XFF00 requests the coil to be ON. A value of 0X0000
+    requests the coil to be off. All other values are illegal and will not
+    affect the coil.
+
+    The normal response is an echo of the request, returned after the coil
+    state has been written "
+
+            - MODBUS Application Protocol Specification V1.1b3, chapter 6.5
+
+    The request PDU with function code 05 must be 5 bytes:
+
+        +------------------+----------------+
+        | Field            | Length (bytes) |
+        +------------------+----------------+
+        | Function code    | 1              |
+        | Address          | 2              |
+        | Value            | 2              |
+        +------------------+----------------+
+
+    The PDU can unpacked to this::
+
+        >>> struct.unpack('>BHH', b'\x05\x00d\xFF\x00')
+        (5, 100, 65280)
+
+    The reponse PDU is a copy of the request PDU.
+
+        +------------------+----------------+
+        | Field            | Length (bytes) |
+        +------------------+----------------+
+        | Function code    | 1              |
+        | Address          | 2              |
+        | Value            | 2              |
+        +------------------+----------------+
+
+    """
     function_code = WRITE_SINGLE_COIL
 
     def __init__(self, address, value):
@@ -384,10 +486,6 @@ class WriteSingleCoil(WriteSingleValueFunction):
     @value.setter
     def value(self, value):
         """ Validate if value is 0 or 0xFF00. """
-        # "A value of FF00 hex requests the output to be ON. A value of 0000
-        # requests to be OFF. All other values are illegal and will not affect
-        # the output."
-        #    - MODBUS Application Protocol Specification V1.1b3, chapter 6.5.
         if value not in [0, 0xFF00]:
             raise IllegalDataValueError
 
@@ -395,6 +493,42 @@ class WriteSingleCoil(WriteSingleValueFunction):
 
 
 class WriteSingleRegister(WriteSingleValueFunction):
+    """ Implement Modbus function code 06.
+
+    "This function code is used to write a single holding register in a remote
+    device. The Request PDU specifies the address of the register to be
+    written. Registers are addressed starting at zero. Therefore register
+    numbered 1 is addressed as 0. The normal response is an echo of the
+    request, returned after the register contents have been written."
+
+            - MODBUS Application Protocol Specification V1.1b3, chapter 6.6
+
+    The request PDU with function code 06 must be 5 bytes:
+
+        +------------------+----------------+
+        | Field            | Length (bytes) |
+        +------------------+----------------+
+        | Function code    | 1              |
+        | Address          | 2              |
+        | Value            | 2              |
+        +------------------+----------------+
+
+    The PDU can unpacked to this::
+
+        >>> struct.unpack('>BHH', b'\x05\x00d\x00\x03')
+        (6, 100, 3)
+
+    The reponse PDU is a copy of the request PDU.
+
+        +------------------+----------------+
+        | Field            | Length (bytes) |
+        +------------------+----------------+
+        | Function code    | 1              |
+        | Address          | 2              |
+        | Value            | 2              |
+        +------------------+----------------+
+
+    """
     function_code = WRITE_SINGLE_REGISTER
 
     def __init__(self, address, value):
