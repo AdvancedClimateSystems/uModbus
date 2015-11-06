@@ -1,11 +1,17 @@
 import pytest
 import struct
-from mock import MagicMock
+
+try:
+    # Mock has been added to stdlib in Python 3.3.
+    from unittest.mock import MagicMock
+except ImportError:
+    from mock import MagicMock
 
 from modbus.route import Map
 from modbus.functions import (function_factory, ReadCoils,
                               ReadDiscreteInputs, ReadInputRegisters,
-                              ReadHoldingRegisters, WriteSingleCoil)
+                              ReadHoldingRegisters, WriteSingleCoil,
+                              WriteSingleRegister)
 from modbus.exceptions import IllegalDataValueError, IllegalDataAddressError
 
 
@@ -220,3 +226,22 @@ class TestWriteSingleCoil:
         """ Creating instance with invalid status should raise exception. """
         with pytest.raises(IllegalDataValueError):
             WriteSingleCoil(100, 5)
+
+
+class TestWriteSingleRegister:
+    @pytest.mark.parametrize('value', [
+        0,
+        32000,
+        0xFFFF,
+    ])
+    def test_write_valid_value(self, value):
+        write_single_register = WriteSingleRegister(100, value)
+        assert write_single_register.value == value
+
+    @pytest.mark.parametrize('value', [
+        -1,
+        0xFFFF + 1,
+    ])
+    def test_write_invalid_value(self, value):
+        with pytest.raises(IllegalDataValueError):
+            WriteSingleRegister(100, value)

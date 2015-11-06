@@ -23,6 +23,12 @@ def single_bit(slave_id, address):
 def multi_bit(slave_id, address):
     return address
 
+
+@server.route(slave_ids=[1], function_codes=[5, 6], addresses=set(range(100, 200)))
+def single_coil(slave_id, address, value):
+    print(value)
+
+
 if __name__ == '__main__':
     try:
         server.serve_forever()

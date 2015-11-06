@@ -387,7 +387,6 @@ class WriteSingleCoil(WriteSingleValueFunction):
         # "A value of FF00 hex requests the output to be ON. A value of 0000
         # requests to be OFF. All other values are illegal and will not affect
         # the output."
-        #
         #    - MODBUS Application Protocol Specification V1.1b3, chapter 6.5.
         if value not in [0, 0xFF00]:
             raise IllegalDataValueError
@@ -395,10 +394,31 @@ class WriteSingleCoil(WriteSingleValueFunction):
         self._value = value
 
 
+class WriteSingleRegister(WriteSingleValueFunction):
+    function_code = WRITE_SINGLE_REGISTER
+
+    def __init__(self, address, value):
+        WriteSingleValueFunction.__init__(self, address, value)
+
+    @property
+    def value(self):
+        return self._value
+
+    @value.setter
+    def value(self, value):
+        """ Validate if value is in range of 0 between 0xFFFF (which is maximum
+        a number a 16 bit number can be).
+        """
+        if 0 <= value <= 0xFFFF:
+            self._value = value
+        else:
+            raise IllegalDataValueError
+
 function_code_to_function_map = {
     READ_COILS: ReadCoils,
     READ_DISCRETE_INPUTS: ReadDiscreteInputs,
     READ_HOLDING_REGISTERS: ReadHoldingRegisters,
     READ_INPUT_REGISTERS: ReadInputRegisters,
     WRITE_SINGLE_COIL: WriteSingleCoil,
+    WRITE_SINGLE_REGISTER: WriteSingleRegister,
 }
