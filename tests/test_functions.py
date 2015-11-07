@@ -12,7 +12,7 @@ from modbus.functions import (function_factory, ReadCoils,
                               WriteMultipleValueFunction, ReadDiscreteInputs,
                               ReadInputRegisters, ReadHoldingRegisters,
                               WriteSingleCoil, WriteSingleRegister,
-                              WriteMultipleCoils)
+                              WriteMultipleCoils, WriteMultipleRegisters)
 from modbus.exceptions import IllegalDataValueError, IllegalDataAddressError
 
 
@@ -63,6 +63,19 @@ def write_multiple_coils():
 
 
 @pytest.fixture
+def write_multiple_registers():
+    function_code = 16
+    starting_address = 100
+    quantity = 3
+    byte_count = 6
+    values = [1337, 15, 128]
+
+    pdu = struct.pack('>BHHBHHH', function_code, starting_address, quantity,
+                      byte_count, *values)
+    return WriteMultipleRegisters.create_from_request_pdu(pdu)
+
+
+@pytest.fixture
 def single_bit_enpoint():
     """ Return endpoint for Modbus request acting on single bit values,
     like Modbus function codes 01 an 02.
@@ -84,7 +97,7 @@ def route_map():
     (b'\x05\x00d\x00\x00', WriteSingleCoil),
     (b'\x06\x00d\x00\x00', WriteSingleRegister),
     (b'\x0f\x00d\x00\x03\x01\x04', WriteMultipleCoils),
-
+    (b'\x10\x00d\x00\x01\x02\x00\x04', WriteMultipleRegisters),
 ])
 def test_function_factory(pdu, cls):
     assert isinstance(function_factory(pdu), cls)
@@ -320,3 +333,25 @@ class TestWriteMultipleCoils:
         """
         with pytest.raises(IllegalDataValueError):
             WriteMultipleCoils(100, 1, 2, [1])
+
+
+class TestWriteMultipleRegister:
+    def test_create_from_request_pdu(self, write_multiple_registers):
+        assert write_multiple_registers.function_code == 16
+        assert write_multiple_registers.starting_address == 100
+        assert write_multiple_registers.values == [1337, 15, 128]
+
+    @pytest.mark.parametrize('quantity', [
+        0,
+        0x7B + 1,
+    ])
+    def test_create_instance_with_invalid_quantity(self, quantity):
+        """ Creating instance with invalid quantity should raise exception. """
+        with pytest.raises(IllegalDataValueError):
+            WriteMultipleRegisters(100, quantity, 1, [1])
+
+    def test_create_instance_with_invalid_byte_count(self):
+        """ Creating instance with invalid byte count should raise exception.
+        """
+        with pytest.raises(IllegalDataValueError):
+            WriteMultipleRegisters(100, 1, 3, [1])
