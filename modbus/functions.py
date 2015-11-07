@@ -128,6 +128,47 @@ class WriteSingleValueFunction(object):
                            self.value)
 
 
+class WriteMultipleValueFunction(object):
+    """ Abstract base class for Modbus write functions. """
+    def __init__(self, starting_address, values):
+        self.starting_address = starting_address
+        self.values = values
+
+    @classmethod
+    def create_from_request_pdu(cls, pdu):
+        """ Create instance from request PDU.
+
+        :param pdu: A response PDU.
+        """
+        raise NotImplementedError
+
+    def execute(self, slave_id, route_map):
+        """ Execute the Modbus function registered for a route.
+
+        :param slave_id: Slave id.
+        :param eindpoint: Instance of modbus.route.Map.
+        """
+        for index, value in enumerate(self.values):
+            address = self.starting_address + index
+            endpoint = route_map.match(slave_id, self.function_code, address)
+
+            try:
+                endpoint(slave_id=slave_id, address=address, value=value)
+            # route_map.match() returns None if no match is found. Calling None
+            # results in TypeError.
+            except TypeError:
+                raise IllegalDataAddressError()
+
+    def create_response_pdu(self):
+        """ Create response pdu.
+
+        :param data: A list with values.
+        :return: Byte array 5 bytes.
+        """
+        return struct.pack('>BHH', self.function_code, self.starting_address,
+                           len(self.values))
+
+
 class SingleBitResponse(object):
     """ Base class with common logic for so called 'single bit' functions.
     These functions operate on single bit values, like coils and discrete
@@ -550,7 +591,7 @@ class WriteSingleRegister(WriteSingleValueFunction):
             raise IllegalDataValueError
 
 
-class WriteMultipleCoils:
+class WriteMultipleCoils(WriteMultipleValueFunction):
     """ Implement Modbus function 15 (0x0F) Write Multiple Coils.
 
     "This function code is used to force each coil in a sequence of coils to
@@ -581,8 +622,8 @@ class WriteMultipleCoils:
 
     The PDU can unpacked to this::
 
-        >>> struct.unpack('>BHHBB', b'\x0f\x00d\x00\x03\x01\x04')
-        (16, 100, 3, 1, 4)
+        >>> struct.unpack('>BHHBB', b'\x0f\x00d\x00\x03\x01\x05')
+        (16, 100, 3, 1, 5)
 
     The reponse PDU is 5 bytes and contains following structure:
 
@@ -598,7 +639,7 @@ class WriteMultipleCoils:
     function_code = WRITE_MULTIPLE_COILS
 
     def __init__(self, starting_address, quantity, byte_count, values):
-        if not(0 <= quantity <= 0x7B0):
+        if not(1 <= quantity <= 0x7B0):
             raise IllegalDataValueError('Quantify field of request must be a '
                                         'value between 0 and '
                                         '{0}.'.format(0x7B0))
@@ -611,8 +652,7 @@ class WriteMultipleCoils:
                                         .format(byte_count,
                                                 expected_byte_count))
 
-        self.starting_address = starting_address
-        self.values = values
+        WriteMultipleValueFunction.__init__(self, starting_address, values)
 
     @classmethod
     def create_from_request_pdu(cls, pdu):
@@ -631,33 +671,6 @@ class WriteMultipleCoils:
         values = [n for value in values for n in value]
 
         return cls(starting_address, quantity, byte_count, values)
-
-    def execute(self, slave_id, route_map):
-        """ Execute the Modbus function registered for a route.
-
-        :param slave_id: Slave id.
-        :param eindpoint: Instance of modbus.route.Map.
-        """
-        for index, value in enumerate(self.values):
-            address = self.starting_address + index
-            endpoint = route_map.match(slave_id, self.function_code, address)
-
-            try:
-                endpoint(slave_id=slave_id, address=address, value=value)
-            # route_map.match() returns None if no match is found. Calling None
-            # results in TypeError.
-            except TypeError:
-                raise IllegalDataAddressError()
-
-    def create_response_pdu(self):
-        """ Create response pdu.
-
-        :param data: A list with values.
-        :return: Byte array 5 bytes.
-        """
-        return struct.pack('>BHH', self.function_code, self.starting_address,
-                           len(self.values))
-
 
 function_code_to_function_map = {
     READ_COILS: ReadCoils,

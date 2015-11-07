@@ -9,9 +9,10 @@ except ImportError:
 
 from modbus.route import Map
 from modbus.functions import (function_factory, ReadCoils,
-                              ReadDiscreteInputs, ReadInputRegisters,
-                              ReadHoldingRegisters, WriteSingleCoil,
-                              WriteSingleRegister)
+                              WriteMultipleValueFunction, ReadDiscreteInputs,
+                              ReadInputRegisters, ReadHoldingRegisters,
+                              WriteSingleCoil, WriteSingleRegister,
+                              WriteMultipleCoils)
 from modbus.exceptions import IllegalDataValueError, IllegalDataAddressError
 
 
@@ -49,6 +50,19 @@ def write_single_coil():
 
 
 @pytest.fixture
+def write_multiple_coils():
+    function_code = 15
+    starting_address = 100
+    quantity = 3
+    byte_count = 1
+    values = 6  # Integer notation of binary 110.
+
+    pdu = struct.pack('>BHHBB', function_code, starting_address, quantity,
+                      byte_count, values)
+    return WriteMultipleCoils.create_from_request_pdu(pdu)
+
+
+@pytest.fixture
 def single_bit_enpoint():
     """ Return endpoint for Modbus request acting on single bit values,
     like Modbus function codes 01 an 02.
@@ -68,6 +82,8 @@ def route_map():
     (b'\x03\x00d\x00\x03', ReadHoldingRegisters),
     (b'\x04\x00d\x00\x03', ReadInputRegisters),
     (b'\x05\x00d\x00\x00', WriteSingleCoil),
+    (b'\x06\x00d\x00\x00', WriteSingleRegister),
+    (b'\x0f\x00d\x00\x03\x01\x04', WriteMultipleCoils),
 
 ])
 def test_function_factory(pdu, cls):
@@ -141,7 +157,7 @@ class TestReadFunction:
             read_coils.execute(1, route_map)
 
 
-class TestWriteSingleFunction:
+class TestWriteSingleValueFunction:
     def test_execute(self, write_single_coil, route_map, monkeypatch):
         """ Mock route_map so it returns endpoint for request. This endpoint
         should be called once with specific parameters.
@@ -171,6 +187,41 @@ class TestWriteSingleFunction:
 
         write_single_coil = function_factory(request_pdu)
         assert write_single_coil.create_response_pdu() == request_pdu
+
+
+class TestWriteMultipleValueFunction:
+    def test_create_from_reqest_pdu(self):
+        with pytest.raises(NotImplementedError):
+            WriteMultipleValueFunction.create_from_request_pdu('pdu')
+
+    def test_execute_raising_illegal_data_error(self, write_multiple_coils,
+                                                route_map):
+        """ When no route is found for request, execute should raise an
+        IllegalDataAddressError.
+        """
+        with pytest.raises(IllegalDataAddressError):
+            write_multiple_coils.execute(1, route_map)
+
+    def test_execute(self, write_multiple_coils, route_map, monkeypatch):
+        """ Endpoints should be called with correct values. """
+        endpoint_mock = MagicMock()
+
+        def match_mock(*args, **kwargs):
+            return endpoint_mock
+
+        monkeypatch.setattr(route_map, 'match', match_mock)
+        write_multiple_coils.execute(1, route_map)
+
+        assert endpoint_mock.call_count == 3
+        endpoint_mock.assert_any_call(slave_id=1, address=102, value=0)
+        endpoint_mock.assert_any_call(slave_id=1, address=101, value=1)
+        endpoint_mock.assert_any_call(slave_id=1, address=100, value=1)
+
+    def test_create_response_pdu(self, write_multiple_coils):
+        assert write_multiple_coils.create_response_pdu() == \
+            struct.pack('>BHH', write_multiple_coils.function_code,
+                        write_multiple_coils.starting_address,
+                        len(write_multiple_coils.values))
 
 
 class TestSingleBitResponse:
@@ -247,3 +298,25 @@ class TestWriteSingleRegister:
         """ Creating instance with invalid values should raise exception. """
         with pytest.raises(IllegalDataValueError):
             WriteSingleRegister(100, value)
+
+
+class TestWriteMultipleCoils:
+    def test_create_from_request_pdu(self, write_multiple_coils):
+        assert write_multiple_coils.function_code == 15
+        assert write_multiple_coils.starting_address == 100
+        assert write_multiple_coils.values == [1, 1, 0]
+
+    @pytest.mark.parametrize('quantity', [
+        0,
+        0x7B0 + 1,
+    ])
+    def test_create_instance_with_invalid_quantity(self, quantity):
+        """ Creating instance with invalid quantity should raise exception. """
+        with pytest.raises(IllegalDataValueError):
+            WriteMultipleCoils(100, quantity, 1, [1])
+
+    def test_create_instance_with_invalid_byte_count(self):
+        """ Creating instance with invalid byte count should raise exception.
+        """
+        with pytest.raises(IllegalDataValueError):
+            WriteMultipleCoils(100, 1, 2, [1])
