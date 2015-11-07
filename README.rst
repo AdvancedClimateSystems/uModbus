@@ -13,7 +13,9 @@ or "μ" in the name comes from the the SI prefix "micro-". uModbus is very small
 and lightweight. uModbus is open source and licenced under `Mozilla Public
 License`_. The source can be found on GitHub_.
 
-Routing Modbus requests is easy::
+Routing Modbus requests is easy:
+
+.. code:: python
 
     from umodbus import get_server
 
