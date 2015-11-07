@@ -20,7 +20,7 @@ READ_INPUT_REGISTERS = 4
 WRITE_SINGLE_COIL = 5
 WRITE_SINGLE_REGISTER = 6
 WRITE_MULTIPLE_COILS = 15
-WRITE_SINGLE_REGISTERS = 16
+WRITE_MULTIPLE_REGISTERS = 16
 
 READ_FILE_RECORD = 20
 WRITE_FILE_RECORD = 21
@@ -649,7 +649,7 @@ class WriteMultipleCoils(WriteMultipleValueFunction):
 
         if not(expected_byte_count == byte_count):
             raise IllegalDataValueError('Byte count is not correct. It is {0},'
-                                        'but is {1}.'
+                                        'but should be {1}.'
                                         .format(byte_count,
                                                 expected_byte_count))
 
@@ -673,6 +673,81 @@ class WriteMultipleCoils(WriteMultipleValueFunction):
 
         return cls(starting_address, quantity, byte_count, values)
 
+
+class WriteMultipleRegisters(WriteMultipleValueFunction):
+    """ Implement Modbus function 16 (0x10) Write Multiple Registers.
+
+    "This function code is used to write a block of contiguous registers (1 to
+    123 registers) in a remote device.
+
+    The requested written values are specified in the request data field. Data
+    is packed as two bytes per register.
+
+    The normal response returns the function code, starting address, and
+    quantity of registers written."
+
+            - MODBUS Application Protocol Specification V1.1b3, chapter 6.12
+
+    The request PDU with function code 16 must be at least 8 bytes:
+
+        +------------------+----------------+
+        | Field            | Length (bytes) |
+        +------------------+----------------+
+        | Function code    | 1              |
+        | Starting Address | 2              |
+        | Quantity         | 2              |
+        | Byte count       | 1              |
+        | Value            | Quantity * 2   |
+        +------------------+----------------+
+
+    The PDU can unpacked to this::
+
+        >>> struct.unpack('>BHHBB', b'\x0f\x00d\x00\x01\x02\x00\x05')
+        (16, 100, 1, 2, 5)
+
+    The reponse PDU is 5 bytes and contains following structure:
+
+        +------------------+----------------+
+        | Field            | Length (bytes) |
+        +------------------+----------------+
+        | Function code    | 1              |
+        | Starting address | 2              |
+        | Quantity         | 2              |
+        +------------------+----------------+
+
+    """
+    function_code = WRITE_MULTIPLE_REGISTERS
+
+    def __init__(self, starting_address, quantity, byte_count, values):
+        if not(1 <= quantity <= 0x7B):
+            raise IllegalDataValueError('Quantify field of request must be a '
+                                        'value between 0 and '
+                                        '{0}.'.format(0x7B0))
+
+        # Values are 16 bit, so each value takes up 2 bytes.
+        if byte_count != (len(values) * 2):
+            raise IllegalDataValueError('Byte count is not correct. It is {0},'
+                                        'but should be {1}.'
+                                        .format(byte_count, len(values)))
+
+        WriteMultipleValueFunction.__init__(self, starting_address, values)
+
+    @classmethod
+    def create_from_request_pdu(cls, pdu):
+        """ Create instance from request PDU.
+
+        :param pdu: A request PDU.
+        :return: Instance of this class.
+        """
+        _, starting_address, quantity, byte_count = \
+            struct.unpack('>BHHB', pdu[:6])
+
+        # Values are 16 bit, so each value takes up 2 bytes.
+        fmt = '>' + ('H' * int((byte_count / 2)))
+
+        values = list(struct.unpack(fmt, pdu[6:]))
+        return cls(starting_address, quantity, byte_count, values)
+
 function_code_to_function_map = {
     READ_COILS: ReadCoils,
     READ_DISCRETE_INPUTS: ReadDiscreteInputs,
@@ -681,4 +756,5 @@ function_code_to_function_map = {
     WRITE_SINGLE_COIL: WriteSingleCoil,
     WRITE_SINGLE_REGISTER: WriteSingleRegister,
     WRITE_MULTIPLE_COILS: WriteMultipleCoils,
+    WRITE_MULTIPLE_REGISTERS: WriteMultipleRegisters,
 }

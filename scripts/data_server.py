@@ -29,6 +29,10 @@ def single_coil(slave_id, address, value):
     print(value)
 
 
+@server.route(slave_ids=[1], function_codes=[15, 16], addresses=set(range(100, 200)))
+def multiple_coils(slave_id, address, value):
+    print(value)
+
 if __name__ == '__main__':
     try:
         server.serve_forever()
