@@ -7,13 +7,13 @@ try:
 except ImportError:
     from mock import MagicMock
 
-from modbus.route import Map
-from modbus.functions import (function_factory, ReadCoils,
-                              WriteMultipleValueFunction, ReadDiscreteInputs,
-                              ReadInputRegisters, ReadHoldingRegisters,
-                              WriteSingleCoil, WriteSingleRegister,
-                              WriteMultipleCoils, WriteMultipleRegisters)
-from modbus.exceptions import IllegalDataValueError, IllegalDataAddressError
+from umodbus.route import Map
+from umodbus.exceptions import IllegalDataValueError, IllegalDataAddressError
+from umodbus.functions import (function_factory, ReadCoils,
+                               WriteMultipleValueFunction, ReadDiscreteInputs,
+                               ReadInputRegisters, ReadHoldingRegisters,
+                               WriteSingleCoil, WriteSingleRegister,
+                               WriteMultipleCoils, WriteMultipleRegisters)
 
 
 @pytest.fixture

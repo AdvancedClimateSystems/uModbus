@@ -1,4 +1,4 @@
-from modbus.utils import unpack_mbap, pack_mbap
+from umodbus.utils import unpack_mbap, pack_mbap
 
 
 def test_unpack_mbap():

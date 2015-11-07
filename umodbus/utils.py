@@ -4,7 +4,7 @@ import logging
 from logging import StreamHandler, Formatter
 from functools import wraps
 
-from modbus import log
+from umodbus import log
 
 
 def log_to_stream(stream=sys.stdout, level=logging.WARNING,

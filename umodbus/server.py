@@ -4,10 +4,10 @@ except ImportError:
     from SocketServer import TCPServer, BaseRequestHandler
 from binascii import hexlify
 
-from modbus import log
-from modbus.route import Map
-from modbus.functions import function_factory
-from modbus.utils import unpack_mbap, pack_mbap
+from umodbus import log
+from umodbus.route import Map
+from umodbus.functions import function_factory
+from umodbus.utils import unpack_mbap, pack_mbap
 
 
 def get_server(host, port):

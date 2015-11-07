@@ -2,9 +2,9 @@ from __future__ import division
 import struct
 from math import ceil
 
-from modbus import log
-from modbus.utils import memoize, integer_to_binary_list
-from modbus.exceptions import IllegalDataValueError, IllegalDataAddressError
+from umodbus import log
+from umodbus.utils import memoize, integer_to_binary_list
+from umodbus.exceptions import IllegalDataValueError, IllegalDataAddressError
 
 try:
     from functools import reduce
