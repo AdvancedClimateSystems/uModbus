@@ -1,7 +1,8 @@
 import struct
+from math import ceil
 
 from modbus import log
-from modbus.utils import memoize
+from modbus.utils import memoize, integer_to_binary_list
 from modbus.exceptions import IllegalDataValueError, IllegalDataAddressError
 
 try:
@@ -63,7 +64,7 @@ class ReadFunction(object):
     def create_from_request_pdu(cls, pdu):
         """ Create instance from request PDU.
 
-        :param pdu: A response PDU.
+        :param pdu: A request PDU.
         """
         _, starting_address, quantity = struct.unpack('>BHH', pdu)
 
@@ -515,7 +516,7 @@ class WriteSingleRegister(WriteSingleValueFunction):
 
     The PDU can unpacked to this::
 
-        >>> struct.unpack('>BHH', b'\x05\x00d\x00\x03')
+        >>> struct.unpack('>BHH', b'\x06\x00d\x00\x03')
         (6, 100, 3)
 
     The reponse PDU is a copy of the request PDU.
@@ -548,6 +549,116 @@ class WriteSingleRegister(WriteSingleValueFunction):
         else:
             raise IllegalDataValueError
 
+
+class WriteMultipleCoils:
+    """ Implement Modbus function 15 (0x0F) Write Multiple Coils.
+
+    "This function code is used to force each coil in a sequence of coils to
+    either ON or OFF in a remote device. The Request PDU specifies the coil
+    references to be forced. Coils are addressed starting at zero. Therefore
+    coil numbered 1 is addressed as 0.
+
+    The requested ON/OFF states are specified by contents of the request data
+    field. A logical '1' in a bit position of the field requests the
+    corresponding output to be ON. A logical '0' requests it to be OFF.
+
+    The normal response returns the function code, starting address, and
+    quantity of coils forced."
+
+            - MODBUS Application Protocol Specification V1.1b3, chapter 6.11
+
+    The request PDU with function code 15 must be at least 7 bytes:
+
+        +------------------+----------------+
+        | Field            | Length (bytes) |
+        +------------------+----------------+
+        | Function code    | 1              |
+        | Starting Address | 2              |
+        | Quantity         | 2              |
+        | Byte count       | 1              |
+        | Value            | n              |
+        +------------------+----------------+
+
+    The PDU can unpacked to this::
+
+        >>> struct.unpack('>BHHBB', b'\x0f\x00d\x00\x03\x01\x04')
+        (16, 100, 3, 1, 4)
+
+    The reponse PDU is 5 bytes and contains following structure:
+
+        +------------------+----------------+
+        | Field            | Length (bytes) |
+        +------------------+----------------+
+        | Function code    | 1              |
+        | Starting address | 2              |
+        | Quantity         | 2              |
+        +------------------+----------------+
+
+    """
+    function_code = WRITE_MULTIPLE_COILS
+
+    def __init__(self, starting_address, quantity, byte_count, values):
+        if not(0 <= quantity <= 0x7B0):
+            raise IllegalDataValueError('Quantify field of request must be a '
+                                        'value between 0 and '
+                                        '{0}.'.format(0x7B0))
+
+        expected_byte_count = ceil(len(values) / 8)
+
+        if not(expected_byte_count == byte_count):
+            raise IllegalDataValueError('Byte count is not correct. It is {0},'
+                                        'but is {1}.'
+                                        .format(byte_count,
+                                                expected_byte_count))
+
+        self.starting_address = starting_address
+        self.values = values
+
+    @classmethod
+    def create_from_request_pdu(cls, pdu):
+        """ Create instance from request PDU.
+
+        :param pdu: A request PDU.
+        """
+        _, starting_address, quantity, byte_count = \
+            struct.unpack('>BHHB', pdu[:6])
+
+        fmt = '>' + ('B' * byte_count)
+        values = struct.unpack(fmt, pdu[6:])
+        values = [integer_to_binary_list(v) for v in values]
+
+        # Flatten list
+        values = [n for value in values for n in value]
+
+        return cls(starting_address, quantity, byte_count, values)
+
+    def execute(self, slave_id, route_map):
+        """ Execute the Modbus function registered for a route.
+
+        :param slave_id: Slave id.
+        :param eindpoint: Instance of modbus.route.Map.
+        """
+        for index, value in enumerate(self.values):
+            address = self.starting_address + index
+            endpoint = route_map.match(slave_id, self.function_code, address)
+
+            try:
+                endpoint(slave_id=slave_id, address=address, value=value)
+            # route_map.match() returns None if no match is found. Calling None
+            # results in TypeError.
+            except TypeError:
+                raise IllegalDataAddressError()
+
+    def create_response_pdu(self):
+        """ Create response pdu.
+
+        :param data: A list with values.
+        :return: Byte array 5 bytes.
+        """
+        return struct.pack('>BHH', self.function_code, self.starting_address,
+                           len(self.values))
+
+
 function_code_to_function_map = {
     READ_COILS: ReadCoils,
     READ_DISCRETE_INPUTS: ReadDiscreteInputs,
@@ -555,4 +666,5 @@ function_code_to_function_map = {
     READ_INPUT_REGISTERS: ReadInputRegisters,
     WRITE_SINGLE_COIL: WriteSingleCoil,
     WRITE_SINGLE_REGISTER: WriteSingleRegister,
+    WRITE_MULTIPLE_COILS: WriteMultipleCoils,
 }
