@@ -221,34 +221,35 @@ class MultiBitResponse(object):
 class ReadCoils(ReadFunction, SingleBitResponse):
     """ Implement Modbus function code 01.
 
-    "This function code is used to read from 1 to 2000 contiguous status of
-    coils in a remote device. The Request PDU specifies the starting address,
-    i.e. the address of the first coil specified, and the number of coils. In
-    the PDU Coils are addressed starting at zero. Therefore coils numbered 1-16
-    are addressed as 0-15.
+        "This function code is used to read from 1 to 2000 contiguous status of
+        coils in a remote device. The Request PDU specifies the starting
+        address, i.e. the address of the first coil specified, and the number of
+        coils. In the PDU Coils are addressed starting at zero. Therefore coils
+        numbered 1-16 are addressed as 0-15.
 
-    The coils in the response message are packed as one coil per bit of the
-    data field. Status is indicated as 1= ON and 0= OFF. The LSB of the first
-    data byte contains the output addressed in the query. The other coils
-    follow toward the high order end of this byte, and from low order to high
-    order in subsequent bytes.
+        The coils in the response message are packed as one coil per bit of the
+        data field. Status is indicated as 1= ON and 0= OFF. The LSB of the
+        first data byte contains the output addressed in the query. The other
+        coils follow toward the high order end of this byte, and from low order
+        to high order in subsequent bytes.
 
-    If the returned output quantity is not a multiple of eight, the remaining
-    bits in the final data byte will be padded with zeros (toward the high
-    order end of the byte). The Byte Count field specifies the quantity of
-    complete bytes of data."
+        If the returned output quantity is not a multiple of eight, the
+        remaining bits in the final data byte will be padded with zeros (toward
+        the high order end of the byte). The Byte Count field specifies the
+        quantity of complete bytes of data."
 
-            - MODBUS Application Protocol Specification V1.1b3, chapter 6.1
+        -- MODBUS Application Protocol Specification V1.1b3, chapter 6.1
+
 
     The request PDU with function code 01 must be 5 bytes:
 
-        +------------------+----------------+
-        | Field            | Length (bytes) |
-        +------------------+----------------+
-        | Function code    | 1              |
-        | Starting address | 2              |
-        | Quantity         | 2              |
-        +------------------+----------------+
+        ================ ===============
+        Field            Length (bytes)
+        ================ ===============
+        Function code    1
+        Starting address 2
+        Quantity         2
+        ================ ===============
 
     The PDU can unpacked to this::
 
@@ -261,13 +262,13 @@ class ReadCoils(ReadFunction, SingleBitResponse):
     contains (3 / 8 + 1) = 1 byte to describe the status of the coils. The
     structure of a compleet response PDU looks like this:
 
-        +------------------+----------------+
-        | Field            | Length (bytes) |
-        +------------------+----------------+
-        | Function code    | 1              |
-        | Byte count       | 1              |
-        | Coil status      | n              |
-        +------------------+----------------+
+        ================ ===============
+        Field            Length (bytes)
+        ================ ===============
+        Function code    1
+        Byte count       1
+        Coil status      n
+        ================ ===============
 
     Assume the status of 102 is 0, 101 is 1 and 100 is also 1. This is binary
     011 which is decimal 3.
@@ -288,34 +289,34 @@ class ReadCoils(ReadFunction, SingleBitResponse):
 class ReadDiscreteInputs(ReadFunction, SingleBitResponse):
     """ Implement Modbus function code 02.
 
-    "This function code is used to read from 1 to 2000 contiguous status of
-    discrete inputs in a remote device. The Request PDU specifies the starting
-    address, i.e. the address of the first input specified, and the number of
-    inputs. In the PDU Discrete Inputs are addressed starting at zero.
-    Therefore Discrete inputs numbered 1-16 are addressed as 0-15.
+        "This function code is used to read from 1 to 2000 contiguous status of
+        discrete inputs in a remote device. The Request PDU specifies the
+        starting address, i.e. the address of the first input specified, and the
+        number of inputs. In the PDU Discrete Inputs are addressed starting at
+        zero.  Therefore Discrete inputs numbered 1-16 are addressed as 0-15.
 
-    The discrete inputs in the response message are packed as one input per bit
-    of the data field.  Status is indicated as 1= ON; 0= OFF. The LSB of the
-    first data byte contains the input addressed in the query. The other inputs
-    follow toward the high order end of this byte, and from low order to high
-    order in subsequent bytes.
+        The discrete inputs in the response message are packed as one input per
+        bit of the data field.  Status is indicated as 1= ON; 0= OFF. The LSB of
+        the first data byte contains the input addressed in the query. The other
+        inputs follow toward the high order end of this byte, and from low order
+        to high order in subsequent bytes.
 
-    If the returned input quantity is not a multiple of eight, the remaining
-    bits in the final d ata byte will be padded with zeros (toward the high
-    order end of the byte). The Byte Count field specifies the quantity of
-    complete bytes of data."
+        If the returned input quantity is not a multiple of eight, the remaining
+        bits in the final d ata byte will be padded with zeros (toward the high
+        order end of the byte). The Byte Count field specifies the quantity of
+        complete bytes of data."
 
-            - MODBUS Application Protocol Specification V1.1b3, chapter 6.2
+        -- MODBUS Application Protocol Specification V1.1b3, chapter 6.2
 
     The request PDU with function code 02 must be 5 bytes:
 
-        +------------------+----------------+
-        | Field            | Length (bytes) |
-        +------------------+----------------+
-        | Function code    | 1              |
-        | Starting address | 2              |
-        | Quantity         | 2              |
-        +------------------+----------------+
+        ================ ===============
+        Field            Length (bytes)
+        ================ ===============
+        Function code    1
+        Starting address 2
+        Quantity         2
+        ================ ===============
 
     The PDU can unpacked to this::
 
@@ -328,13 +329,13 @@ class ReadDiscreteInputs(ReadFunction, SingleBitResponse):
     contains (3 / 8 + 1) = 1 byte to describe the status of the inputs. The
     structure of a compleet response PDU looks like this:
 
-        +------------------+----------------+
-        | Field            | Length (bytes) |
-        +------------------+----------------+
-        | Function code    | 1              |
-        | Byte count       | 1              |
-        | Input status     | n              |
-        +------------------+----------------+
+        ================ ===============
+        Field            Length (bytes)
+        ================ ===============
+        Function code    1
+        Byte count       1
+        Coil status      n
+        ================ ===============
 
     Assume the status of 102 is 0, 101 is 1 and 100 is also 1. This is binary
     011 which is decimal 3.
@@ -355,28 +356,28 @@ class ReadDiscreteInputs(ReadFunction, SingleBitResponse):
 class ReadHoldingRegisters(ReadFunction, MultiBitResponse):
     """ Implement Modbus function code 03.
 
-    "This function code is used to read the contents of a contiguous block of
-    holding registers in a remote device. The Request PDU specifies the
-    starting register address and the number of registers. In the PDU Registers
-    are addressed starting at zero. Therefore registers numbered 1-16 are
-    addressed as 0-15.
+        "This function code is used to read the contents of a contiguous block
+        of holding registers in a remote device. The Request PDU specifies the
+        starting register address and the number of registers. In the PDU
+        Registers are addressed starting at zero. Therefore registers numbered
+        1-16 are addressed as 0-15.
 
-    The register data in the response message are packed as two bytes per
-    register, with the binary contents right justified within each byte. For
-    each register, the first byte contains the high order bits and the second
-    contains the low order bits."
+        The register data in the response message are packed as two bytes per
+        register, with the binary contents right justified within each byte. For
+        each register, the first byte contains the high order bits and the
+        second contains the low order bits."
 
-            - MODBUS Application Protocol Specification V1.1b3, chapter 6.3
+        -- MODBUS Application Protocol Specification V1.1b3, chapter 6.3
 
     The request PDU with function code 03 must be 5 bytes:
 
-        +------------------+----------------+
-        | Field            | Length (bytes) |
-        +------------------+----------------+
-        | Function code    | 1              |
-        | Starting address | 2              |
-        | Quantity         | 2              |
-        +------------------+----------------+
+        ================ ===============
+        Field            Length (bytes)
+        ================ ===============
+        Function code    1
+        Starting address 2
+        Quantity         2
+        ================ ===============
 
     The PDU can unpacked to this::
 
@@ -387,13 +388,13 @@ class ReadHoldingRegisters(ReadFunction, MultiBitResponse):
     holding registers are 16 bit (2 bytes) values. So values of 3 holding
     registers is expressed in 2 * 3 = 6 bytes.
 
-        +------------------+----------------+
-        | Field            | Length (bytes) |
-        +------------------+----------------+
-        | Function code    | 1              |
-        | Byte count       | 1              |
-        | Register value   | quantity * 2   |
-        +------------------+----------------+
+        ================ ===============
+        Field            Length (bytes)
+        ================ ===============
+        Function code    1
+        Byte count       1
+        Register values  Quantity * 2
+        ================ ===============
 
     Assume the value of 100 is 8, 101 is 0 and 102 is also 15.
 
@@ -414,28 +415,28 @@ class ReadHoldingRegisters(ReadFunction, MultiBitResponse):
 class ReadInputRegisters(ReadFunction, MultiBitResponse):
     """ Implement Modbus function code 04.
 
-    "This function code is used to read from 1 to 125 contiguous input
-    registers in a remote device. The Request PDU specifies the starting
-    register address and the number of registers. In the PDU Registers are
-    addressed starting at zero. Therefore input registers numbered 1-16 are
-    addressed as 0-15.
+        "This function code is used to read from 1 to 125 contiguous input
+        registers in a remote device. The Request PDU specifies the starting
+        register address and the number of registers. In the PDU Registers are
+        addressed starting at zero. Therefore input registers numbered 1-16 are
+        addressed as 0-15.
 
-    The register data in the response message are packed as two bytes
-    per register, with the binary contents right justified within each byte.
-    For each register, the first byte contains the high order bits and the
-    second contains the low order bits."
+        The register data in the response message are packed as two bytes per
+        register, with the binary contents right justified within each byte.
+        For each register, the first byte contains the high order bits and the
+        second contains the low order bits."
 
-            - MODBUS Application Protocol Specification V1.1b3, chapter 6.4
+        -- MODBUS Application Protocol Specification V1.1b3, chapter 6.4
 
     The request PDU with function code 04 must be 5 bytes:
 
-        +------------------+----------------+
-        | Field            | Length (bytes) |
-        +------------------+----------------+
-        | Function code    | 1              |
-        | Starting address | 2              |
-        | Quantity         | 2              |
-        +------------------+----------------+
+        ================ ===============
+        Field            Length (bytes)
+        ================ ===============
+        Function code    1
+        Starting address 2
+        Quantity         2
+        ================ ===============
 
     The PDU can unpacked to this::
 
@@ -446,13 +447,13 @@ class ReadInputRegisters(ReadFunction, MultiBitResponse):
     holding registers are 16 bit (2 bytes) values. So values of 3 holding
     registers is expressed in 2 * 3 = 6 bytes.
 
-        +------------------+----------------+
-        | Field            | Length (bytes) |
-        +------------------+----------------+
-        | Function code    | 1              |
-        | Byte count       | 1              |
-        | Register value   | quantity * 2   |
-        +------------------+----------------+
+        ================ ===============
+        Field            Length (bytes)
+        ================ ===============
+        Function code    1
+        Byte count       1
+        Register values  Quantity * 2
+        ================ ===============
 
     Assume the value of 100 is 8, 101 is 0 and 102 is also 15.
 
@@ -473,33 +474,33 @@ class ReadInputRegisters(ReadFunction, MultiBitResponse):
 class WriteSingleCoil(WriteSingleValueFunction):
     """ Implement Modbus function code 05.
 
-    "This function code is used to write a single output to either ON or OFF in
-    a remote device. The requested ON/OFF state is specified by a constant in
-    the request data field. A value of FF 00 hex requests the output to be ON.
-    A value of 00 00 requests it to be OFF. All other values are illegal and
-    will not affect the output.
+        "This function code is used to write a single output to either ON or OFF
+        in a remote device. The requested ON/OFF state is specified by a
+        constant in the request data field. A value of FF 00 hex requests the
+        output to be ON.  A value of 00 00 requests it to be OFF. All other
+        values are illegal and will not affect the output.
 
-    The Request PDU specifies the address of the coil to be forced. Coils are
-    addressed starting at zero. Therefore coil numbered 1 is addressed as 0.
-    The requested ON/OFF state is specified by a constant in the Coil Value
-    field. A value of 0XFF00 requests the coil to be ON. A value of 0X0000
-    requests the coil to be off. All other values are illegal and will not
-    affect the coil.
+        The Request PDU specifies the address of the coil to be forced. Coils
+        are addressed starting at zero. Therefore coil numbered 1 is addressed
+        as 0.  The requested ON/OFF state is specified by a constant in the Coil
+        Value field. A value of 0XFF00 requests the coil to be ON. A value of
+        0X0000 requests the coil to be off. All other values are illegal and
+        will not affect the coil.
 
-    The normal response is an echo of the request, returned after the coil
-    state has been written "
+        The normal response is an echo of the request, returned after the coil
+        state has been written."
 
-            - MODBUS Application Protocol Specification V1.1b3, chapter 6.5
+        -- MODBUS Application Protocol Specification V1.1b3, chapter 6.5
 
     The request PDU with function code 05 must be 5 bytes:
 
-        +------------------+----------------+
-        | Field            | Length (bytes) |
-        +------------------+----------------+
-        | Function code    | 1              |
-        | Address          | 2              |
-        | Value            | 2              |
-        +------------------+----------------+
+        ================ ===============
+        Field            Length (bytes)
+        ================ ===============
+        Function code    1
+        Address          2
+        Value            2
+        ================ ===============
 
     The PDU can unpacked to this::
 
@@ -508,13 +509,13 @@ class WriteSingleCoil(WriteSingleValueFunction):
 
     The reponse PDU is a copy of the request PDU.
 
-        +------------------+----------------+
-        | Field            | Length (bytes) |
-        +------------------+----------------+
-        | Function code    | 1              |
-        | Address          | 2              |
-        | Value            | 2              |
-        +------------------+----------------+
+        ================ ===============
+        Field            Length (bytes)
+        ================ ===============
+        Function code    1
+        Address          2
+        Value            2
+        ================ ===============
 
     """
     function_code = WRITE_SINGLE_COIL
@@ -538,23 +539,23 @@ class WriteSingleCoil(WriteSingleValueFunction):
 class WriteSingleRegister(WriteSingleValueFunction):
     """ Implement Modbus function code 06.
 
-    "This function code is used to write a single holding register in a remote
-    device. The Request PDU specifies the address of the register to be
-    written. Registers are addressed starting at zero. Therefore register
-    numbered 1 is addressed as 0. The normal response is an echo of the
-    request, returned after the register contents have been written."
+        "This function code is used to write a single holding register in a
+        remote device. The Request PDU specifies the address of the register to
+        be written. Registers are addressed starting at zero. Therefore register
+        numbered 1 is addressed as 0. The normal response is an echo of the
+        request, returned after the register contents have been written."
 
-            - MODBUS Application Protocol Specification V1.1b3, chapter 6.6
+        -- MODBUS Application Protocol Specification V1.1b3, chapter 6.6
 
     The request PDU with function code 06 must be 5 bytes:
 
-        +------------------+----------------+
-        | Field            | Length (bytes) |
-        +------------------+----------------+
-        | Function code    | 1              |
-        | Address          | 2              |
-        | Value            | 2              |
-        +------------------+----------------+
+        ================ ===============
+        Field            Length (bytes)
+        ================ ===============
+        Function code    1
+        Address          2
+        Value            2
+        ================ ===============
 
     The PDU can unpacked to this::
 
@@ -563,13 +564,13 @@ class WriteSingleRegister(WriteSingleValueFunction):
 
     The reponse PDU is a copy of the request PDU.
 
-        +------------------+----------------+
-        | Field            | Length (bytes) |
-        +------------------+----------------+
-        | Function code    | 1              |
-        | Address          | 2              |
-        | Value            | 2              |
-        +------------------+----------------+
+        ================ ===============
+        Field            Length (bytes)
+        ================ ===============
+        Function code    1
+        Address          2
+        Value            2
+        ================ ===============
 
     """
     function_code = WRITE_SINGLE_REGISTER
@@ -595,31 +596,31 @@ class WriteSingleRegister(WriteSingleValueFunction):
 class WriteMultipleCoils(WriteMultipleValueFunction):
     """ Implement Modbus function 15 (0x0F) Write Multiple Coils.
 
-    "This function code is used to force each coil in a sequence of coils to
-    either ON or OFF in a remote device. The Request PDU specifies the coil
-    references to be forced. Coils are addressed starting at zero. Therefore
-    coil numbered 1 is addressed as 0.
+        "This function code is used to force each coil in a sequence of coils to
+        either ON or OFF in a remote device. The Request PDU specifies the coil
+        references to be forced. Coils are addressed starting at zero. Therefore
+        coil numbered 1 is addressed as 0.
 
-    The requested ON/OFF states are specified by contents of the request data
-    field. A logical '1' in a bit position of the field requests the
-    corresponding output to be ON. A logical '0' requests it to be OFF.
+        The requested ON/OFF states are specified by contents of the request
+        data field. A logical '1' in a bit position of the field requests the
+        corresponding output to be ON. A logical '0' requests it to be OFF.
 
-    The normal response returns the function code, starting address, and
-    quantity of coils forced."
+        The normal response returns the function code, starting address, and
+        quantity of coils forced."
 
-            - MODBUS Application Protocol Specification V1.1b3, chapter 6.11
+        -- MODBUS Application Protocol Specification V1.1b3, chapter 6.11
 
     The request PDU with function code 15 must be at least 7 bytes:
 
-        +------------------+----------------+
-        | Field            | Length (bytes) |
-        +------------------+----------------+
-        | Function code    | 1              |
-        | Starting Address | 2              |
-        | Quantity         | 2              |
-        | Byte count       | 1              |
-        | Value            | n              |
-        +------------------+----------------+
+        ================ ===============
+        Field            Length (bytes)
+        ================ ===============
+        Function code    1
+        Starting Address 2
+        Quantity         2
+        Byte count       1
+        Value            n
+        ================ ===============
 
     The PDU can unpacked to this::
 
@@ -628,13 +629,13 @@ class WriteMultipleCoils(WriteMultipleValueFunction):
 
     The reponse PDU is 5 bytes and contains following structure:
 
-        +------------------+----------------+
-        | Field            | Length (bytes) |
-        +------------------+----------------+
-        | Function code    | 1              |
-        | Starting address | 2              |
-        | Quantity         | 2              |
-        +------------------+----------------+
+        ================ ===============
+        Field            Length (bytes)
+        ================ ===============
+        Function code    1
+        Starting address 2
+        Quantity         2
+        ================ ===============
 
     """
     function_code = WRITE_MULTIPLE_COILS
@@ -677,28 +678,28 @@ class WriteMultipleCoils(WriteMultipleValueFunction):
 class WriteMultipleRegisters(WriteMultipleValueFunction):
     """ Implement Modbus function 16 (0x10) Write Multiple Registers.
 
-    "This function code is used to write a block of contiguous registers (1 to
-    123 registers) in a remote device.
+        "This function code is used to write a block of contiguous registers (1
+        to 123 registers) in a remote device.
 
-    The requested written values are specified in the request data field. Data
-    is packed as two bytes per register.
+        The requested written values are specified in the request data field.
+        Data is packed as two bytes per register.
 
-    The normal response returns the function code, starting address, and
-    quantity of registers written."
+        The normal response returns the function code, starting address, and
+        quantity of registers written."
 
-            - MODBUS Application Protocol Specification V1.1b3, chapter 6.12
+        -- MODBUS Application Protocol Specification V1.1b3, chapter 6.12
 
     The request PDU with function code 16 must be at least 8 bytes:
 
-        +------------------+----------------+
-        | Field            | Length (bytes) |
-        +------------------+----------------+
-        | Function code    | 1              |
-        | Starting Address | 2              |
-        | Quantity         | 2              |
-        | Byte count       | 1              |
-        | Value            | Quantity * 2   |
-        +------------------+----------------+
+        ================ ===============
+        Field            Length (bytes)
+        ================ ===============
+        Function code    1
+        Starting Address 2
+        Quantity         2
+        Byte count       1
+        Value            Quantity * 2
+        ================ ===============
 
     The PDU can unpacked to this::
 
@@ -707,13 +708,13 @@ class WriteMultipleRegisters(WriteMultipleValueFunction):
 
     The reponse PDU is 5 bytes and contains following structure:
 
-        +------------------+----------------+
-        | Field            | Length (bytes) |
-        +------------------+----------------+
-        | Function code    | 1              |
-        | Starting address | 2              |
-        | Quantity         | 2              |
-        +------------------+----------------+
+        ================ ===============
+        Field            Length (bytes)
+        ================ ===============
+        Function code    1
+        Starting address 2
+        Quantity         2
+        ================ ===============
 
     """
     function_code = WRITE_MULTIPLE_REGISTERS

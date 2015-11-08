@@ -1,14 +1,14 @@
 #!/usr/bin/env python
 from setuptools import setup
 
-setup(name='Python-Modbus',
+setup(name='uModbus',
       version='0.1.0',
       author='Auke Willem Oosterhoff',
       author_email='oosterhoff@baopt.nl',
       description='Implementation of the Modbus protocol in pure Python.',
-      url='https://github.com/AdvancedClimateSystems/python-modbus/',
+      url='https://github.com/AdvancedClimateSystems/umodbus/',
       packages=[
-          'modbus',
+          'umodbus',
       ],
       classifiers=[
           'Development Status :: 2 - Pre-Alpha',

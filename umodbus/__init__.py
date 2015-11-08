@@ -12,3 +12,5 @@ except ImportError:
 
 log = getLogger('tolk')
 log.addHandler(NullHandler())
+
+from .server import get_server  # NOQA

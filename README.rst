@@ -15,22 +15,9 @@ License`_. The source can be found on GitHub_.
 
 Routing Modbus requests is easy:
 
-.. code:: python
+.. include:: ../../scripts/examples/simple_data_store.py 
+    :code: python
 
-    from umodbus import get_server
-
-    server = get_server('localhost', 502)
-
-    @server.route(slave_ids=[1], function_codes=[3, 4], addresses=list(range(100, 200)))
-    def return_address(slave_id, address):
-        """ Return address. """
-        print('Called with slave_id {0} and address {1}.'.format(slave_id, address))
-        return address
-
-    try:
-        server.serve_forever()
-    finally:
-        server.shutdown()
 
 .. External References:
 .. _GitHub: https://github.com/AdvancedClimateSystems/uModbus/

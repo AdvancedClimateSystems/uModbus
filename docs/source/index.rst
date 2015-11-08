@@ -10,11 +10,3 @@ Contents:
    usage
    decompose_requests
    functions
-
-
-Indices and tables
-==================
-
-* :ref:`genindex`
-* :ref:`modindex`
-* :ref:`search`
