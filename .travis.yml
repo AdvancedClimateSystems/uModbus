@@ -11,6 +11,6 @@ install:
     - pip install -r dev_requirements.txt
     - pip install coveralls
 script:
-    py.test --cov-report term-missing --cov=modbus -v tests/
+    py.test --cov-report term-missing --cov=umodbus -v tests/
 after_success:
     coveralls
