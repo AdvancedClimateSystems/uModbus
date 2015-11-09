@@ -54,6 +54,51 @@ def pack_mbap(transaction_id, protocol_id, length, unit_id):
     return struct.pack('>HHHB', transaction_id, protocol_id, length, unit_id)
 
 
+def get_function_code_from_request_pdu(pdu):
+    """ Return function code from request PDU.
+
+    :return pdu: Array with bytes.
+    :return: Function code.
+    """
+    return struct.unpack('>B', pdu[:1])[0]
+
+
+def pack_exception_pdu(function_code, error_code):
+    """ Return exception PDU of 2 bytes.
+
+        "The exception response message has two fields that differentiate it
+        from a nor mal response: Function Code Field: In a normal response, the
+        server echoes the function code of the original request in the function
+        code field of the response. All function codes have a most – significant
+        bit (MSB) of 0 (their values are all below 80 hexadecimal). In an
+        exception response, the server sets the MSB of the function code to 1.
+        This makes the function code value in an exception response exactly 80
+        hexadecimal higher than the value would be for a normal response.
+
+        With the function code’s MSB set, the client's application program can
+        recognize the exception response and can examine the data field for the
+        exception code.  Data Field: In a normal response, the server may return
+        data or statistics in the data field (any information that was requested
+        in the request). In an exception response, the server returns an
+        exception code in the data field. This defines the server condition that
+        caused the exception."
+
+        -- MODBUS Application Protocol Specification V1.1b3, chapter 7
+
+        ================ ===============
+        Field            Length (bytes)
+        ================ ===============
+        Error code       1
+        Function code    1
+        ================ ===============
+
+    :param error_code: Error code.
+    :param function_code: Function code.
+    :return: PDU of 2 bytes.
+    """
+    return struct.pack('>BB', function_code + 0x80, error_code)
+
+
 def memoize(f):
     """ Decorator which caches function's return value each it is called.
     If called later with same arguments, the cached value is returned.

@@ -6,8 +6,10 @@ from binascii import hexlify
 
 from umodbus import log
 from umodbus.route import Map
+from umodbus.utils import (unpack_mbap, pack_mbap, pack_exception_pdu,
+                           get_function_code_from_request_pdu)
 from umodbus.functions import function_factory
-from umodbus.utils import unpack_mbap, pack_mbap
+from umodbus.exceptions import ModbusError
 
 
 def get_server(host, port):
@@ -59,20 +61,29 @@ class RequestHandler(BaseRequestHandler):
         request_adu = self.request.recv(1024).strip()
         log.info('<-- {0} - {1}.'.format(self.client_address[0],
                  hexlify(request_adu)))
-        transaction_id, protocol_id, _, unit_id = unpack_mbap(request_adu[:7])
-
-        function = function_factory(request_adu[7:])
-        results = function.execute(unit_id, self.server.route_map)
-
         try:
-            # ReadFunction's use results of callbacks to build response PDU...
-            response_pdu = function.create_response_pdu(results)
-        except TypeError:
-            # ...other functions don't.
-            response_pdu = function.create_response_pdu()
+            transaction_id, protocol_id, _, unit_id = \
+                unpack_mbap(request_adu[:7])
+
+            function = function_factory(request_adu[7:])
+            results = function.execute(unit_id, self.server.route_map)
+
+            try:
+                # ReadFunction's use results of callbacks to build response
+                # PDU...
+                response_pdu = function.create_response_pdu(results)
+            except TypeError:
+                # ...other functions don't.
+                response_pdu = function.create_response_pdu()
+        except ModbusError as e:
+            function_code = get_function_code_from_request_pdu(request_adu[7:])
+            response_pdu = pack_exception_pdu(function_code, e.error_code)
 
         response_mbap = pack_mbap(transaction_id, protocol_id,
                                   len(response_pdu) + 1, unit_id)
+
+        log.debug('Response MBAP {0}'.format(response_mbap))
+        log.debug('Response PDU {0}'.format(response_pdu))
 
         response_adu = response_mbap + response_pdu
         log.info('--> {0} - {1}.'.format(self.client_address[0],

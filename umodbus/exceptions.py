@@ -1,4 +1,9 @@
-class IllegalFunctionError(Exception):
+class ModbusError(Exception):
+    """ Base class for all Modbus related exception. """
+    pass
+
+
+class IllegalFunctionError(ModbusError):
     """ The function code received in the request is not an allowable action for
     the server.
 
@@ -13,7 +18,7 @@ class IllegalFunctionError(Exception):
             'server.'.format(self.function_code)
 
 
-class IllegalDataAddressError(Exception):
+class IllegalDataAddressError(ModbusError):
     """ The data address received in de request is not an allowable address for
     the server.
 
@@ -24,7 +29,7 @@ class IllegalDataAddressError(Exception):
         return self.__doc__
 
 
-class IllegalDataValueError(Exception):
+class IllegalDataValueError(ModbusError):
     """ The value contained in the request data field is not an allowable value
     for the server.
 
@@ -35,7 +40,7 @@ class IllegalDataValueError(Exception):
         return self.__doc__
 
 
-class ServerDeviceFailureError(Exception):
+class ServerDeviceFailureError(ModbusError):
     """ An unrecoverable error occurred. """
     error_code = 4
 
@@ -43,7 +48,7 @@ class ServerDeviceFailureError(Exception):
         return 'An unrecoverable error occurred.'
 
 
-class AcknowledgeError(Exception):
+class AcknowledgeError(ModbusError):
     """ The server has accepted the requests and it processing it, but a long
     duration of time will be required to do so.
     """
@@ -53,7 +58,7 @@ class AcknowledgeError(Exception):
         return self.__doc__
 
 
-class ServerDeviceBusyError(Exception):
+class ServerDeviceBusyError(ModbusError):
     """ The server is engaged in a long-duration program command. """
     error_code = 6
 
@@ -61,7 +66,7 @@ class ServerDeviceBusyError(Exception):
         return self.__doc__
 
 
-class MemoryParityError(Exception):
+class MemoryParityError(ModbusError):
     """ The server attempted to read record file, but detected a parity error
     in memory.
 
@@ -72,7 +77,7 @@ class MemoryParityError(Exception):
         return self.__doc__
 
 
-class GatewayPathUnavailableError(Exception):
+class GatewayPathUnavailableError(ModbusError):
     """ The gateway is probably misconfigured or overloaded. """
     error_code = 11
 
@@ -80,7 +85,7 @@ class GatewayPathUnavailableError(Exception):
         return self.__doc__
 
 
-class GatewayTargetDeviceFailedToRespondError(Exception):
+class GatewayTargetDeviceFailedToRespondError(ModbusError):
     """ Didn't get a response from target device. """
     error_code = 12
 

@@ -3,8 +3,10 @@ import struct
 from math import ceil
 
 from umodbus import log
-from umodbus.utils import memoize, integer_to_binary_list
-from umodbus.exceptions import IllegalDataValueError, IllegalDataAddressError
+from umodbus.utils import (memoize, integer_to_binary_list,
+                           get_function_code_from_request_pdu)
+from umodbus.exceptions import (IllegalFunctionError, IllegalDataValueError,
+                                IllegalDataAddressError)
 
 try:
     from functools import reduce
@@ -44,8 +46,11 @@ def function_factory(pdu):
     :param pdu: Array of bytes.
     :return: Instance of a function.
     """
-    function_code, = struct.unpack('>B', pdu[:1])
-    function_class = function_code_to_function_map[function_code]
+    function_code = get_function_code_from_request_pdu(pdu)
+    try:
+        function_class = function_code_to_function_map[function_code]
+    except KeyError:
+        raise IllegalFunctionError(function_code)
 
     return function_class.create_from_request_pdu(pdu)
 
