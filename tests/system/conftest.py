@@ -3,7 +3,7 @@ import socket
 import struct
 from threading import Thread
 
-from server import app
+from .server import app
 
 
 @pytest.fixture(autouse=True, scope="module")
