@@ -9,7 +9,7 @@ from umodbus.route import Map
 from umodbus.utils import (unpack_mbap, pack_mbap, pack_exception_pdu,
                            get_function_code_from_request_pdu)
 from umodbus.functions import function_factory
-from umodbus.exceptions import ModbusError
+from umodbus.exceptions import ModbusError, ServerDeviceFailureError
 
 
 def get_server(host, port):
@@ -58,7 +58,8 @@ class RequestHandler(BaseRequestHandler):
 
     """
     def handle(self):
-        request_adu = self.request.recv(1024).strip()
+        request_adu = self.request.recv(1024)
+        log.debug('Lenght of received ADU is {0}.'.format(len(request_adu)))
         log.info('<-- {0} - {1}.'.format(self.client_address[0],
                  hexlify(request_adu)))
         try:
@@ -78,6 +79,12 @@ class RequestHandler(BaseRequestHandler):
         except ModbusError as e:
             function_code = get_function_code_from_request_pdu(request_adu[7:])
             response_pdu = pack_exception_pdu(function_code, e.error_code)
+        except Exception as e:
+            log.error('Could not handle reuqest: {0}.'.format(e))
+            function_code = get_function_code_from_request_pdu(request_adu[7:])
+            response_pdu = \
+                pack_exception_pdu(function_code,
+                                   ServerDeviceFailureError.error_code)
 
         response_mbap = pack_mbap(transaction_id, protocol_id,
                                   len(response_pdu) + 1, unit_id)
