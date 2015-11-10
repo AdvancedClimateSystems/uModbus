@@ -70,7 +70,7 @@ The following Modbus functions have been implemented.
 * 05: Write Single Coil
 * 06: Write Single Register
 * 15: Write Multiple Coils
-* 16: Write Multiple Register
+* 16: Write Multiple Registers
 
 Road map
 --------
