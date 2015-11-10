@@ -80,7 +80,7 @@ class RequestHandler(BaseRequestHandler):
             function_code = get_function_code_from_request_pdu(request_adu[7:])
             response_pdu = pack_exception_pdu(function_code, e.error_code)
         except Exception as e:
-            log.error('Could not handle reuqest: {0}.'.format(e))
+            log.error('Could not handle request: {0}.'.format(e))
             function_code = get_function_code_from_request_pdu(request_adu[7:])
             response_pdu = \
                 pack_exception_pdu(function_code,

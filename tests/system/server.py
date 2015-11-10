@@ -13,6 +13,6 @@ def read_registers(slave_id, address):
     return address
 
 
-@app.route(slave_ids=[1], function_codes=[1, 2, 3, 4], addresses=[666])
-def failure(slave_id, address):
+@app.route(slave_ids=[1], function_codes=[1, 2, 3, 4, 5, 6, 15, 16], addresses=[666])
+def failure(*args, **kwargs):
     raise Exception
