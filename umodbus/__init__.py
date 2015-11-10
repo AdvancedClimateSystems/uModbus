@@ -10,7 +10,7 @@ except ImportError:
         def emit(self, record):
             pass
 
-log = getLogger('tolk')
+log = getLogger('uModbus')
 log.addHandler(NullHandler())
 
 from .server import get_server  # NOQA

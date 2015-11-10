@@ -10,3 +10,4 @@ Contents:
    usage
    decompose_requests
    functions
+   changelog
