@@ -1,7 +1,13 @@
 #!/usr/bin/env python
 # scripts/examples/simple_data_store.py
-from umodbus import get_server
+import logging
 from collections import defaultdict
+
+from umodbus import get_server
+from umodbus.utils import log_to_stream
+
+# Add stream handler to logger 'uModbus'.
+log_to_stream(level=logging.DEBUG)
 
 # A very simple data store which maps addresss against their values.
 data_store = defaultdict(int)
