@@ -6,7 +6,7 @@ from threading import Thread
 from .server import app
 
 
-@pytest.fixture(autouse=True, scope="module")
+@pytest.fixture(autouse=True, scope="session")
 def server(request):
     t = Thread(target=app.serve_forever)
     t.start()

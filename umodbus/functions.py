@@ -58,7 +58,7 @@ def function_factory(pdu):
 class ReadFunction(object):
     """ Abstract base class for Modbus read functions. """
     def __init__(self, starting_address, quantity):
-        if quantity < 1 or quantity > self.max_quantity:
+        if not (1 <= quantity <= self.max_quantity):
             raise IllegalDataValueError('Quantify field of request must be a '
                                         'value between 0 and '
                                         '{0}.'.format(self.max_quantity))
@@ -411,7 +411,7 @@ class ReadHoldingRegisters(ReadFunction, MultiBitResponse):
 
     """
     function_code = READ_HOLDING_REGISTERS
-    max_quantity = 125
+    max_quantity = 0x007D
 
     def __init__(self, starting_address, quantity):
         ReadFunction.__init__(self, starting_address, quantity)
@@ -470,7 +470,7 @@ class ReadInputRegisters(ReadFunction, MultiBitResponse):
 
     """
     function_code = READ_INPUT_REGISTERS
-    max_quantity = 125
+    max_quantity = 0x007D
 
     def __init__(self, starting_address, quantity):
         ReadFunction.__init__(self, starting_address, quantity)
