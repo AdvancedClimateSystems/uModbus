@@ -7,7 +7,7 @@ for Python 2.7, 3.3, 3.4, 3.5 and Pypy. uModbus has no runtime depedencies.
 from setuptools import setup
 
 setup(name='uModbus',
-      version='0.1.0',
+      version='0.1.1',
       author='Auke Willem Oosterhoff',
       author_email='oosterhoff@baopt.nl',
       description='Implementation of the Modbus protocol in pure Python.',
