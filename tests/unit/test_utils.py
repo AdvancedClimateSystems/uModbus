@@ -1,5 +1,24 @@
-from umodbus.utils import (unpack_mbap, pack_mbap, pack_exception_pdu,
+import sys
+import logging
+from logging import getLogger
+
+from umodbus.utils import (log_to_stream, unpack_mbap, pack_mbap,
+                           pack_exception_pdu,
                            get_function_code_from_request_pdu)
+
+
+def test_log_to_stream():
+    """ Test if handler is added correctly. """
+    log = getLogger('uModbus')
+
+    # NullHandler is attached.
+    assert len(log.handlers) == 1
+    log_to_stream()
+    assert len(log.handlers) == 2
+
+    handler = log.handlers[1]
+    assert handler.stream == sys.stderr
+    assert handler.level == logging.NOTSET
 
 
 def test_unpack_mbap():

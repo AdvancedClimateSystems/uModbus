@@ -7,19 +7,19 @@ from functools import wraps
 from umodbus import log
 
 
-def log_to_stream(stream=sys.stdout, level=logging.WARNING,
+def log_to_stream(stream=sys.stderr, level=logging.NOTSET,
                   fmt=logging.BASIC_FORMAT):
     """ Add :class:`logging.StreamHandler` to logger which logs to a stream.
 
-    :param stream. Stream to log to, default STDOUT.
-    :param level: Log level, default WARNING.
+    :param stream. Stream to log to, default STDERR.
+    :param level: Log level, default NOTSET.
     :param fmt: String with log format, default is BASIC_FORMAT.
     """
     fmt = Formatter(fmt)
     handler = StreamHandler()
     handler.setFormatter(fmt)
+    handler.setLevel(level)
 
-    log.setLevel(level)
     log.addHandler(handler)
 
 
