@@ -665,6 +665,41 @@ class WriteMultipleCoils(WriteMultipleValueFunction):
     def create_from_request_pdu(cls, pdu):
         """ Create instance from request PDU.
 
+        This method requires some clarification regarding the unpacking of
+        the statusses that are being passed to the callbacks.
+
+        A request pdu contains at least 1 byte representing value for
+        addresses. When quantity field is set to 1, the LSB contains value for
+        the starting address. When starting address is 100, quantity and value
+        is 0 value for coil 100 is 0 as you can see in the first row of the
+        table below.
+
+        When quantity is 2 and value is 0 then value for addresses 100 and 101
+        is both 0, see row 3.
+
+        When quantit is 2 and value is 2, the value of address 100 is 0 and
+        address 101 is 1.
+
+        The binary representation of the value is in reverse mapped to the
+        addresses.
+
+        #  quantity value binary representation | 100 101 102
+        == ======== ===== ===================== | === === ===
+        01 1        0     0b0                      0   -   -
+        02 1        1     0b1                      1   -   -
+        03 2        0     0b00                     0   0   -
+        04 2        1     0b01                     1   0   -
+        05 2        2     0b10                     0   1   -
+        06 2        3     0b11                     1   1   -
+        07 3        0     0b000                    0   0   0
+        08 3        1     0b001                    0   0   1
+        09 3        2     0b010                    0   1   0
+        10 3        3     0b011                    0   1   1
+        11 3        4     0b100                    1   0   0
+        12 3        5     0b101                    1   0   1
+        13 3        6     0b110                    1   1   0
+        14 3        7     0b111                    1   1   1
+
         :param pdu: A request PDU.
         """
         _, starting_address, quantity, byte_count = \
@@ -672,12 +707,18 @@ class WriteMultipleCoils(WriteMultipleValueFunction):
 
         fmt = '>' + ('B' * byte_count)
         values = struct.unpack(fmt, pdu[6:])
-        values = [integer_to_binary_list(v) for v in values]
 
-        # Flatten list
-        values = [n for value in values for n in value]
+        res = list()
 
-        return cls(starting_address, quantity, byte_count, values)
+        for i, value in enumerate(values):
+            padding = 8 if (quantity - (8 * i)) // 8 > 0 else quantity % 8
+            fmt = '{{0:0{padding}b}}'.format(padding=padding)
+
+            # Create binary representation of integer, convert it to a list
+            # and reverse the list.
+            res = res + [int(i) for i in fmt.format(value)][::-1]
+
+        return cls(starting_address, quantity, byte_count, res)
 
 
 class WriteMultipleRegisters(WriteMultipleValueFunction):
