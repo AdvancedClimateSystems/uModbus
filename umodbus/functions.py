@@ -1,6 +1,7 @@
 from __future__ import division
 import struct
 from math import ceil
+from functools import reduce
 
 from umodbus import log
 from umodbus.utils import (memoize, integer_to_binary_list,
@@ -8,10 +9,6 @@ from umodbus.utils import (memoize, integer_to_binary_list,
 from umodbus.exceptions import (IllegalFunctionError, IllegalDataValueError,
                                 IllegalDataAddressError)
 
-try:
-    from functools import reduce
-except ImportError:
-    pass
 
 # Function related to data access.
 READ_COILS = 1
