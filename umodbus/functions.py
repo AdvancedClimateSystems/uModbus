@@ -3,8 +3,7 @@ import struct
 from math import ceil
 
 from umodbus import log
-from umodbus.utils import (memoize, integer_to_binary_list,
-                           get_function_code_from_request_pdu)
+from umodbus.utils import memoize, get_function_code_from_request_pdu
 from umodbus.exceptions import (IllegalFunctionError, IllegalDataValueError,
                                 IllegalDataAddressError)
 
