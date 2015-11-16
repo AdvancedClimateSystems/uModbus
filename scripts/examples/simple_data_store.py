@@ -30,4 +30,5 @@ if __name__ == '__main__':
     try:
         app.serve_forever()
     finally:
-        app.stop()
+        app.shutdown()
+        app.server_close()
