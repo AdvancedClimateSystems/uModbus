@@ -665,31 +665,42 @@ class WriteMultipleCoils(WriteMultipleValueFunction):
         """ Create instance from request PDU.
 
         This method requires some clarification regarding the unpacking of
-        the statusses that are being passed to the callbacks.
+        the status that are being passed to the callbacks.
 
-        A request pdu contains at least 1 byte representing value for
-        addresses. When quantity field is set to 1, the LSB contains value for
-        the starting address. When starting address is 100, quantity and value
-        is 0 value for coil 100 is 0 as you can see in the first row of the
-        table below.
+        A coil status can be 0 or 1. The request PDU contains at least 1 byte,
+        representing the status for 1 to 8 coils.
 
-        When quantity is 2 and value is 0 then value for addresses 100 and 101
-        is both 0, see row 3.
+        Assume a request with starting address 100, quantity set to 3 and the
+        value byte is 6. 0b110 is the binary reprensention of decimal 6. The
+        Least Significant Bit (LSB) is status of coil with starting address. So
+        status of coil 100 is 0, status of coil 101 is 1 and status of coil 102
+        is 1 too.
 
-        When quantit is 2 and value is 2, the value of address 100 is 0 and
-        address 101 is 1.
+        coil address  102     101     100
+                        1       1       0
 
-        The binary representation of the value is in reverse mapped to the
-        addresses.
+        Again, assume starting address 100 and  byte value is 6. But now
+        quantity is 4. So the value byte is addressing 4 coils. The binary
+        representation of 6 is now 0b0110. LSB again is 0, meaning status of
+        coil 100 is 0. Status of 101 and 102 is 1, like in the previous example.
+        Status of coil 104 is 0.
 
-        #  quantity value binary representation | 100 101 102
+        coil address  104     102     101     100
+                        0       1       1       0
+
+
+        In short: the binary representation of the byte value is in reverse
+        mapped to the coil addresses. In table below you can see some more
+        examples.
+
+        #  quantity value binary representation | 102 101 100
         == ======== ===== ===================== | === === ===
-        01 1        0     0b0                      0   -   -
-        02 1        1     0b1                      1   -   -
-        03 2        0     0b00                     0   0   -
-        04 2        1     0b01                     1   0   -
-        05 2        2     0b10                     0   1   -
-        06 2        3     0b11                     1   1   -
+        01 1        0     0b0                      -   -   0
+        02 1        1     0b1                      -   -   1
+        03 2        0     0b00                     -   0   0
+        04 2        1     0b01                     -   0   1
+        05 2        2     0b10                     -   1   0
+        06 2        3     0b11                     -   1   1
         07 3        0     0b000                    0   0   0
         08 3        1     0b001                    0   0   1
         09 3        2     0b010                    0   1   0
