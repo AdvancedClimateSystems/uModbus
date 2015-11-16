@@ -3,9 +3,9 @@ import struct
 
 try:
     # Mock has been added to stdlib in Python 3.3.
-    from unittest.mock import MagicMock
+    from unittest.mock import MagicMock, call
 except ImportError:
-    from mock import MagicMock
+    from mock import MagicMock, call
 
 from umodbus.route import Map
 from umodbus.exceptions import (IllegalFunctionError, IllegalDataValueError,
@@ -54,12 +54,12 @@ def write_single_coil():
 def write_multiple_coils():
     function_code = 15
     starting_address = 100
-    quantity = 3
-    byte_count = 1
-    values = 6  # Integer notation of binary 110.
+    quantity = 10
+    byte_count = 2
+    values = (2, 1)
 
-    pdu = struct.pack('>BHHBB', function_code, starting_address, quantity,
-                      byte_count, values)
+    pdu = struct.pack('>BHHBBB', function_code, starting_address, quantity,
+                      byte_count, *values)
     return WriteMultipleCoils.create_from_request_pdu(pdu)
 
 
@@ -208,10 +208,20 @@ class TestWriteMultipleValueFunction:
         monkeypatch.setattr(route_map, 'match', match_mock)
         write_multiple_coils.execute(1, route_map)
 
-        assert endpoint_mock.call_count == 3
-        endpoint_mock.assert_any_call(slave_id=1, address=102, value=0)
-        endpoint_mock.assert_any_call(slave_id=1, address=101, value=1)
-        endpoint_mock.assert_any_call(slave_id=1, address=100, value=1)
+        assert endpoint_mock.call_count == 10
+        calls = [
+            call(slave_id=1, address=100, value=0),
+            call(slave_id=1, address=101, value=1),
+            call(slave_id=1, address=102, value=0),
+            call(slave_id=1, address=103, value=0),
+            call(slave_id=1, address=104, value=0),
+            call(slave_id=1, address=105, value=0),
+            call(slave_id=1, address=106, value=0),
+            call(slave_id=1, address=107, value=0),
+            call(slave_id=1, address=108, value=1),
+            call(slave_id=1, address=109, value=0),
+        ]
+        endpoint_mock.assert_has_calls(calls)
 
     def test_create_response_pdu(self, write_multiple_coils):
         assert write_multiple_coils.create_response_pdu() == \
@@ -300,7 +310,7 @@ class TestWriteMultipleCoils:
     def test_create_from_request_pdu(self, write_multiple_coils):
         assert write_multiple_coils.function_code == 15
         assert write_multiple_coils.starting_address == 100
-        assert write_multiple_coils.values == [1, 1, 0]
+        assert write_multiple_coils.values == [0, 1, 0, 0, 0, 0, 0, 0, 1, 0]
 
     @pytest.mark.parametrize('quantity', [
         0,

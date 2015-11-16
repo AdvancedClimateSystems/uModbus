@@ -4,8 +4,7 @@ from math import ceil
 from functools import reduce
 
 from umodbus import log
-from umodbus.utils import (memoize, integer_to_binary_list,
-                           get_function_code_from_request_pdu)
+from umodbus.utils import memoize, get_function_code_from_request_pdu
 from umodbus.exceptions import (IllegalFunctionError, IllegalDataValueError,
                                 IllegalDataAddressError)
 
@@ -662,6 +661,52 @@ class WriteMultipleCoils(WriteMultipleValueFunction):
     def create_from_request_pdu(cls, pdu):
         """ Create instance from request PDU.
 
+        This method requires some clarification regarding the unpacking of
+        the status that are being passed to the callbacks.
+
+        A coil status can be 0 or 1. The request PDU contains at least 1 byte,
+        representing the status for 1 to 8 coils.
+
+        Assume a request with starting address 100, quantity set to 3 and the
+        value byte is 6. 0b110 is the binary reprensention of decimal 6. The
+        Least Significant Bit (LSB) is status of coil with starting address. So
+        status of coil 100 is 0, status of coil 101 is 1 and status of coil 102
+        is 1 too.
+
+        coil address  102     101     100
+                        1       1       0
+
+        Again, assume starting address 100 and  byte value is 6. But now
+        quantity is 4. So the value byte is addressing 4 coils. The binary
+        representation of 6 is now 0b0110. LSB again is 0, meaning status of
+        coil 100 is 0. Status of 101 and 102 is 1, like in the previous example.
+        Status of coil 104 is 0.
+
+        coil address  104     102     101     100
+                        0       1       1       0
+
+
+        In short: the binary representation of the byte value is in reverse
+        mapped to the coil addresses. In table below you can see some more
+        examples.
+
+        #  quantity value binary representation | 102 101 100
+        == ======== ===== ===================== | === === ===
+        01 1        0     0b0                      -   -   0
+        02 1        1     0b1                      -   -   1
+        03 2        0     0b00                     -   0   0
+        04 2        1     0b01                     -   0   1
+        05 2        2     0b10                     -   1   0
+        06 2        3     0b11                     -   1   1
+        07 3        0     0b000                    0   0   0
+        08 3        1     0b001                    0   0   1
+        09 3        2     0b010                    0   1   0
+        10 3        3     0b011                    0   1   1
+        11 3        4     0b100                    1   0   0
+        12 3        5     0b101                    1   0   1
+        13 3        6     0b110                    1   1   0
+        14 3        7     0b111                    1   1   1
+
         :param pdu: A request PDU.
         """
         _, starting_address, quantity, byte_count = \
@@ -669,12 +714,18 @@ class WriteMultipleCoils(WriteMultipleValueFunction):
 
         fmt = '>' + ('B' * byte_count)
         values = struct.unpack(fmt, pdu[6:])
-        values = [integer_to_binary_list(v) for v in values]
 
-        # Flatten list
-        values = [n for value in values for n in value]
+        res = list()
 
-        return cls(starting_address, quantity, byte_count, values)
+        for i, value in enumerate(values):
+            padding = 8 if (quantity - (8 * i)) // 8 > 0 else quantity % 8
+            fmt = '{{0:0{padding}b}}'.format(padding=padding)
+
+            # Create binary representation of integer, convert it to a list
+            # and reverse the list.
+            res = res + [int(i) for i in fmt.format(value)][::-1]
+
+        return cls(starting_address, quantity, byte_count, res)
 
 
 class WriteMultipleRegisters(WriteMultipleValueFunction):

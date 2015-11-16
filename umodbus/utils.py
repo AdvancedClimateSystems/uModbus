@@ -111,15 +111,3 @@ def memoize(f):
             cache[arg] = f(arg)
         return cache[arg]
     return inner
-
-
-def integer_to_binary_list(n):
-    """ Convert number to list representing number in binary.
-
-        >>> integer_to_binary_list(10)
-        [1, 0, 1, 0]
-
-    :param n: Number.
-    :return: List with zeroes and ones.
-    """
-    return [int(x) for x in bin(n)[2:]]
