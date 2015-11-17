@@ -56,7 +56,8 @@ Routing Modbus requests is easy:
         try:
             app.serve_forever()
         finally:
-            app.stop()
+            app.shutdown()
+            app.server_close()
 
 Features
 --------
