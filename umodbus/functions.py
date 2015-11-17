@@ -4,6 +4,7 @@ from math import ceil
 from functools import reduce
 
 from umodbus import log
+from umodbus import conf
 from umodbus.utils import memoize, get_function_code_from_request_pdu
 from umodbus.exceptions import (IllegalFunctionError, IllegalDataValueError,
                                 IllegalDataAddressError)
@@ -107,7 +108,7 @@ class WriteSingleValueFunction(object):
 
         :param pdu: A response PDU.
         """
-        _, address, value = struct.unpack('>BHH', pdu)
+        _, address, value = struct.unpack('>BH' + cls.format_character, pdu)
 
         return cls(address, value)
 
@@ -126,8 +127,8 @@ class WriteSingleValueFunction(object):
             raise IllegalDataAddressError()
 
     def create_response_pdu(self):
-        return struct.pack('>BHH', self.function_code, self.address,
-                           self.value)
+        fmt = '>BH' + self.format_character
+        return struct.pack(fmt, self.function_code, self.address, self.value)
 
 
 class WriteMultipleValueFunction(object):
@@ -197,7 +198,7 @@ class SingleBitResponse(object):
         # and the length (1 byte) of the following byte series. Followed by
         # a B for every byte in the series of bytes. 3 lead to the format
         # '>BBB' and 257 lead to the format '>BBBB'.
-        fmt = '>BB' + 'B' * len(bytes_)
+        fmt = '>BB' + conf.SINGLE_BIT_VALUE_FORMAT_CHARACTER * len(bytes_)
         return struct.pack(fmt, self.function_code, len(bytes_), *bytes_)
 
 
@@ -214,7 +215,7 @@ class MultiBitResponse(object):
         :return: Byte array of at least 4 bytes.
         """
         log.debug('Create multi bit response pdu {0}.'.format(data))
-        fmt = '>BB' + 'H' * len(data)
+        fmt = '>BB' + conf.MULTI_BIT_VALUE_FORMAT_CHARACTER * len(data)
 
         return struct.pack(fmt, self.function_code, len(data) * 2, *data)
 
@@ -520,6 +521,7 @@ class WriteSingleCoil(WriteSingleValueFunction):
 
     """
     function_code = WRITE_SINGLE_COIL
+    format_character = 'H'
 
     def __init__(self, address, value):
         WriteSingleValueFunction.__init__(self, address, value)
@@ -575,6 +577,7 @@ class WriteSingleRegister(WriteSingleValueFunction):
 
     """
     function_code = WRITE_SINGLE_REGISTER
+    format_character = conf.MULTI_BIT_VALUE_FORMAT_CHARACTER
 
     def __init__(self, address, value):
         WriteSingleValueFunction.__init__(self, address, value)
@@ -640,6 +643,7 @@ class WriteMultipleCoils(WriteMultipleValueFunction):
 
     """
     function_code = WRITE_MULTIPLE_COILS
+    format_character = conf.SINGLE_BIT_VALUE_FORMAT_CHARACTER
 
     def __init__(self, starting_address, quantity, byte_count, values):
         if not(1 <= quantity <= 0x7B0):
@@ -712,7 +716,7 @@ class WriteMultipleCoils(WriteMultipleValueFunction):
         _, starting_address, quantity, byte_count = \
             struct.unpack('>BHHB', pdu[:6])
 
-        fmt = '>' + ('B' * byte_count)
+        fmt = '>' + (cls.format_character * byte_count)
         values = struct.unpack(fmt, pdu[6:])
 
         res = list()
@@ -771,6 +775,7 @@ class WriteMultipleRegisters(WriteMultipleValueFunction):
 
     """
     function_code = WRITE_MULTIPLE_REGISTERS
+    format_character = conf.MULTI_BIT_VALUE_FORMAT_CHARACTER
 
     def __init__(self, starting_address, quantity, byte_count, values):
         if not(1 <= quantity <= 0x7B):
@@ -797,7 +802,7 @@ class WriteMultipleRegisters(WriteMultipleValueFunction):
             struct.unpack('>BHHB', pdu[:6])
 
         # Values are 16 bit, so each value takes up 2 bytes.
-        fmt = '>' + ('H' * int((byte_count / 2)))
+        fmt = '>' + (cls.format_character * int((byte_count / 2)))
 
         values = list(struct.unpack(fmt, pdu[6:]))
         return cls(starting_address, quantity, byte_count, values)
