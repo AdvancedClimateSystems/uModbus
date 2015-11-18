@@ -1,11 +1,18 @@
 Configuration
 =============
 
+:attr:`umodbus.conf` is a global configuration object and is an instance of
+`umodbus.config.Config`. This instance can be used like this:
+
+.. code:: python
+    
+  from umodbus import conf
+
+  conf.SIGNED_VALUES = True 
+
+
 .. module:: umodbus.config
 
-:attr:`umodbus.conf` is in instance of `umodbus.config.Config` and holds global
-configuration. The following settings can be configured:
-
 .. autoclass:: Config
-    :members:     
+    :members:  SIGNED_VALUES
 

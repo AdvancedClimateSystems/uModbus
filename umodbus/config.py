@@ -23,15 +23,13 @@ class Config(object):
     character used for (un)packing structs is 'H'.
 
     .. note:: Its value should not be set directly. Instead use
-        :attr:`MULTI_BIT_VALUE_SIGNED` and :attr:`MULTI_BIT_VALUE_BIT_SIZE` to
+        :attr:`SIGNED_VALUES` and :attr:`BIT_SIZE` to
         modify this value.
 
     """
     def __init__(self):
-        self.MULTI_BIT_VALUE_SIGNED = os.environ.get('UMODBUS_SIGNED_VALUES',
-                                                     False)
-        self.MULTI_BIT_VALUE_BIT_SIZE = os.environ.get('UMODBUS_BIT_SIZE',
-                                                       16)
+        self.SIGNED_VALUES = os.environ.get('UMODBUS_SIGNED_VALUES', False)
+        self.BIT_SIZE = os.environ.get('UMODBUS_BIT_SIZE', 16)
 
     def _set_multi_bit_value_format_character(self):
         """ Set format character for multibit values.
@@ -43,44 +41,44 @@ class Config(object):
         self.MULTI_BIT_VALUE_FORMAT_CHARACTER = \
             self.MULTI_BIT_VALUE_FORMAT_CHARACTER.upper()
 
-        if self.MULTI_BIT_VALUE_SIGNED:
+        if self.SIGNED_VALUES:
             self.MULTI_BIT_VALUE_FORMAT_CHARACTER = \
                 self.MULTI_BIT_VALUE_FORMAT_CHARACTER.lower()
 
     @property
-    def MULTI_BIT_VALUE_SIGNED(self):
-        """ Whether multibit values are signed or not. Default is False.
+    def SIGNED_VALUES(self):
+        """ Whether values are signed or not. Default is False.
 
-        This value can be set using the environment variable
+        This value can also be set using the environment variable
         `UMODBUS_SIGNED_VALUES`.
         """
-        return self._MULTI_BIT_VALUE_SIGNED
+        return self._SIGNED_VALUES
 
-    @MULTI_BIT_VALUE_SIGNED.setter
-    def MULTI_BIT_VALUE_SIGNED(self, value):
-        """ Set signedness of multibit values.
+    @SIGNED_VALUES.setter
+    def SIGNED_VALUES(self, value):
+        """ Set signedness of values.
 
         This method effects `Config.MULTI_BIT_VALUE_FORMAT_CHARACTER`.
-        :param value: Boolean indicting if multibit values are signed or not.
+        :param value: Boolean indicting if values are signed or not.
         """
-        self._MULTI_BIT_VALUE_SIGNED = value
+        self._SIGNED_VALUES = value
         self._set_multi_bit_value_format_character()
 
     @property
-    def MULTI_BIT_VALUE_BIT_SIZE(self):
-        """ Bit size of multibit values. Default is 16.
+    def BIT_SIZE(self):
+        """ Bit size of values. Default is 16.
 
-        This value can be set using the environment variable
+        This value can also be set using the environment variable
         `UMODBUS_BIT_SIZE`.
         """
-        return self._MULTI_BIT_VALUE_BIT_SIZE
+        return self._BIT_SIZE
 
-    @MULTI_BIT_VALUE_BIT_SIZE.setter
-    def MULTI_BIT_VALUE_BIT_SIZE(self, value):
-        """ Set bit size of multibit value.
+    @BIT_SIZE.setter
+    def BIT_SIZE(self, value):
+        """ Set bit size of values.
 
         This method effects `Config.MULTI_BIT_VALUE_FORMAT_CHARACTER`.
         :param value: Number indication bit size.
         """
-        self._MULTI_BIT_VALUE_BIT_SIZE = value
+        self._BIT_SIZE = value
         self._set_multi_bit_value_format_character()

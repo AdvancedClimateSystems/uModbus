@@ -3,14 +3,17 @@
 import logging
 from collections import defaultdict
 
-from umodbus import get_server
+from umodbus import get_server, conf
 from umodbus.utils import log_to_stream
 
 # Add stream handler to logger 'uModbus'.
 log_to_stream(level=logging.DEBUG)
 
-# A very simple data store which maps addresss against their values.
+# A very simple data store which maps addresses against their values.
 data_store = defaultdict(int)
+
+# Enable values to be signed (default is False).
+conf.SIGNED_VALUES = True
 
 app = get_server('localhost', 502)
 
