@@ -1,7 +1,7 @@
 import os
 
 
-class Config():
+class Config(object):
     """ Class to hold global configuration. """
 
     SINGLE_BIT_VALUE_FORMAT_CHARACTER = 'B'
@@ -30,7 +30,8 @@ class Config():
     def __init__(self):
         self.MULTI_BIT_VALUE_SIGNED = os.environ.get('UMODBUS_SIGNED_VALUES',
                                                      False)
-        self._set_multi_bit_value_format_character()
+        self.MULTI_BIT_VALUE_BIT_SIZE = os.environ.get('UMODBUS_BIT_SIZE',
+                                                       16)
 
     def _set_multi_bit_value_format_character(self):
         """ Set format character for multibit values.
@@ -81,5 +82,5 @@ class Config():
         This method effects `Config.MULTI_BIT_VALUE_FORMAT_CHARACTER`.
         :param value: Number indication bit size.
         """
-        self._MULTI_BIT_VALUE_SIGNED = value
+        self._MULTI_BIT_VALUE_BIT_SIZE = value
         self._set_multi_bit_value_format_character()
