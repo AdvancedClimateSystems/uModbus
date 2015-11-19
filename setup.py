@@ -4,7 +4,12 @@ uModbus is a pure Python implementation of the Modbus protocol with support
 for Python 2.7, 3.3, 3.4, 3.5 and Pypy. uModbus has no runtime depedencies.
 
 """
+import os
 from setuptools import setup
+
+cwd = os.path.dirname(os.path.abspath(__name__))
+
+long_description = open(os.path.join(cwd, 'README.rst'), 'r').read()
 
 setup(name='uModbus',
       version='0.2.0',
@@ -12,7 +17,7 @@ setup(name='uModbus',
       author_email='oosterhoff@baopt.nl',
       description='Implementation of the Modbus protocol in pure Python.',
       url='https://github.com/AdvancedClimateSystems/umodbus/',
-      long_description=__doc__,
+      long_description=long_description,
       license='MPL',
       packages=[
           'umodbus',
