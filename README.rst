@@ -13,12 +13,15 @@ uModbus
 uModbus or (μModbus) is a pure Python implementation of the Modbus protcol as
 described in the `MODBUS Application Protocol Specification V1.1b3`_. The "u"
 or "μ" in the name comes from the the SI prefix "micro-". uModbus is very small
-and lightweight. The source can be found on GitHub_. Documentation is avaible
+and lightweight. The source can be found on GitHub_. Documentation is available
 at `Read the Docs`_.
+
+Quickstart
+----------
 
 Routing Modbus requests is easy:
 
-.. 
+..
     Because GitHub doesn't support the include directive the source of
     scripts/examples/simple_data_store.py has been copied to this file.
 
@@ -80,7 +83,7 @@ Other featues:
 
 * Support for signed and unsigned register values.
 
-Road map
+Roadmap
 --------
 
 uModbus is far from complete. The next, unordered list shows what is going
