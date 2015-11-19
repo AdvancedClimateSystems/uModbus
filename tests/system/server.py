@@ -19,7 +19,7 @@ def write_status(slave_id, address, value):
 
 
 @app.route(slave_ids=[1], function_codes=[6, 16], addresses=list(range(0, 10)))
-def write_regiter(slave_id, address, value):
+def write_register(slave_id, address, value):
     pass
 
 

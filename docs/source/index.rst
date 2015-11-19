@@ -8,6 +8,7 @@ Contents:
 
    installation
    usage
+   configuration
    decompose_requests
    functions
    changelog

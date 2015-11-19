@@ -9,8 +9,8 @@ certain callback must be easy. This is in contrast with with other Modbus
 implementation which often focus on reading and writing from a data store.
 
 Because of this difference in view point uModbus doesn't know the concepts of
-Modbus' data models (discrete inputs, coils, input registers and holding
-registers) and their read/write properties.
+Modbus' data models like discrete inputs, coils, input registers and holding
+registers and their read/write properties.
 
 Routing
 =======

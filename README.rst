@@ -29,7 +29,7 @@ Routing Modbus requests is easy:
     import logging
     from collections import defaultdict
 
-    from umodbus import get_server
+    from umodbus import get_server, conf
     from umodbus.utils import log_to_stream
 
     # Add stream handler to logger 'uModbus'.
@@ -37,6 +37,9 @@ Routing Modbus requests is easy:
 
     # A very simple data store which maps addresss against their values.
     data_store = defaultdict(int)
+
+    # Enable values to be signed (default is False).
+    conf.SIGNED_VALUES = True
 
     app = get_server('localhost', 502)
 
@@ -62,7 +65,7 @@ Routing Modbus requests is easy:
 Features
 --------
 
-The following Modbus functions have been implemented.
+The following Modbus functions have been implemented:
 
 * 01: Read Coils
 * 02: Read Discrete Inputs
@@ -73,6 +76,10 @@ The following Modbus functions have been implemented.
 * 15: Write Multiple Coils
 * 16: Write Multiple Registers
 
+Other featues:
+
+* Support for signed and unsigned register values.
+
 Road map
 --------
 
@@ -82,8 +89,7 @@ to be implemented in the future:
 * Support for all Modbus functions
 * Modbus RTU
 * Use asyncio for handling of requests
-* Other Modbus 'flavours', so uModbus is able to handle 32 bits or signed
-  values
+* Other Modbus 'flavours', so uModbus is able to handle 32 bit values.
 
 License
 -------
