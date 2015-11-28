@@ -59,6 +59,14 @@ class RequestHandler(BaseRequestHandler):
     """
     def handle(self):
         request_adu = self.request.recv(1024)
+        response_adu = self.process(request_adu)
+        self.respond(response_adu)
+
+    def process(self, request_adu):
+        """ Process request ADU and return response.
+
+        :param request_adu: A request returning.
+        """
         log.debug('Lenght of received ADU is {0}.'.format(len(request_adu)))
         log.info('<-- {0} - {1}.'.format(self.client_address[0],
                  hexlify(request_adu)))
@@ -93,6 +101,14 @@ class RequestHandler(BaseRequestHandler):
         log.debug('Response PDU {0}'.format(response_pdu))
 
         response_adu = response_mbap + response_pdu
+
+        return response_adu
+
+    def respond(self, response_adu):
+        """ Send response ADU back to client.
+
+        :param response_adu: The response of an ADU.
+        """
         log.info('--> {0} - {1}.'.format(self.client_address[0],
                  hexlify(response_adu)))
-        self.request.sendall(response_mbap + response_pdu)
+        self.request.sendall(response_adu)
