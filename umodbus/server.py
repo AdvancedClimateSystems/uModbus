@@ -65,7 +65,8 @@ class RequestHandler(BaseRequestHandler):
     def process(self, request_adu):
         """ Process request ADU and return response.
 
-        :param request_adu: A request returning.
+        :param request_adu: A bytearray containing the ADU request.
+        :return: A bytearray containing the response of the ADU request.
         """
         log.debug('Lenght of received ADU is {0}.'.format(len(request_adu)))
         log.info('<-- {0} - {1}.'.format(self.client_address[0],
@@ -107,7 +108,7 @@ class RequestHandler(BaseRequestHandler):
     def respond(self, response_adu):
         """ Send response ADU back to client.
 
-        :param response_adu: The response of an ADU.
+        :param response_adu: A bytearray containing the response of an ADU.
         """
         log.info('--> {0} - {1}.'.format(self.client_address[0],
                  hexlify(response_adu)))
