@@ -58,9 +58,15 @@ class RequestHandler(BaseRequestHandler):
 
     """
     def handle(self):
-        request_adu = self.request.recv(1024)
-        response_adu = self.process(request_adu)
-        self.respond(response_adu)
+        try:
+            request_adu = self.request.recv(1024)
+            response_adu = self.process(request_adu)
+            self.respond(response_adu)
+        except:
+            import traceback
+            log.exception('Error while handling request: {0}.'
+                          .format(traceback.print_exc()))
+            raise
 
     def process(self, request_adu):
         """ Process request ADU and return response.
