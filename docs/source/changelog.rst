@@ -1,6 +1,16 @@
 Changelog
 =========
 
+0.3.1 (2015-12-12)
+++++++++++++++++++
+
+**Bugs**
+L:
+* `#18`_ Edit interface of `get_server` so socket options can now be set
+  easily.
+
+.. _#18: https://github.com/AdvancedClimateSystems/uModbus/issues/18
+
 0.3.0 (2015-12-05)
 ++++++++++++++++++
 
