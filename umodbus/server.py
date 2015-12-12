@@ -1,7 +1,8 @@
 try:
-    from socketserver import TCPServer, BaseRequestHandler
+    from socketserver import BaseRequestHandler
 except ImportError:
-    from SocketServer import TCPServer, BaseRequestHandler
+    from SocketServer import BaseRequestHandler
+from types import MethodType
 from binascii import hexlify
 
 from umodbus import log
@@ -12,26 +13,20 @@ from umodbus.functions import function_factory
 from umodbus.exceptions import ModbusError, ServerDeviceFailureError
 
 
-def get_server(host, port):
-    """ Return :class:`modbus.Server` bound to given port and listening for
-    given host.  :class:`modbus.RequestHandler` is passed as
-    RequestHandlerClass.
+def get_server(server_class, server_address, request_handler_class):
+    """ Return instance of :param:`server_class` with :param:`request_handler`
+    bound to it.
 
-        >>> server = get_server('localhost', 502)
-        >>> server serve_forever()
+    This method also binds a :func:`route` method to the server instance.
 
-    :param host: Hostname.
-    :param port: Port number.
-    :return: Server, subclass of socketserver.TCPServer.
+        >>> server = get_server(TcpServer, RequestHandler, ('localhost', 502))
+        >>> server.serve_forever()
+
+    :param server_class: (sub)Class of :class:`socketserver.BaseServer`.
+    :param request_handler_class: (sub)Class of
+        :class:`umodbus.server.RequestHandler`.
+    :return: Instance of :param:`server_class`.
     """
-    return Server((host, port), RequestHandler)
-
-
-class Server(TCPServer):
-    """ A subclass of :class:`socketserver.TCPServer`.  """
-    def __init__(self, server_address, RequestHandlerClass):
-        TCPServer.__init__(self, server_address, RequestHandlerClass)
-        self.route_map = Map()
 
     def route(self, slave_ids=None, function_codes=None, addresses=None):
         """ A decorator that is used to register an endpoint for a given
@@ -50,6 +45,13 @@ class Server(TCPServer):
             return f
 
         return inner
+
+    s = server_class(server_address, request_handler_class)
+
+    s.route_map = Map()
+    s.route = MethodType(route, s)
+
+    return s
 
 
 class RequestHandler(BaseRequestHandler):

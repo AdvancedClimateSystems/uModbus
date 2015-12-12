@@ -1,6 +1,11 @@
-from umodbus import get_server
+try:
+    from socketserver import TCPServer
+except ImportError:
+    from SocketServer import TCPServer
 
-app = get_server('localhost', 0)
+from umodbus import get_server, RequestHandler
+
+app = get_server(TCPServer, ('localhost', 0), RequestHandler)
 
 
 @app.route(slave_ids=[1], function_codes=[1, 2], addresses=list(range(0, 10)))
