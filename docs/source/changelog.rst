@@ -5,7 +5,7 @@ Changelog
 ++++++++++++++++++
 
 **Bugs**
-L:
+
 * `#18`_ Edit interface of `get_server` so socket options can now be set
   easily.
 
