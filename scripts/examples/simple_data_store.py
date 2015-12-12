@@ -1,9 +1,10 @@
 #!/usr/bin/env python
 # scripts/examples/simple_data_store.py
 import logging
+from socketserver import TCPServer
 from collections import defaultdict
 
-from umodbus import get_server, conf
+from umodbus import get_server, RequestHandler, conf
 from umodbus.utils import log_to_stream
 
 # Add stream handler to logger 'uModbus'.
@@ -15,7 +16,7 @@ data_store = defaultdict(int)
 # Enable values to be signed (default is False).
 conf.SIGNED_VALUES = True
 
-app = get_server('localhost', 502)
+app = get_server(TCPServer, ('localhost', 502), RequestHandler)
 
 
 @app.route(slave_ids=[1], function_codes=[3, 4], addresses=list(range(0, 10)))
