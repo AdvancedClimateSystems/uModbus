@@ -19,7 +19,7 @@ def get_server(server_class, server_address, request_handler_class):
 
     This method also binds a :func:`route` method to the server instance.
 
-        >>> server = get_server(TcpServer, RequestHandler, ('localhost', 502))
+        >>> server = get_server(TcpServer, ('localhost', 502), RequestHandler)
         >>> server.serve_forever()
 
     :param server_class: (sub)Class of :class:`socketserver.BaseServer`.
