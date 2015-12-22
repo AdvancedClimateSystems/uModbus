@@ -10,7 +10,7 @@ def validate_mbap_fields(mbap, slave_id, pdu):
     transaction_id = struct.unpack('>H', mbap[:2])[0]
     protocol_id = struct.unpack('>H', mbap[2:4])[0]
     length = struct.unpack('>H', mbap[4:6])[0]
-    unit_id = mbap[6]
+    unit_id = struct.unpack('>B', mbap[6:])[0]
 
     assert len(mbap) == 7
     assert 0 <= transaction_id <= 65536
