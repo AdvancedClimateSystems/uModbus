@@ -65,16 +65,17 @@ def test_response_on_multi_bit_value_read_requests(sock, function):
     assert unpack_multi_bit_values(resp) == (0, 1, 2, 3, 4, 5, 6, 7, 8, 9)
 
 
-@pytest.mark.parametrize('function_code', [
-    5,
-    6,
+@pytest.mark.parametrize('function', [
+    tcp.write_single_coil,
+    tcp.write_single_register,
 ])
-def test_response_single_value_write_request(sock, mbap, function_code):
+def test_response_single_value_write_request(sock, function):
     """ Validate responde of succesful Read Single Coil and Read Single
     Register request.
     """
-    function_code, address, value = (function_code, 1, 0)
-    adu = mbap + struct.pack('>BHH', function_code, address, value)
+    slave_id, starting_address, quantity = (1, 0, 0)
+    adu = function(slave_id, starting_address, quantity)
+    mbap = adu[:7]
 
     sock.send(adu)
     resp = sock.recv(1024)
@@ -83,17 +84,22 @@ def test_response_single_value_write_request(sock, mbap, function_code):
     assert resp == adu
 
 
-@pytest.mark.parametrize('function_code, pdu', [
-    (15, struct.pack('>BHHBB', 15, 0, 2, 1, 3)),
-    (16, struct.pack('>BHHBHH', 16, 0, 2, 4, 1337, 15)),
+@pytest.mark.parametrize('function, values', [
+    #(tcp.write_multiple_coils, [1, 1]),
+    #(15, struct.pack('>BHHBB', 15, 0, 2, 1, 3)),
+    (tcp.write_multiple_registers, [1337, 15]),
 ])
-def test_response_multi_value_write_request(sock, mbap, function_code, pdu):
+def test_response_multi_value_write_request(sock, function, values):
     """ Validate response of succesful Write Multiple Coils and Write Multiple
     Registers request.
 
     Both requests write 2 values, starting address is 0.
     """
-    sock.send(mbap + pdu)
+    slave_id, starting_address = (1, 0)
+    adu = function(slave_id, starting_address, values)
+    mbap = adu[:7]
+
+    sock.send(adu)
     resp = sock.recv(1024)
 
     validate_response_mbap(mbap, resp)

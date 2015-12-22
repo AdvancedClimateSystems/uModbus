@@ -139,3 +139,39 @@ def read_input_registers(slave_id, *args, **kwargs):
     :return: Byte array with ADU.
     """
     return create_adu(slave_id, pdu.read_input_registers(*args, **kwargs))
+
+
+def write_single_coil(slave_id, *args, **kwargs):
+    """ Return ADU for Modbus function code 05: Write Single Coil.
+
+    :param slave_id: Number of slave.
+    :return: Byte array with ADU.
+    """
+    return create_adu(slave_id, pdu.write_single_coil(*args, **kwargs))
+
+
+def write_single_register(slave_id, *args, **kwargs):
+    """ Return ADU for Modbus function code 06: Write Single Register.
+
+    :param slave_id: Number of slave.
+    :return: Byte array with ADU.
+    """
+    return create_adu(slave_id, pdu.write_single_register(*args, **kwargs))
+
+
+def write_multiple_coils(slave_id, *args, **kwargs):
+    """ Return ADU for Modbus function code 15: Write Multiple Coils.
+
+    :param slave_id: Number of slave.
+    :return: Byte array with ADU.
+    """
+    return create_adu(slave_id, pdu.write_multiple_coils(*args, **kwargs))
+
+
+def write_multiple_registers(slave_id, *args, **kwargs):
+    """ Return ADU for Modbus function code 16: Write Multiple Registers.
+
+    :param slave_id: Number of slave.
+    :return: Byte array with ADU.
+    """
+    return create_adu(slave_id, pdu.write_multiple_registers(*args, **kwargs))

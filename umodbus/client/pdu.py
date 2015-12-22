@@ -87,3 +87,46 @@ def read_input_registers(starting_address, quantity):
     :return: Byte array with PDU.
     """
     return struct.pack('>BHH', 4, starting_address, quantity)
+
+
+def write_single_coil(address, value):
+    """ Return PDU for Modbus function code 05: Write Single Coil.
+
+    :param address: Address of coil you want to write to.
+    :param value: Boolean indicating status of coil.
+    :return: Byte array with PDU.
+    """
+    status = 0xFFFF if value else 0x0000
+    return struct.pack('>BHH', 5, address, status)
+
+
+def write_single_register(address, value):
+    """ Return PDU for Modbus function code 06: Write Single Register.
+
+    :param address: Address of register you want to write to.
+    :param value: Value of register.
+    :return: Byte array with PDU.
+    """
+    return struct.pack('>BHH', 6, address, value)
+
+
+def write_multiple_coils(starting_address, values):
+    """ Return PDU for Modbus function code 15: Write Multiple Coils.
+
+    :param address: Address of first coil you want to write to.
+    :param value: Boolean indicating status of coil.
+    :return: Byte array with PDU.
+    """
+    pass
+
+
+def write_multiple_registers(starting_address, values):
+    """ Return PDU for Modbus function code 16: Write Multiple Registers.
+
+    :param address: Address of first register you want to write to.
+    :param value: List of values you want to write.
+    :return: Byte array with PDU.
+    """
+    fmt = '>BHHB' + ('H' * len(values))
+    return struct.pack(fmt, 16, starting_address, len(values),
+                       2 * len(values),  *values)
