@@ -1,6 +1,7 @@
 import pytest
 import struct
 
+from umodbus.client import tcp
 from ..validators import (validate_response_mbap, validate_function_code,
                           validate_single_bit_value_byte_count,
                           validate_multi_bit_value_byte_count)
@@ -20,16 +21,17 @@ def unpack_multi_bit_values(response):
     return struct.unpack(fmt, response[9:])
 
 
-@pytest.mark.parametrize('function_code', [
-    1,
-    2,
+@pytest.mark.parametrize('function', [
+    tcp.read_coils,
+    tcp.read_discrete_inputs,
 ])
-def test_response_on_single_bit_value_read_requests(sock, mbap, function_code):
+def test_response_on_single_bit_value_read_requests(sock, function):
     """ Validate response of a succesful Read Coils or Read Discrete Inputs
     request.
     """
-    function_code, starting_address, quantity = (function_code, 0, 10)
-    adu = mbap + struct.pack('>BHH', function_code, starting_address, quantity)
+    slave_id, starting_address, quantity = (1, 0, 10)
+    adu = function(slave_id, starting_address, quantity)
+    mbap = adu[:7]
 
     sock.send(adu)
     resp = sock.recv(1024)
@@ -41,16 +43,17 @@ def test_response_on_single_bit_value_read_requests(sock, mbap, function_code):
     assert unpack_single_bit_values(resp) == (170, 2)
 
 
-@pytest.mark.parametrize('function_code', [
-    3,
-    4,
+@pytest.mark.parametrize('function', [
+    tcp.read_holding_registers,
+    tcp.read_input_registers,
 ])
-def test_response_on_multi_bit_value_read_requests(sock, mbap, function_code):
+def test_response_on_multi_bit_value_read_requests(sock, function):
     """ Validate response of a succesful Read Holding Registers or Read
     Input Registers request.
     """
-    function_code, starting_address, quantity = (function_code, 0, 10)
-    adu = mbap + struct.pack('>BHH', function_code, starting_address, quantity)
+    slave_id, starting_address, quantity = (1, 0, 10)
+    adu = function(slave_id, starting_address, quantity)
+    mbap = adu[:7]
 
     sock.send(adu)
     resp = sock.recv(1024)
