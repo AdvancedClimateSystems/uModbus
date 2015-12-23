@@ -98,10 +98,10 @@ def write_single_coil(address, value):
     """ Return PDU for Modbus function code 05: Write Single Coil.
 
     :param address: Address of coil you want to write to.
-    :param value: Boolean indicating status of coil.
+    :param value: 0 or 1 indicating status of coil.
     :return: Byte array with PDU.
     """
-    status = 0xFFFF if value else 0x0000
+    status = 0xFF00 if value else 0x0000
     return struct.pack('>BHH', 5, address, status)
 
 
