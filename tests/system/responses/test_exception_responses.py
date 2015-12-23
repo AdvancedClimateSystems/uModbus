@@ -22,8 +22,9 @@ def test_request_returning_invalid_data_value_error(sock, function, quantity):
     """
     slave_id, starting_address = (1, 0)
     adu = function(slave_id, starting_address, quantity)
+
     mbap = adu[:7]
-    function_code = adu[7]
+    function_code = int(adu[7])
 
     sock.send(adu)
     resp = sock.recv(1024)
@@ -49,7 +50,7 @@ def test_request_returning_invalid_data_address_error(sock, function):
     adu = function()
 
     mbap = adu[:7]
-    function_code = adu[7]
+    function_code = int(adu[7])
 
     sock.send(adu)
     resp = sock.recv(1024)
@@ -75,7 +76,7 @@ def test_request_returning_server_device_failure_error(sock, function):
     adu = function()
 
     mbap = adu[:7]
-    function_code = adu[7]
+    function_code = int(adu[7])
 
     sock.send(adu)
     resp = sock.recv(1024)
