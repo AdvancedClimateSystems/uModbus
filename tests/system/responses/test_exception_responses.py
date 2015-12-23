@@ -24,7 +24,7 @@ def test_request_returning_invalid_data_value_error(sock, function, quantity):
     adu = function(slave_id, starting_address, quantity)
 
     mbap = adu[:7]
-    function_code = int(adu[7])
+    function_code = struct.unpack('>B', adu[7])[0]
 
     sock.send(adu)
     resp = sock.recv(1024)
@@ -51,6 +51,7 @@ def test_request_returning_invalid_data_address_error(sock, function):
 
     mbap = adu[:7]
     function_code = int(adu[7])
+    function_code = struct.unpack('>B', adu[7])[0]
 
     sock.send(adu)
     resp = sock.recv(1024)
@@ -76,7 +77,7 @@ def test_request_returning_server_device_failure_error(sock, function):
     adu = function()
 
     mbap = adu[:7]
-    function_code = int(adu[7])
+    function_code = struct.unpack('>B', adu[7])[0]
 
     sock.send(adu)
     resp = sock.recv(1024)
