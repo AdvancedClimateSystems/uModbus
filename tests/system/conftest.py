@@ -1,6 +1,5 @@
 import pytest
 import socket
-import struct
 from threading import Thread
 
 from .server import app
@@ -28,8 +27,3 @@ def sock(server):
     yield sock
 
     sock.close()
-
-
-@pytest.fixture
-def mbap():
-    return struct.pack('>HHHB', 0, 0, 6, 1)
