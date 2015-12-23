@@ -85,8 +85,7 @@ def test_response_single_value_write_request(sock, function):
 
 
 @pytest.mark.parametrize('function, values', [
-    #(tcp.write_multiple_coils, [1, 1]),
-    #(15, struct.pack('>BHHBB', 15, 0, 2, 1, 3)),
+    (tcp.write_multiple_coils, [1, 1]),
     (tcp.write_multiple_registers, [1337, 15]),
 ])
 def test_response_multi_value_write_request(sock, function, values):
