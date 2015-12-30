@@ -9,36 +9,6 @@ from umodbus.functions import function_code_to_function_map
 from umodbus.exceptions import error_code_to_exception_map
 
 
-def read_discrete_inputs(starting_address, quantity):
-    """ Return PDU for Modbus function code 02: Read Discret Inputs.
-
-    :param starting_address: Number with address of first discrete input.
-    :param quantity: Number with amount of discrete inputs to read.
-    :return: Byte array with PDU.
-    """
-    return struct.pack('>BHH', 2, starting_address, quantity)
-
-
-def read_holding_registers(starting_address, quantity):
-    """ Return PDU for Modbus function code 03: Read Input Registers.
-
-    :param starting_address: Number with address of first holding register.
-    :param quantity: Number with amount of holding registers to read.
-    :return: Byte array with PDU.
-    """
-    return struct.pack('>BHH', 3, starting_address, quantity)
-
-
-def read_input_registers(starting_address, quantity):
-    """ Return PDU for Modbus function code 04: Read Input Registers.
-
-    :param starting_address: Number with address of first input register.
-    :param quantity: Number with amount of input registers to read.
-    :return: Byte array with PDU.
-    """
-    return struct.pack('>BHH', 4, starting_address, quantity)
-
-
 def write_single_coil(address, value):
     """ Return PDU for Modbus function code 05: Write Single Coil.
 

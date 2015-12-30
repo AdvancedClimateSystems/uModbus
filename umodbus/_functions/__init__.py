@@ -48,7 +48,8 @@ A response PDU could look like this::
 """
 import struct
 
-from umodbus.exceptions import error_code_to_exception_map, IllegalDataValueError
+from umodbus.exceptions import (error_code_to_exception_map,
+                                IllegalDataValueError)
 
 # Function related to data access.
 READ_COILS = 1
@@ -84,7 +85,7 @@ def create_function_from_response_pdu(resp_pdu, *args, **kwargs):
     :return: Number or list with response data.
     :raises ModbusError: When response contains error code.
     """
-    function_code = struct.unpack('>B', resp_pdu[1:2])[0]
+    function_code = struct.unpack('>B', resp_pdu[0:1])[0]
 
     if function_code not in function_code_to_function_map.keys():
         raise error_code_to_exception_map[function_code]
@@ -102,9 +103,9 @@ class ReadCoils(ModbusFunction):
 
         "This function code is used to read from 1 to 2000 contiguous status of
         coils in a remote device. The Request PDU specifies the starting
-        address, i.e. the address of the first coil specified, and the number of
-        coils. In the PDU Coils are addressed starting at zero. Therefore coils
-        numbered 1-16 are addressed as 0-15.
+        address, i.e. the address of the first coil specified, and the number
+        of coils. In the PDU Coils are addressed starting at zero. Therefore
+        coils numbered 1-16 are addressed as 0-15.
 
         The coils in the response message are packed as one coil per bit of the
         data field. Status is indicated as 1= ON and 0= OFF. The LSB of the
@@ -229,55 +230,368 @@ class ReadCoils(ModbusFunction):
 
 
 class ReadDiscreteInputs(ModbusFunction):
-    function_code = 2
+    """ Implement Modbus function code 02.
+
+        "This function code is used to read from 1 to 2000 contiguous status of
+        discrete inputs in a remote device. The Request PDU specifies the
+        starting address, i.e. the address of the first input specified, and
+        the number of inputs. In the PDU Discrete Inputs are addressed starting
+        at zero. Therefore Discrete inputs numbered 1-16 are addressed as
+        0-15.
+
+        The discrete inputs in the response message are packed as one input per
+        bit of the data field.  Status is indicated as 1= ON; 0= OFF. The LSB
+        of the first data byte contains the input addressed in the query. The
+        other inputs follow toward the high order end of this byte, and from
+        low order to high order in subsequent bytes.
+
+        If the returned input quantity is not a multiple of eight, the
+        remaining bits in the final d ata byte will be padded with zeros
+        (toward the high order end of the byte). The Byte Count field specifies
+        the quantity of complete bytes of data."
+
+        -- MODBUS Application Protocol Specification V1.1b3, chapter 6.2
+
+    The request PDU with function code 02 must be 5 bytes:
+
+        ================ ===============
+        Field            Length (bytes)
+        ================ ===============
+        Function code    1
+        Starting address 2
+        Quantity         2
+        ================ ===============
+
+    The PDU can unpacked to this::
+
+        >>> struct.unpack('>BHH', b'\x02\x00d\x00\x03')
+        (2, 100, 3)
+
+    The reponse PDU varies in length, depending on the request. 8 inputs
+    require 1 byte. The amount of bytes needed represent status of the inputs
+    to can be calculated with: bytes = round(quantity / 8) + 1. This response
+    contains (3 / 8 + 1) = 1 byte to describe the status of the inputs. The
+    structure of a compleet response PDU looks like this:
+
+        ================ ===============
+        Field            Length (bytes)
+        ================ ===============
+        Function code    1
+        Byte count       1
+        Coil status      n
+        ================ ===============
+
+    Assume the status of 102 is 0, 101 is 1 and 100 is also 1. This is binary
+    011 which is decimal 3.
+
+    The PDU can packed like this::
+
+        >>> struct.pack('>BBB', function_code, byte_count, 3)
+        b'\x02\x01\x03'
+
+    """
+    function_code = READ_DISCRETE_INPUTS
+
+    byte_count = None
+    data = None
+    starting_address = None
+    _quantity = None
+
+    @property
+    def quantity(self):
+        return self._quantity
+
+    @quantity.setter
+    def quantity(self, value):
+        """ Set number of inputs to read. Quantity must be between 1 and 2000.
+
+        :param value: Quantity.
+        :raises: IllegalDataValueError.
+        """
+        if not (1 <= value <= 2000):
+            raise IllegalDataValueError('Quantify field of request must be a '
+                                        'value between 0 and '
+                                        '{0}.'.format(2000))
+
+        self._quantity = value
+
+    @property
+    def request_pdu(self):
+        """ Build request PDU to read discrete inputs.
+
+        :return: Byte array of 5 bytes with PDU.
+        """
+        if None in [self.starting_address, self.quantity]:
+            # TODO Raise proper exception.
+            raise Exception
+
+        return struct.pack('>BHH', self.function_code, self.starting_address,
+                           self.quantity)
 
     @staticmethod
-    def create_from_response_pdu(pdu):
+    def create_from_response_pdu(resp_pdu, quantity):
+        """ Create instance from response PDU.
+
+        Response PDU is required together with the quantity of inputs read.
+
+        :param resp_pdu: Byte array with request PDU.
+        :param quantity: Number of inputs read.
+        :return: Instance of :class:`ReadDiscreteInputs`.
+        """
         read_discrete_inputs = ReadDiscreteInputs()
-        _, byte_count = struct.unpack('>BB', pdu[:2])
+        read_discrete_inputs.quantity = quantity
+        read_discrete_inputs.byte_count = struct.unpack('>B', resp_pdu[1:2])[0]
 
-        read_discrete_inputs.byte_count = byte_count
+        fmt = '>' + ('B' * read_discrete_inputs.byte_count)
+        bytes_ = struct.unpack(fmt, resp_pdu[2:])
 
-        fmt =  '>B' * byte
+        data = list()
+
+        for i, value in enumerate(bytes_):
+            padding = 8 if (read_discrete_inputs.quantity - (8 * i)) // 8 > 0 \
+                else read_discrete_inputs.quantity % 8
+
+            fmt = '{{0:0{padding}b}}'.format(padding=padding)
+
+            # Create binary representation of integer, convert it to a list
+            # and reverse the list.
+            data = data + [int(i) for i in fmt.format(value)][::-1]
+
+        read_discrete_inputs.data = data
+        return read_discrete_inputs
 
 
 class ReadHoldingRegisters(ModbusFunction):
-    function_code = 3
+    """ Implement Modbus function code 03.
 
-    def create_from_response_pdu(pdu):
+        "This function code is used to read the contents of a contiguous block
+        of holding registers in a remote device. The Request PDU specifies the
+        starting register address and the number of registers. In the PDU
+        Registers are addressed starting at zero. Therefore registers numbered
+        1-16 are addressed as 0-15.
+
+        The register data in the response message are packed as two bytes per
+        register, with the binary contents right justified within each byte.
+        For each register, the first byte contains the high order bits and the
+        second contains the low order bits."
+
+        -- MODBUS Application Protocol Specification V1.1b3, chapter 6.3
+
+    The request PDU with function code 03 must be 5 bytes:
+
+        ================ ===============
+        Field            Length (bytes)
+        ================ ===============
+        Function code    1
+        Starting address 2
+        Quantity         2
+        ================ ===============
+
+    The PDU can unpacked to this::
+
+        >>> struct.unpack('>BHH', b'\x03\x00d\x00\x03')
+        (3, 100, 3)
+
+    The reponse PDU varies in length, depending on the request. By default,
+    holding registers are 16 bit (2 bytes) values. So values of 3 holding
+    registers is expressed in 2 * 3 = 6 bytes.
+
+        ================ ===============
+        Field            Length (bytes)
+        ================ ===============
+        Function code    1
+        Byte count       1
+        Register values  Quantity * 2
+        ================ ===============
+
+    Assume the value of 100 is 8, 101 is 0 and 102 is also 15.
+
+    The PDU can packed like this::
+
+        >>> data = [8, 0, 15]
+        >>> struct.pack('>BBHHH', function_code, len(data) * 2, *data)
+        '\x03\x06\x00\x08\x00\x00\x00\x0f'
+
+    """
+    function_code = READ_HOLDING_REGISTERS
+
+    byte_count = None
+    data = None
+    starting_address = None
+    _quantity = None
+
+    @property
+    def quantity(self):
+        return self._quantity
+
+    @quantity.setter
+    def quantity(self, value):
+        """ Set number of registers to read. Quantity must be between 1 and
+        0x00FD.
+
+        :param value: Quantity.
+        :raises: IllegalDataValueError.
+        """
+        if not (1 <= value <= 0x007D):
+            raise IllegalDataValueError('Quantify field of request must be a '
+                                        'value between 0 and '
+                                        '{0}.'.format(0x007D))
+
+        self._quantity = value
+
+    @property
+    def request_pdu(self):
+        """ Build request PDU to read coils.
+
+        :return: Byte array of 5 bytes with PDU.
+        """
+        if None in [self.starting_address, self.quantity]:
+            # TODO Raise proper exception.
+            raise Exception
+
+        return struct.pack('>BHH', self.function_code, self.starting_address,
+                           self.quantity)
+
+    @staticmethod
+    def create_from_response_pdu(resp_pdu, quantity):
+        """ Create instance from response PDU.
+
+        Response PDU is required together with the number of registers read.
+
+        :param resp_pdu: Byte array with request PDU.
+        :param quantity: Number of coils read.
+        :return: Instance of :class:`ReadCoils`.
+        """
         read_holding_registers = ReadHoldingRegisters()
-        _, byte_count = struct.unpack('>BB', pdu[:2])
-
-        read_holding_registers.byte_count = byte_count
+        read_holding_registers.quantity = quantity
+        read_holding_registers.byte_count = \
+            struct.unpack('>B', resp_pdu[1:2])[0]
 
         fmt = '>' + ('H' * int(read_holding_registers.byte_count / 2))
-        read_holding_registers.data = list(struct.unpack(fmt, pdu[2:]))
+        read_holding_registers.data = list(struct.unpack(fmt, resp_pdu[2:]))
 
         return read_holding_registers
 
 
 class ReadInputRegisters(ModbusFunction):
-    function_code = 4
+    """ Implement Modbus function code 04.
 
-    def create_from_response_pdu(pdu):
-        read_input_registers = ()
-        _, byte_count = struct.unpack('>BB', pdu[:2])
+        "This function code is used to read from 1 to 125 contiguous input
+        registers in a remote device. The Request PDU specifies the starting
+        register address and the number of registers. In the PDU Registers are
+        addressed starting at zero. Therefore input registers numbered 1-16 are
+        addressed as 0-15.
 
-        read_input_registers.byte_count = byte_count
+        The register data in the response message are packed as two bytes per
+        register, with the binary contents right justified within each byte.
+        For each register, the first byte contains the high order bits and the
+        second contains the low order bits."
+
+        -- MODBUS Application Protocol Specification V1.1b3, chapter 6.4
+
+    The request PDU with function code 04 must be 5 bytes:
+
+        ================ ===============
+        Field            Length (bytes)
+        ================ ===============
+        Function code    1
+        Starting address 2
+        Quantity         2
+        ================ ===============
+
+    The PDU can unpacked to this::
+
+        >>> struct.unpack('>BHH', b'\x04\x00d\x00\x03')
+        (4, 100, 3)
+
+    The reponse PDU varies in length, depending on the request. By default,
+    holding registers are 16 bit (2 bytes) values. So values of 3 holding
+    registers is expressed in 2 * 3 = 6 bytes.
+
+        ================ ===============
+        Field            Length (bytes)
+        ================ ===============
+        Function code    1
+        Byte count       1
+        Register values  Quantity * 2
+        ================ ===============
+
+    Assume the value of 100 is 8, 101 is 0 and 102 is also 15.
+
+    The PDU can packed like this::
+
+        >>> data = [8, 0, 15]
+        >>> struct.pack('>BBHHH', function_code, len(data) * 2, *data)
+        '\x04\x06\x00\x08\x00\x00\x00\x0f'
+
+    """
+    function_code = READ_INPUT_REGISTERS
+
+    byte_count = None
+    data = None
+    starting_address = None
+    _quantity = None
+
+    @property
+    def quantity(self):
+        return self._quantity
+
+    @quantity.setter
+    def quantity(self, value):
+        """ Set number of registers to read. Quantity must be between 1 and
+        0x00FD.
+
+        :param value: Quantity.
+        :raises: IllegalDataValueError.
+        """
+        if not (1 <= value <= 0x007D):
+            raise IllegalDataValueError('Quantify field of request must be a '
+                                        'value between 0 and '
+                                        '{0}.'.format(0x007D))
+
+        self._quantity = value
+
+    @property
+    def request_pdu(self):
+        """ Build request PDU to read coils.
+
+        :return: Byte array of 5 bytes with PDU.
+        """
+        if None in [self.starting_address, self.quantity]:
+            # TODO Raise proper exception.
+            raise Exception
+
+        return struct.pack('>BHH', self.function_code, self.starting_address,
+                           self.quantity)
+
+    @staticmethod
+    def create_from_response_pdu(resp_pdu, quantity):
+        """ Create instance from response PDU.
+
+        Response PDU is required together with the number of registers read.
+
+        :param resp_pdu: Byte array with request PDU.
+        :param quantity: Number of coils read.
+        :return: Instance of :class:`ReadCoils`.
+        """
+        read_input_registers = ReadInputRegisters()
+        read_input_registers.quantity = quantity
+        read_input_registers.byte_count = \
+            struct.unpack('>B', resp_pdu[1:2])[0]
 
         fmt = '>' + ('H' * int(read_input_registers.byte_count / 2))
-        read_input_registers.data = list(struct.unpack(fmt, pdu[2:]))
+        read_input_registers.data = list(struct.unpack(fmt, resp_pdu[2:]))
 
         return read_input_registers
 
 
 function_code_to_function_map = {
     READ_COILS: ReadCoils,
-    #READ_DISCRETE_INPUTS: ReadDiscreteInputs,
+    READ_DISCRETE_INPUTS: ReadDiscreteInputs,
     READ_HOLDING_REGISTERS: ReadHoldingRegisters,
     READ_INPUT_REGISTERS: ReadInputRegisters,
-    #WRITE_SINGLE_COIL: WriteSingleCoil,
-    #WRITE_SINGLE_REGISTER: WriteSingleRegister,
-    #WRITE_MULTIPLE_COILS: WriteMultipleCoils,
-    #WRITE_MULTIPLE_REGISTERS: WriteMultipleRegisters,
+    # WRITE_SINGLE_COIL: WriteSingleCoil,
+    # WRITE_SINGLE_REGISTER: WriteSingleRegister,
+    # WRITE_MULTIPLE_COILS: WriteMultipleCoils,
+    # WRITE_MULTIPLE_REGISTERS: WriteMultipleRegisters,
 }

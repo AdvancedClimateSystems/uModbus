@@ -78,7 +78,9 @@ byte) + PDU (5 bytes).
 import struct
 from random import randint
 
-from umodbus._functions import create_function_from_response_pdu, ReadCoils
+from umodbus._functions import (create_function_from_response_pdu, ReadCoils,
+                                ReadDiscreteInputs, ReadHoldingRegisters,
+                                ReadInputRegisters)
 from umodbus.client import pdu
 
 
@@ -119,31 +121,43 @@ def read_coils(slave_id, starting_address, quantity):
     return create_adu(slave_id, function.request_pdu)
 
 
-def read_discrete_inputs(slave_id, *args, **kwargs):
+def read_discrete_inputs(slave_id, starting_address, quantity):
     """ Return ADU for Modbus function code 02: Read Discrete Inputs.
 
     :param slave_id: Number of slave.
     :return: Byte array with ADU.
     """
-    return create_adu(slave_id, pdu.read_discrete_inputs(*args, **kwargs))
+    function = ReadDiscreteInputs()
+    function.starting_address = starting_address
+    function.quantity = quantity
+
+    return create_adu(slave_id, function.request_pdu)
 
 
-def read_holding_registers(slave_id, *args, **kwargs):
+def read_holding_registers(slave_id, starting_address, quantity):
     """ Return ADU for Modbus function code 03: Read Holding Registers.
 
     :param slave_id: Number of slave.
     :return: Byte array with ADU.
     """
-    return create_adu(slave_id, pdu.read_holding_registers(*args, **kwargs))
+    function = ReadHoldingRegisters()
+    function.starting_address = starting_address
+    function.quantity = quantity
+
+    return create_adu(slave_id, function.request_pdu)
 
 
-def read_input_registers(slave_id, *args, **kwargs):
+def read_input_registers(slave_id, starting_address, quantity):
     """ Return ADU for Modbus function code 04: Read Input Registers.
 
     :param slave_id: Number of slave.
     :return: Byte array with ADU.
     """
-    return create_adu(slave_id, pdu.read_input_registers(*args, **kwargs))
+    function = ReadInputRegisters()
+    function.starting_address = starting_address
+    function.quantity = quantity
+
+    return create_adu(slave_id, function.request_pdu)
 
 
 def write_single_coil(slave_id, *args, **kwargs):
