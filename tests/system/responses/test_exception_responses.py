@@ -6,26 +6,23 @@ from ..validators import validate_response_mbap
 from umodbus.client import tcp
 
 
-@pytest.mark.xfail(reason='Client prohibit user from doing wrong requests.')
-@pytest.mark.parametrize('function, quantity', [
-    (tcp.read_coils, 0),
-    (tcp.read_discrete_inputs, 0),
-    (tcp.read_holding_registers, 0),
-    (tcp.read_input_registers, 0),
-    (tcp.read_coils, 0x07D0 + 1),
-    (tcp.read_discrete_inputs, 0x07D0 + 1),
-    (tcp.read_holding_registers, 0x007D + 1),
-    (tcp.read_input_registers, 0x007D + 1),
+@pytest.mark.parametrize('function_code, quantity', [
+    (1, 0),
+    (2, 0),
+    (3, 0),
+    (4, 0),
+    (1, 0x07D0 + 1),
+    (2, 0x07D0 + 1),
+    (3, 0x007D + 1),
+    (4, 0x007D + 1),
 ])
-def test_request_returning_invalid_data_value_error(sock, function, quantity):
+def test_request_returning_invalid_data_value_error(sock, mbap, function_code,
+                                                    quantity):
     """ Validate response PDU of request returning excepetion response with
     error code 3.
     """
-    slave_id, starting_address = (1, 0)
-    adu = function(slave_id, starting_address, quantity)
-
-    mbap = adu[:7]
-    function_code = struct.unpack('>B', adu[7:8])[0]
+    function_code, starting_address, quantity = (function_code, 0, quantity)
+    adu = mbap + struct.pack('>BHH', function_code, starting_address, quantity)
 
     sock.send(adu)
     resp = sock.recv(1024)
