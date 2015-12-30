@@ -78,6 +78,7 @@ byte) + PDU (5 bytes).
 import struct
 from random import randint
 
+from umodbus._functions import create_function_from_response_pdu, ReadCoils
 from umodbus.client import pdu
 
 
@@ -105,13 +106,17 @@ def create_mbap_header(slave_id, pdu):
     return struct.pack('>HHHB', transaction_id, 0, length, slave_id)
 
 
-def read_coils(slave_id, *args, **kwargs):
+def read_coils(slave_id, starting_address, quantity):
     """ Return ADU for Modbus function code 01: Read Coils.
 
     :param slave_id: Number of slave.
     :return: Byte array with ADU.
     """
-    return create_adu(slave_id, pdu.read_coils(*args, **kwargs))
+    function = ReadCoils()
+    function.starting_address = starting_address
+    function.quantity = quantity
+
+    return create_adu(slave_id, function.request_pdu)
 
 
 def read_discrete_inputs(slave_id, *args, **kwargs):
@@ -175,3 +180,10 @@ def write_multiple_registers(slave_id, *args, **kwargs):
     :return: Byte array with ADU.
     """
     return create_adu(slave_id, pdu.write_multiple_registers(*args, **kwargs))
+
+
+def parse_response(resp_adu, *args, **kwargs):
+    resp_pdu = resp_adu[7:]
+    function = create_function_from_response_pdu(resp_pdu, *args, **kwargs)
+
+    return function.data

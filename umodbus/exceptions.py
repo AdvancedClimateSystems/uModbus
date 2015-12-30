@@ -91,3 +91,16 @@ class GatewayTargetDeviceFailedToRespondError(ModbusError):
 
     def __repr__(self):
         return self.__doc__
+
+error_code_to_exception_map = {
+    IllegalFunctionError.error_code: IllegalFunctionError,
+    IllegalDataAddressError.error_code: IllegalDataAddressError,
+    IllegalDataValueError.error_code: IllegalDataValueError,
+    ServerDeviceFailureError.error_code: ServerDeviceFailureError,
+    AcknowledgeError.error_code: AcknowledgeError,
+    ServerDeviceBusyError.error_code: ServerDeviceBusyError,
+    MemoryParityError.error_code: MemoryParityError,
+    GatewayPathUnavailableError.error_code: GatewayPathUnavailableError,
+    GatewayTargetDeviceFailedToRespondError.error_code:
+        GatewayTargetDeviceFailedToRespondError
+}

@@ -6,6 +6,7 @@ from ..validators import validate_response_mbap
 from umodbus.client import tcp
 
 
+@pytest.mark.xfail(reason='Client prohibit user from doing wrong requests.')
 @pytest.mark.parametrize('function, quantity', [
     (tcp.read_coils, 0),
     (tcp.read_discrete_inputs, 0),
