@@ -80,7 +80,9 @@ from random import randint
 
 from umodbus._functions import (create_function_from_response_pdu, ReadCoils,
                                 ReadDiscreteInputs, ReadHoldingRegisters,
-                                ReadInputRegisters, WriteSingleCoil)
+                                ReadInputRegisters, WriteSingleCoil,
+                                WriteSingleRegister)
+
 from umodbus.client import pdu
 
 
@@ -173,13 +175,17 @@ def write_single_coil(slave_id, address, value):
     return create_adu(slave_id, function.request_pdu)
 
 
-def write_single_register(slave_id, *args, **kwargs):
+def write_single_register(slave_id, address, value):
     """ Return ADU for Modbus function code 06: Write Single Register.
 
     :param slave_id: Number of slave.
     :return: Byte array with ADU.
     """
-    return create_adu(slave_id, pdu.write_single_register(*args, **kwargs))
+    function = WriteSingleRegister()
+    function.address = address
+    function.data = value
+
+    return create_adu(slave_id, function.request_pdu)
 
 
 def write_multiple_coils(slave_id, *args, **kwargs):

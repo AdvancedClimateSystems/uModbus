@@ -679,13 +679,98 @@ class WriteSingleCoil(ModbusFunction):
         return write_single_coil
 
 
+class WriteSingleRegister(ModbusFunction):
+    """ Implement Modbus function code 06.
+
+        "This function code is used to write a single holding register in a
+        remote device. The Request PDU specifies the address of the register to
+        be written. Registers are addressed starting at zero. Therefore
+        register numbered 1 is addressed as 0. The normal response is an echo
+        of the request, returned after the register contents have been
+        written."
+
+        -- MODBUS Application Protocol Specification V1.1b3, chapter 6.6
+
+    The request PDU with function code 06 must be 5 bytes:
+
+        ================ ===============
+        Field            Length (bytes)
+        ================ ===============
+        Function code    1
+        Address          2
+        Value            2
+        ================ ===============
+
+    The PDU can unpacked to this::
+
+        >>> struct.unpack('>BHH', b'\x06\x00d\x00\x03')
+        (6, 100, 3)
+
+    The reponse PDU is a copy of the request PDU.
+
+        ================ ===============
+        Field            Length (bytes)
+        ================ ===============
+        Function code    1
+        Address          2
+        Value            2
+        ================ ===============
+
+    """
+    function_code = WRITE_SINGLE_REGISTER
+
+    address = None
+    _data = None
+
+    @property
+    def data(self):
+        return self._data
+
+    @data.setter
+    def data(self, value):
+        """ Data must be value between and including 0 and 0xFFFF. """
+        if 0 <= value <= 0xFFFF:
+            self._data = value
+        else:
+            raise IllegalDataValueError
+
+    @property
+    def request_pdu(self):
+        """ Build request PDU to write single register.
+
+        :return: Byte array of 5 bytes with PDU.
+        """
+        if None in [self.address, self.data]:
+            # TODO Raise proper exception.
+            raise Exception
+
+        return struct.pack('>BHH', self.function_code, self.address,
+                           self.data)
+
+    @staticmethod
+    def create_from_response_pdu(resp_pdu):
+        """ Create instance from response PDU.
+
+        :param resp_pdu: Byte array with request PDU.
+        :return: Instance of :class:`WriteSingleRegister`.
+        """
+        write_single_register = WriteSingleRegister()
+
+        address, value = struct.unpack('>HH', resp_pdu[1:5])
+
+        write_single_register.address = address
+        write_single_register.data = value
+
+        return write_single_register
+
+
 function_code_to_function_map = {
     READ_COILS: ReadCoils,
     READ_DISCRETE_INPUTS: ReadDiscreteInputs,
     READ_HOLDING_REGISTERS: ReadHoldingRegisters,
     READ_INPUT_REGISTERS: ReadInputRegisters,
     WRITE_SINGLE_COIL: WriteSingleCoil,
-    # WRITE_SINGLE_REGISTER: WriteSingleRegister,
+    WRITE_SINGLE_REGISTER: WriteSingleRegister,
     # WRITE_MULTIPLE_COILS: WriteMultipleCoils,
     # WRITE_MULTIPLE_REGISTERS: WriteMultipleRegisters,
 }
