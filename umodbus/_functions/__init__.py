@@ -88,7 +88,8 @@ def create_function_from_response_pdu(resp_pdu, *args, **kwargs):
     function_code = struct.unpack('>B', resp_pdu[0:1])[0]
 
     if function_code not in function_code_to_function_map.keys():
-        raise error_code_to_exception_map[function_code]
+        error_code = struct.unpack('>B', resp_pdu[1:2])[0]
+        raise error_code_to_exception_map[error_code]
 
     return function_code_to_function_map[function_code] \
         .create_from_response_pdu(resp_pdu, *args, **kwargs)
@@ -585,12 +586,105 @@ class ReadInputRegisters(ModbusFunction):
         return read_input_registers
 
 
+class WriteSingleCoil(ModbusFunction):
+    """ Implement Modbus function code 05.
+
+        "This function code is used to write a single output to either ON or
+        OFF in a remote device. The requested ON/OFF state is specified by a
+        constant in the request data field. A value of FF 00 hex requests the
+        output to be ON.  A value of 00 00 requests it to be OFF. All other
+        values are illegal and will not affect the output.
+
+        The Request PDU specifies the address of the coil to be forced. Coils
+        are addressed starting at zero. Therefore coil numbered 1 is addressed
+        as 0.  The requested ON/OFF state is specified by a constant in the
+        Coil Value field. A value of 0XFF00 requests the coil to be ON. A value
+        of 0X0000 requests the coil to be off. All other values are illegal and
+        will not affect the coil.
+
+        The normal response is an echo of the request, returned after the coil
+        state has been written."
+
+        -- MODBUS Application Protocol Specification V1.1b3, chapter 6.5
+
+    The request PDU with function code 05 must be 5 bytes:
+
+        ================ ===============
+        Field            Length (bytes)
+        ================ ===============
+        Function code    1
+        Address          2
+        Value            2
+        ================ ===============
+
+    The PDU can unpacked to this::
+
+        >>> struct.unpack('>BHH', b'\x05\x00d\xFF\x00')
+        (5, 100, 65280)
+
+    The reponse PDU is a copy of the request PDU.
+
+        ================ ===============
+        Field            Length (bytes)
+        ================ ===============
+        Function code    1
+        Address          2
+        Value            2
+        ================ ===============
+
+    """
+    function_code = WRITE_SINGLE_COIL
+
+    address = None
+    _data = None
+
+    @property
+    def data(self):
+        return self._data
+
+    @data.setter
+    def data(self, value):
+        if value not in [0, 0xFF00]:
+            raise IllegalDataValueError
+
+        self._data = value
+
+    @property
+    def request_pdu(self):
+        """ Build request PDU to write single coil.
+
+        :return: Byte array of 5 bytes with PDU.
+        """
+        if None in [self.address, self.data]:
+            # TODO Raise proper exception.
+            raise Exception
+
+        return struct.pack('>BHH', self.function_code, self.address,
+                           self.data)
+
+    @staticmethod
+    def create_from_response_pdu(resp_pdu):
+        """ Create instance from response PDU.
+
+        :param resp_pdu: Byte array with request PDU.
+        :return: Instance of :class:`WriteSingleCoil`.
+        """
+        write_single_coil = WriteSingleCoil()
+
+        address, value = struct.unpack('>HH', resp_pdu[1:5])
+
+        write_single_coil.address = address
+        write_single_coil.data = value
+
+        return write_single_coil
+
+
 function_code_to_function_map = {
     READ_COILS: ReadCoils,
     READ_DISCRETE_INPUTS: ReadDiscreteInputs,
     READ_HOLDING_REGISTERS: ReadHoldingRegisters,
     READ_INPUT_REGISTERS: ReadInputRegisters,
-    # WRITE_SINGLE_COIL: WriteSingleCoil,
+    WRITE_SINGLE_COIL: WriteSingleCoil,
     # WRITE_SINGLE_REGISTER: WriteSingleRegister,
     # WRITE_MULTIPLE_COILS: WriteMultipleCoils,
     # WRITE_MULTIPLE_REGISTERS: WriteMultipleRegisters,
