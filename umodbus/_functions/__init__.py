@@ -47,6 +47,10 @@ A response PDU could look like this::
 .. _MODBUS Application Protocol Specification V1.1b3: http://modbus.org/docs/Modbus_Application_Protocol_V1_1b3.pdf
 """
 import struct
+try:
+    from functools import reduce
+except ImportError:
+    pass
 
 from umodbus.exceptions import (error_code_to_exception_map,
                                 IllegalDataValueError)
@@ -764,6 +768,102 @@ class WriteSingleRegister(ModbusFunction):
         return write_single_register
 
 
+class WriteMultipleCoils(ModbusFunction):
+    """ Implement Modbus function 15 (0x0F) Write Multiple Coils.
+
+        "This function code is used to force each coil in a sequence of coils
+        to either ON or OFF in a remote device. The Request PDU specifies the
+        coil references to be forced. Coils are addressed starting at zero.
+        Therefore coil numbered 1 is addressed as 0.
+
+        The requested ON/OFF states are specified by contents of the request
+        data field. A logical '1' in a bit position of the field requests the
+        corresponding output to be ON. A logical '0' requests it to be OFF.
+
+        The normal response returns the function code, starting address, and
+        quantity of coils forced."
+
+        -- MODBUS Application Protocol Specification V1.1b3, chapter 6.11
+
+    The request PDU with function code 15 must be at least 7 bytes:
+
+        ================ ===============
+        Field            Length (bytes)
+        ================ ===============
+        Function code    1
+        Starting Address 2
+        Quantity         2
+        Byte count       1
+        Value            n
+        ================ ===============
+
+    The PDU can unpacked to this::
+
+        >>> struct.unpack('>BHHBB', b'\x0f\x00d\x00\x03\x01\x05')
+        (16, 100, 3, 1, 5)
+
+    The reponse PDU is 5 bytes and contains following structure:
+
+        ================ ===============
+        Field            Length (bytes)
+        ================ ===============
+        Function code    1
+        Starting address 2
+        Quantity         2
+        ================ ===============
+
+    """
+    function_code = WRITE_MULTIPLE_COILS
+
+    starting_address = None
+    _values = None
+    _data = None
+
+    @property
+    def values(self):
+        return self._values
+
+    @values.setter
+    def values(self, values):
+        if not (1 <= len(values) <= 0x7B0):
+            raise IllegalDataValueError
+
+        for value in values:
+            if value not in [0, 1]:
+                raise IllegalDataValueError
+
+        self._values = values
+
+    @property
+    def request_pdu(self):
+        if None in [self.starting_address, self._values]:
+            raise IllegalDataValueError
+
+        bytes_ = [self.values[i:i + 8] for i in range(0, len(self.values), 8)]
+
+        # Reduce each all bits per byte to a number. Byte
+        # [0, 0, 0, 0, 0, 1, 1, 1] is intepreted as binary en is decimal 3.
+        for index, byte in enumerate(bytes_):
+            bytes_[index] = \
+                reduce(lambda a, b: (a << 1) + b, list(reversed(byte)))
+
+        fmt = '>BHHB' + 'B' * len(bytes_)
+        return struct.pack(fmt, self.function_code, self.starting_address,
+                           len(self.values), (len(self.values) // 8) + 1,
+                           *bytes_)
+
+    @staticmethod
+    def create_from_response_pdu(resp_pdu):
+        write_multiple_coils = WriteMultipleCoils()
+
+        starting_address, data = struct.unpack('>HH', resp_pdu[1:5])
+
+        write_multiple_coils.starting_address = starting_address
+        write_multiple_coils.data = data
+
+        return write_multiple_coils
+
+
 function_code_to_function_map = {
     READ_COILS: ReadCoils,
     READ_DISCRETE_INPUTS: ReadDiscreteInputs,
@@ -771,6 +871,6 @@ function_code_to_function_map = {
     READ_INPUT_REGISTERS: ReadInputRegisters,
     WRITE_SINGLE_COIL: WriteSingleCoil,
     WRITE_SINGLE_REGISTER: WriteSingleRegister,
-    # WRITE_MULTIPLE_COILS: WriteMultipleCoils,
+    WRITE_MULTIPLE_COILS: WriteMultipleCoils,
     # WRITE_MULTIPLE_REGISTERS: WriteMultipleRegisters,
 }
