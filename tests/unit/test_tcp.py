@@ -1,6 +1,6 @@
 import struct
 
-from umodbus.client.tcp import (create_adu, create_mbap_header,
+from umodbus.client.tcp import (create_request_adu, create_mbap_header,
                                 read_discrete_inputs, read_holding_registers,
                                 read_input_registers)
 
@@ -23,7 +23,7 @@ def test_create_adu():
     """ Validate MBAP header of ADU and check if ADU contains correct PDU. """
     pdu = b'\x01'
     slave_id = 1
-    adu = create_adu(slave_id, pdu)
+    adu = create_request_adu(slave_id, pdu)
 
     # 9 is length MBAP (7 bytes) with length of PDU (1 byte)
     assert len(adu) == 8
