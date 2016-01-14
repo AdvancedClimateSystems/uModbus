@@ -84,8 +84,6 @@ from umodbus._functions import (create_function_from_response_pdu, ReadCoils,
                                 WriteSingleRegister, WriteMultipleCoils,
                                 WriteMultipleRegisters)
 
-from umodbus.client import pdu
-
 
 def create_adu(slave_id, pdu):
     """ Create MBAP header and combine it with PDU to return ADU.
@@ -171,7 +169,7 @@ def write_single_coil(slave_id, address, value):
     """
     function = WriteSingleCoil()
     function.address = address
-    function.data = value
+    function.value = value
 
     return create_adu(slave_id, function.request_pdu)
 
@@ -184,7 +182,7 @@ def write_single_register(slave_id, address, value):
     """
     function = WriteSingleRegister()
     function.address = address
-    function.data = value
+    function.value = value
 
     return create_adu(slave_id, function.request_pdu)
 
