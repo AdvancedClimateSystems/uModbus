@@ -640,18 +640,19 @@ class WriteSingleCoil(ModbusFunction):
     function_code = WRITE_SINGLE_COIL
 
     address = None
-    _data = None
+    data = None
+    _value = None
 
     @property
-    def data(self):
-        return self._data
+    def value(self):
+        return self._value
 
-    @data.setter
-    def data(self, value):
+    @value.setter
+    def value(self, value):
         if value not in [0, 0xFF00]:
             raise IllegalDataValueError
 
-        self._data = value
+        self._value = value
 
     @property
     def request_pdu(self):
@@ -659,12 +660,12 @@ class WriteSingleCoil(ModbusFunction):
 
         :return: Byte array of 5 bytes with PDU.
         """
-        if None in [self.address, self.data]:
+        if None in [self.address, self.value]:
             # TODO Raise proper exception.
             raise Exception
 
         return struct.pack('>BHH', self.function_code, self.address,
-                           self.data)
+                           self.value)
 
     @staticmethod
     def create_from_response_pdu(resp_pdu):
@@ -724,17 +725,18 @@ class WriteSingleRegister(ModbusFunction):
     function_code = WRITE_SINGLE_REGISTER
 
     address = None
-    _data = None
+    data = None
+    _value = None
 
     @property
-    def data(self):
-        return self._data
+    def value(self):
+        return self._value
 
-    @data.setter
-    def data(self, value):
+    @value.setter
+    def value(self, value):
         """ Data must be value between and including 0 and 0xFFFF. """
         if 0 <= value <= 0xFFFF:
-            self._data = value
+            self._value = value
         else:
             raise IllegalDataValueError
 
@@ -744,12 +746,12 @@ class WriteSingleRegister(ModbusFunction):
 
         :return: Byte array of 5 bytes with PDU.
         """
-        if None in [self.address, self.data]:
+        if None in [self.address, self.value]:
             # TODO Raise proper exception.
             raise Exception
 
         return struct.pack('>BHH', self.function_code, self.address,
-                           self.data)
+                           self.value)
 
     @staticmethod
     def create_from_response_pdu(resp_pdu):
