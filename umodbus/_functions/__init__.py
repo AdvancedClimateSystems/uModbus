@@ -864,6 +864,84 @@ class WriteMultipleCoils(ModbusFunction):
         return write_multiple_coils
 
 
+class WriteMultipleRegisters(ModbusFunction):
+    """ Implement Modbus function 16 (0x10) Write Multiple Registers.
+
+        "This function code is used to write a block of contiguous registers (1
+        to 123 registers) in a remote device.
+
+        The requested written values are specified in the request data field.
+        Data is packed as two bytes per register.
+
+        The normal response returns the function code, starting address, and
+        quantity of registers written."
+
+        -- MODBUS Application Protocol Specification V1.1b3, chapter 6.12
+
+    The request PDU with function code 16 must be at least 8 bytes:
+
+        ================ ===============
+        Field            Length (bytes)
+        ================ ===============
+        Function code    1
+        Starting Address 2
+        Quantity         2
+        Byte count       1
+        Value            Quantity * 2
+        ================ ===============
+
+    The PDU can unpacked to this::
+
+        >>> struct.unpack('>BHHBH', b'\x10\x00d\x00\x01\x02\x00\x05')
+        (16, 100, 1, 2, 5)
+
+    The reponse PDU is 5 bytes and contains following structure:
+
+        ================ ===============
+        Field            Length (bytes)
+        ================ ===============
+        Function code    1
+        Starting address 2
+        Quantity         2
+        ================ ===============
+
+    """
+    function_code = WRITE_MULTIPLE_REGISTERS
+
+    starting_address = None
+    _values = None
+    _data = None
+
+    @property
+    def values(self):
+        return self._values
+
+    @values.setter
+    def values(self, values):
+        if not (1 <= len(values) <= 0x7B0):
+            raise IllegalDataValueError
+
+        self._values = values
+
+    @property
+    def request_pdu(self):
+        fmt = '>BHHB' + ('H' * len(self.values))
+        return struct.pack(fmt, self.function_code, self.starting_address,
+                           len(self.values), len(self.values) * 2,
+                           *self.values)
+
+    @staticmethod
+    def create_from_response_pdu(resp_pdu):
+        write_multiple_registers = WriteMultipleCoils()
+
+        starting_address, data = struct.unpack('>HH', resp_pdu[1:5])
+
+        write_multiple_registers.starting_address = starting_address
+        write_multiple_registers.data = data
+
+        return write_multiple_registers
+
+
 function_code_to_function_map = {
     READ_COILS: ReadCoils,
     READ_DISCRETE_INPUTS: ReadDiscreteInputs,
@@ -872,5 +950,5 @@ function_code_to_function_map = {
     WRITE_SINGLE_COIL: WriteSingleCoil,
     WRITE_SINGLE_REGISTER: WriteSingleRegister,
     WRITE_MULTIPLE_COILS: WriteMultipleCoils,
-    # WRITE_MULTIPLE_REGISTERS: WriteMultipleRegisters,
+    WRITE_MULTIPLE_REGISTERS: WriteMultipleRegisters,
 }
