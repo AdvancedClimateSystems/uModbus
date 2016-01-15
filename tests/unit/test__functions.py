@@ -9,7 +9,9 @@ from umodbus.exceptions import (IllegalFunctionError, IllegalDataAddressError,
                                 GatewayTargetDeviceFailedToRespondError)
 from umodbus._functions import (create_function_from_response_pdu, ReadCoils,
                                 ReadDiscreteInputs, ReadHoldingRegisters,
-                                ReadInputRegisters)
+                                ReadInputRegisters, WriteSingleCoil,
+                                WriteSingleRegister, WriteMultipleCoils,
+                                WriteMultipleRegisters)
 
 
 def test_create_function_from_response_pdu():
@@ -206,3 +208,153 @@ class TestReadInputRegisters:
             ReadInputRegisters.create_from_response_pdu(resp_pdu, 2)
 
         assert read_input_registers.data == [9209, 230]
+
+
+class TestWriteSingleCoil:
+
+    @pytest.fixture
+    def write_single_coil(self):
+        """ Return instance of WriteSingleCoil. """
+        write_single_coil = WriteSingleCoil()
+        write_single_coil.address = 4
+        write_single_coil.value = 0xFF00
+
+        return write_single_coil
+
+    def test_function_code(self, write_single_coil):
+        """ Test if function_code is correct. """
+        assert write_single_coil.function_code == 5
+
+    def test_set_value_raising_illegal_data_value_error(self,
+                                                        write_single_coil):
+        """ Test if exception is raised when value is not valid. """
+        with pytest.raises(IllegalDataValueError):
+            write_single_coil.value = 2
+
+    def test_request_pdu(self, write_single_coil):
+        """ Test if correct request PDU is build. """
+        assert write_single_coil.request_pdu == \
+            struct.pack('>BHH', 5, 4, 0xFF00)
+
+    def test_create_from_response_pdu(self):
+        """ Test if function instance is created correctly from response PDU.
+        """
+        resp_pdu = struct.pack('>BHH', 5, 4, 0xFF00)
+
+        write_single_coil = WriteSingleCoil.create_from_response_pdu(resp_pdu)
+
+        assert write_single_coil.data == 0xFF00
+
+
+class TestWriteSingleRegister:
+
+    @pytest.fixture
+    def write_single_register(self):
+        """ Return instance of WriteSingleRegister. """
+        write_single_register = WriteSingleRegister()
+        write_single_register.address = 4
+        write_single_register.value = 0xFF00
+
+        return write_single_register
+
+    def test_function_code(self, write_single_register):
+        """ Test if function_code is correct. """
+        assert write_single_register.function_code == 6
+
+    def test_set_value_raising_illegal_data_value_error(self,
+                                                        write_single_register):
+        """ Test if exception is raised when value is not valid. """
+        with pytest.raises(IllegalDataValueError):
+            write_single_register.value = 0xFFFF0
+
+    def test_request_pdu(self, write_single_register):
+        """ Test if correct request PDU is build. """
+        assert write_single_register.request_pdu == \
+            struct.pack('>BHH', 6, 4, 0xFF00)
+
+    def test_create_from_response_pdu(self):
+        """ Test if function instance is created correctly from response PDU.
+        """
+        resp_pdu = struct.pack('>BHH', 6, 4, 1337)
+
+        write_single_register = \
+            WriteSingleRegister.create_from_response_pdu(resp_pdu)
+
+        assert write_single_register.data == 1337
+
+
+class TestWriteMultipleCoils:
+
+    @pytest.fixture
+    def write_multiple_coils(self):
+        """ Return instance of WriteSingleRegister. """
+        write_multiple_coils = WriteMultipleCoils()
+        write_multiple_coils.starting_address = 8
+        write_multiple_coils.values = [1, 1, 0]
+
+        return write_multiple_coils
+
+    def test_function_code(self, write_multiple_coils):
+        """ Test if function_code is correct. """
+        assert write_multiple_coils.function_code == 15
+
+    def test_set_value_raising_illegal_data_value_error(self,
+                                                        write_multiple_coils):
+        """ Test if exception is raised when value is not valid. """
+        with pytest.raises(IllegalDataValueError):
+            write_multiple_coils.values = [1, 4]
+
+        with pytest.raises(IllegalDataValueError):
+            write_multiple_coils.values = []
+
+    def test_request_pdu(self, write_multiple_coils):
+        """ Test if correct request PDU is build. """
+        assert write_multiple_coils.request_pdu == \
+            struct.pack('>BHHBB', 15, 8, 3, 1, 3)
+
+    def test_create_from_response_pdu(self):
+        """ Test if function instance is created correctly from response PDU.
+        """
+        resp_pdu = struct.pack('>BHH', 6, 4, 3)
+
+        write_multiple_coils = \
+            WriteMultipleCoils.create_from_response_pdu(resp_pdu)
+
+        assert write_multiple_coils.data == 3
+
+
+class TestWriteMultipleRegisters:
+
+    @pytest.fixture
+    def write_multiple_registers(self):
+        """ Return instance of WriteSingleRegister. """
+        write_multiple_registers = WriteMultipleRegisters()
+        write_multiple_registers.starting_address = 13
+        write_multiple_registers.values = [484, 1337]
+
+        return write_multiple_registers
+
+    def test_function_code(self, write_multiple_registers):
+        """ Test if function_code is correct. """
+        assert write_multiple_registers.function_code == 16
+
+    def test_set_value_raising_illegal_data_value_error(self,
+                                                        write_multiple_registers):  # NOQA
+        """ Test if exception is raised when value is not valid. """
+        with pytest.raises(IllegalDataValueError):
+            write_multiple_registers.values = []
+
+    def test_request_pdu(self, write_multiple_registers):
+        """ Test if correct request PDU is build. """
+        assert write_multiple_registers.request_pdu == \
+            struct.pack('>BHHBHH', 16, 13, 2, 4, 484, 1337)
+
+    def test_create_from_response_pdu(self):
+        """ Test if function instance is created correctly from response PDU.
+        """
+        resp_pdu = struct.pack('>BHH', 6, 4, 3)
+
+        write_multiple_registers = \
+            WriteMultipleRegisters.create_from_response_pdu(resp_pdu)
+
+        assert write_multiple_registers.data == 3
