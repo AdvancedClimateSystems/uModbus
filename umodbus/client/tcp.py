@@ -82,7 +82,7 @@ from umodbus._functions import (create_function_from_response_pdu, ReadCoils,
                                 WriteMultipleRegisters)
 
 
-def create_adu(slave_id, pdu):
+def create_request_adu(slave_id, pdu):
     """ Create MBAP header and combine it with PDU to return ADU.
 
     :param slave_id: Number of slave.
@@ -116,7 +116,7 @@ def read_coils(slave_id, starting_address, quantity):
     function.starting_address = starting_address
     function.quantity = quantity
 
-    return create_adu(slave_id, function.request_pdu)
+    return create_request_adu(slave_id, function.request_pdu)
 
 
 def read_discrete_inputs(slave_id, starting_address, quantity):
@@ -129,7 +129,7 @@ def read_discrete_inputs(slave_id, starting_address, quantity):
     function.starting_address = starting_address
     function.quantity = quantity
 
-    return create_adu(slave_id, function.request_pdu)
+    return create_request_adu(slave_id, function.request_pdu)
 
 
 def read_holding_registers(slave_id, starting_address, quantity):
@@ -142,7 +142,7 @@ def read_holding_registers(slave_id, starting_address, quantity):
     function.starting_address = starting_address
     function.quantity = quantity
 
-    return create_adu(slave_id, function.request_pdu)
+    return create_request_adu(slave_id, function.request_pdu)
 
 
 def read_input_registers(slave_id, starting_address, quantity):
@@ -155,7 +155,7 @@ def read_input_registers(slave_id, starting_address, quantity):
     function.starting_address = starting_address
     function.quantity = quantity
 
-    return create_adu(slave_id, function.request_pdu)
+    return create_request_adu(slave_id, function.request_pdu)
 
 
 def write_single_coil(slave_id, address, value):
@@ -168,7 +168,7 @@ def write_single_coil(slave_id, address, value):
     function.address = address
     function.value = value
 
-    return create_adu(slave_id, function.request_pdu)
+    return create_request_adu(slave_id, function.request_pdu)
 
 
 def write_single_register(slave_id, address, value):
@@ -181,7 +181,7 @@ def write_single_register(slave_id, address, value):
     function.address = address
     function.value = value
 
-    return create_adu(slave_id, function.request_pdu)
+    return create_request_adu(slave_id, function.request_pdu)
 
 
 def write_multiple_coils(slave_id, starting_address, values):
@@ -194,7 +194,7 @@ def write_multiple_coils(slave_id, starting_address, values):
     function.starting_address = starting_address
     function.values = values
 
-    return create_adu(slave_id, function.request_pdu)
+    return create_request_adu(slave_id, function.request_pdu)
 
 
 def write_multiple_registers(slave_id, starting_address, values):
@@ -207,7 +207,7 @@ def write_multiple_registers(slave_id, starting_address, values):
     function.starting_address = starting_address
     function.values = values
 
-    return create_adu(slave_id, function.request_pdu)
+    return create_request_adu(slave_id, function.request_pdu)
 
 
 def parse_response_adu(resp_adu, *args, **kwargs):
