@@ -3,9 +3,6 @@
 .. note:: This section is based on `MODBUS Messaging on TCP/IP
     Implementation Guide V1.0b`_.
 
-.. note:: When in this Wanneer we het over Modbus requests hebben in dit hoofdstuk, dan gaat
-    het over Modbus TCP/IP requests.
-
 The Application Data Unit (ADU) for Modbus responses carried over a TCP/IP are
 build out of two components: a MBAP header and a PDU. The Modbus Application
 Header (MBAP) is what makes Modbus TCP/IP requests and responsen different from
@@ -213,7 +210,7 @@ def write_multiple_registers(slave_id, starting_address, values):
     return create_adu(slave_id, function.request_pdu)
 
 
-def parse_response(resp_adu, *args, **kwargs):
+def parse_response_adu(resp_adu, *args, **kwargs):
     resp_pdu = resp_adu[7:]
     function = create_function_from_response_pdu(resp_pdu, *args, **kwargs)
 
