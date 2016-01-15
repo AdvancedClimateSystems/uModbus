@@ -1,9 +1,44 @@
 import struct
 import pytest
 
-from umodbus.exceptions import IllegalDataValueError
-from umodbus._functions import (ReadCoils, ReadDiscreteInputs,
-                                ReadHoldingRegisters, ReadInputRegisters)
+from umodbus.exceptions import (IllegalFunctionError, IllegalDataAddressError,
+                                IllegalDataValueError,
+                                ServerDeviceFailureError, AcknowledgeError,
+                                ServerDeviceBusyError, MemoryParityError,
+                                GatewayPathUnavailableError,
+                                GatewayTargetDeviceFailedToRespondError)
+from umodbus._functions import (create_function_from_response_pdu, ReadCoils,
+                                ReadDiscreteInputs, ReadHoldingRegisters,
+                                ReadInputRegisters)
+
+
+def test_create_function_from_response_pdu():
+    resp_pdu = struct.pack('>BBB', 1, 1, 3)
+
+    assert isinstance(create_function_from_response_pdu(resp_pdu, 3),
+                      ReadCoils)
+
+
+@pytest.mark.parametrize('error_code, exception_class', [
+    (1, IllegalFunctionError),
+    (2, IllegalDataAddressError),
+    (3, IllegalDataValueError),
+    (4, ServerDeviceFailureError),
+    (5, AcknowledgeError),
+    (6, ServerDeviceBusyError),
+    (8, MemoryParityError),
+    (11, GatewayPathUnavailableError),
+    (12, GatewayTargetDeviceFailedToRespondError),
+])
+def test_create_from_response_pdu_raising_exception(error_code,
+                                                    exception_class):
+    """ Test if correct exception is raied when response PDU contains error
+    response.
+    """
+    resp_pdu = struct.pack('>BB', 81, error_code)
+
+    with pytest.raises(exception_class):
+        create_function_from_response_pdu(resp_pdu)
 
 
 class TestReadCoils:

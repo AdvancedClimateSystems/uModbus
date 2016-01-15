@@ -10,12 +10,8 @@ class IllegalFunctionError(ModbusError):
     """
     error_code = 1
 
-    def __init__(self, function_code):
-        self.function_code = function_code
-
     def __str__(self):
-        return 'Function code \'{0}\' is not an allowable action for the ' + \
-            'server.'.format(self.function_code)
+        return 'Function code is not an allowable action for the server.'
 
 
 class IllegalDataAddressError(ModbusError):
