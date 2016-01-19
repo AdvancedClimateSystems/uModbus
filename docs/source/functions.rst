@@ -38,7 +38,7 @@ The Modbus functions have been implemented.
 
 .. autoclass:: umodbus.functions.WriteMultipleCoils
 
-16: Write Multiple Register
-===========================
+16: Write Multiple Registers
+============================
 
 .. autoclass:: umodbus.functions.WriteMultipleRegisters

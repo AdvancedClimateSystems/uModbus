@@ -10,12 +10,8 @@ class IllegalFunctionError(ModbusError):
     """
     error_code = 1
 
-    def __init__(self, function_code):
-        self.function_code = function_code
-
     def __str__(self):
-        return 'Function code \'{0}\' is not an allowable action for the ' + \
-            'server.'.format(self.function_code)
+        return 'Function code is not an allowable action for the server.'
 
 
 class IllegalDataAddressError(ModbusError):
@@ -91,3 +87,16 @@ class GatewayTargetDeviceFailedToRespondError(ModbusError):
 
     def __repr__(self):
         return self.__doc__
+
+error_code_to_exception_map = {
+    IllegalFunctionError.error_code: IllegalFunctionError,
+    IllegalDataAddressError.error_code: IllegalDataAddressError,
+    IllegalDataValueError.error_code: IllegalDataValueError,
+    ServerDeviceFailureError.error_code: ServerDeviceFailureError,
+    AcknowledgeError.error_code: AcknowledgeError,
+    ServerDeviceBusyError.error_code: ServerDeviceBusyError,
+    MemoryParityError.error_code: MemoryParityError,
+    GatewayPathUnavailableError.error_code: GatewayPathUnavailableError,
+    GatewayTargetDeviceFailedToRespondError.error_code:
+        GatewayTargetDeviceFailedToRespondError
+}

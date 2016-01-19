@@ -10,16 +10,17 @@
 uModbus
 =======
 
-uModbus or (μModbus) is a pure Python implementation of the Modbus protcol as
-described in the `MODBUS Application Protocol Specification V1.1b3`_. The "u"
-or "μ" in the name comes from the the SI prefix "micro-". uModbus is very small
-and lightweight. The source can be found on GitHub_. Documentation is available
-at `Read the Docs`_.
+uModbus or (μModbus) is a pure Python implementation of the Modbus protocol as
+described in the `MODBUS Application Protocol Specification V1.1b3`_. uModbus
+implements both a Modbus client (or master in Modbus language) and a Modbus
+server (or slave). The "u" or "μ" in the name comes from the the SI prefix
+"micro-". uModbus is very small and lightweight. The source can be found on
+GitHub_. Documentation is available at `Read the Docs`_.
 
 Quickstart
 ----------
 
-Routing Modbus requests is easy:
+Creating a Modbus server is easy:
 
 ..
     Because GitHub doesn't support the include directive the source of
@@ -45,6 +46,7 @@ Routing Modbus requests is easy:
     # Enable values to be signed (default is False).
     conf.SIGNED_VALUES = True
 
+    TCPServer.allow_reuse_address = True
     app = get_server(TCPServer, ('localhost', 502), RequestHandler)
 
 
@@ -65,6 +67,34 @@ Routing Modbus requests is easy:
         finally:
             app.shutdown()
             app.server_close()
+
+Doing a Modbus request requires even less code:
+
+..
+    Because GitHub doesn't support the include directive the source of
+    scripts/examples/simple_data_store.py has been copied to this file.
+
+.. code:: python
+
+    #!/usr/bin/env python
+    # scripts/examples/simple_client.py
+    import socket
+
+    from umodbus.client import tcp
+
+
+    sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+    sock.connect(('localhost', 502))
+
+    # Returns a message or Application Data Unit (ADU) specific for doing
+    # Modbus TCP/IP.
+    message = tcp.write_multiple_coils(slave_id=1, address=1, values=[1, 0, 1, 1])
+
+    # Response depends on Modbus function code. This particular returns the
+    # amount of coils written, in this case it isr3.
+    response = tcp.send_message(message, sock)
+
+    sock.close()
 
 Features
 --------

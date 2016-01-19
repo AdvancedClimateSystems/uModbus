@@ -408,57 +408,6 @@ class ReadHoldingRegisters(ReadFunction, MultiBitResponse):
 
 
 class ReadInputRegisters(ReadFunction, MultiBitResponse):
-    """ Implement Modbus function code 04.
-
-        "This function code is used to read from 1 to 125 contiguous input
-        registers in a remote device. The Request PDU specifies the starting
-        register address and the number of registers. In the PDU Registers are
-        addressed starting at zero. Therefore input registers numbered 1-16 are
-        addressed as 0-15.
-
-        The register data in the response message are packed as two bytes per
-        register, with the binary contents right justified within each byte.
-        For each register, the first byte contains the high order bits and the
-        second contains the low order bits."
-
-        -- MODBUS Application Protocol Specification V1.1b3, chapter 6.4
-
-    The request PDU with function code 04 must be 5 bytes:
-
-        ================ ===============
-        Field            Length (bytes)
-        ================ ===============
-        Function code    1
-        Starting address 2
-        Quantity         2
-        ================ ===============
-
-    The PDU can unpacked to this::
-
-        >>> struct.unpack('>BHH', b'\x04\x00d\x00\x03')
-        (4, 100, 3)
-
-    The reponse PDU varies in length, depending on the request. By default,
-    holding registers are 16 bit (2 bytes) values. So values of 3 holding
-    registers is expressed in 2 * 3 = 6 bytes.
-
-        ================ ===============
-        Field            Length (bytes)
-        ================ ===============
-        Function code    1
-        Byte count       1
-        Register values  Quantity * 2
-        ================ ===============
-
-    Assume the value of 100 is 8, 101 is 0 and 102 is also 15.
-
-    The PDU can packed like this::
-
-        >>> data = [8, 0, 15]
-        >>> struct.pack('>BBHHH', function_code, len(data) * 2, *data)
-        '\x04\x06\x00\x08\x00\x00\x00\x0f'
-
-    """
     function_code = READ_INPUT_REGISTERS
     max_quantity = 0x007D
 

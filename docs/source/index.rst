@@ -1,14 +1,25 @@
 .. include:: ../../README.rst
 
-Contents:
----------
+....
+
+How uModus works
+----------------
 
 .. toctree::
    :maxdepth: 2
 
    installation
-   usage
+   modbus_server
+   modbus_client
    configuration
+   changelog
+
+
+The Modbus protocol explained
+-----------------------------
+
+.. toctree::
+   :maxdepth: 2
+
    decompose_requests
    functions
-   changelog

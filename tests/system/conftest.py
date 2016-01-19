@@ -1,6 +1,6 @@
+import struct
 import pytest
 import socket
-import struct
 from threading import Thread
 
 from .server import app
