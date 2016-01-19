@@ -47,6 +47,7 @@ A response PDU could look like this::
 .. _MODBUS Application Protocol Specification V1.1b3: http://modbus.org/docs/Modbus_Application_Protocol_V1_1b3.pdf
 """
 import struct
+import inspect
 try:
     from functools import reduce
 except ImportError:
@@ -81,11 +82,13 @@ GET_COM_EVENT_LOG = 12
 REPORT_SERVER_ID = 17
 
 
-def create_function_from_response_pdu(resp_pdu, *args, **kwargs):
+def create_function_from_response_pdu(resp_pdu, req_pdu=None):
     """ Parse response PDU and return instance of :class:`Function` or raise
     error.
 
-    :param pdu: PDU of response.
+    :param resp_pdu: PDU of response.
+    :param  req_pdu: Request PDU, some functions require more info than in
+        response PDU in order to create instance. Default is None.
     :return: Number or list with response data.
     :raises ModbusError: When response contains error code.
     """
@@ -95,8 +98,14 @@ def create_function_from_response_pdu(resp_pdu, *args, **kwargs):
         error_code = struct.unpack('>B', resp_pdu[1:2])[0]
         raise error_code_to_exception_map[error_code]
 
-    return function_code_to_function_map[function_code] \
-        .create_from_response_pdu(resp_pdu, *args, **kwargs)
+    function = function_code_to_function_map[function_code]
+
+    if req_pdu is not None and \
+        'req_pdu' in  inspect.getargspec(function.create_from_response_pdu).args:  # NOQA
+
+        return function.create_from_response_pdu(resp_pdu, req_pdu)
+
+    return function.create_from_response_pdu(resp_pdu)
 
 
 class ModbusFunction(object):
@@ -202,7 +211,7 @@ class ReadCoils(ModbusFunction):
                            self.quantity)
 
     @staticmethod
-    def create_from_response_pdu(resp_pdu, quantity):
+    def create_from_response_pdu(resp_pdu, req_pdu):
         """ Create instance from response PDU.
 
         Response PDU is required together with the quantity of coils read.
@@ -212,7 +221,7 @@ class ReadCoils(ModbusFunction):
         :return: Instance of :class:`ReadCoils`.
         """
         read_coils = ReadCoils()
-        read_coils.quantity = quantity
+        read_coils.quantity = struct.unpack('>H', req_pdu[-2:])[0]
         read_coils.byte_count = struct.unpack('>B', resp_pdu[1:2])[0]
 
         fmt = '>' + ('B' * read_coils.byte_count)
@@ -334,7 +343,7 @@ class ReadDiscreteInputs(ModbusFunction):
                            self.quantity)
 
     @staticmethod
-    def create_from_response_pdu(resp_pdu, quantity):
+    def create_from_response_pdu(resp_pdu, req_pdu):
         """ Create instance from response PDU.
 
         Response PDU is required together with the quantity of inputs read.
@@ -344,7 +353,7 @@ class ReadDiscreteInputs(ModbusFunction):
         :return: Instance of :class:`ReadDiscreteInputs`.
         """
         read_discrete_inputs = ReadDiscreteInputs()
-        read_discrete_inputs.quantity = quantity
+        read_discrete_inputs.quantity = struct.unpack('>H', req_pdu[-2:])[0]
         read_discrete_inputs.byte_count = struct.unpack('>B', resp_pdu[1:2])[0]
 
         fmt = '>' + ('B' * read_discrete_inputs.byte_count)
@@ -458,7 +467,7 @@ class ReadHoldingRegisters(ModbusFunction):
                            self.quantity)
 
     @staticmethod
-    def create_from_response_pdu(resp_pdu, quantity):
+    def create_from_response_pdu(resp_pdu, req_pdu):
         """ Create instance from response PDU.
 
         Response PDU is required together with the number of registers read.
@@ -468,7 +477,7 @@ class ReadHoldingRegisters(ModbusFunction):
         :return: Instance of :class:`ReadCoils`.
         """
         read_holding_registers = ReadHoldingRegisters()
-        read_holding_registers.quantity = quantity
+        read_holding_registers.quantity = struct.unpack('>H', req_pdu[-2:])[0]
         read_holding_registers.byte_count = \
             struct.unpack('>B', resp_pdu[1:2])[0]
 
@@ -570,7 +579,7 @@ class ReadInputRegisters(ModbusFunction):
                            self.quantity)
 
     @staticmethod
-    def create_from_response_pdu(resp_pdu, quantity):
+    def create_from_response_pdu(resp_pdu, req_pdu):
         """ Create instance from response PDU.
 
         Response PDU is required together with the number of registers read.
@@ -580,7 +589,7 @@ class ReadInputRegisters(ModbusFunction):
         :return: Instance of :class:`ReadCoils`.
         """
         read_input_registers = ReadInputRegisters()
-        read_input_registers.quantity = quantity
+        read_input_registers.quantity = struct.unpack('>H', req_pdu[-2:])[0]
         read_input_registers.byte_count = \
             struct.unpack('>B', resp_pdu[1:2])[0]
 

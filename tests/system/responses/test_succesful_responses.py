@@ -29,11 +29,7 @@ def test_response_on_single_bit_value_read_requests(sock, function):
     slave_id, starting_address, quantity = (1, 0, 10)
     req_adu = function(slave_id, starting_address, quantity)
 
-    sock.send(req_adu)
-    resp_adu = sock.recv(1024)
-
-    assert tcp.parse_response_adu(resp_adu, quantity) == \
-        [0, 1, 0, 1, 0, 1, 0, 1, 0,  1]
+    assert tcp.send_message(req_adu, sock) == [0, 1, 0, 1, 0, 1, 0, 1, 0,  1]
 
 
 @pytest.mark.parametrize('function', [
@@ -47,11 +43,7 @@ def test_response_on_multi_bit_value_read_requests(sock, function):
     slave_id, starting_address, quantity = (1, 0, 10)
     req_adu = function(slave_id, starting_address, quantity)
 
-    sock.send(req_adu)
-    resp_adu = sock.recv(1024)
-
-    assert tcp.parse_response_adu(resp_adu, quantity) == \
-        [0, 1, 2, 3, 4, 5, 6, 7, 8, 9]
+    assert tcp.send_message(req_adu, sock) == [0, 1, 2, 3, 4, 5, 6, 7, 8, 9]
 
 
 @pytest.mark.parametrize('function', [
@@ -65,10 +57,7 @@ def test_response_single_value_write_request(sock, function):
     slave_id, starting_address, quantity = (1, 0, 0)
     req_adu = function(slave_id, starting_address, quantity)
 
-    sock.send(req_adu)
-    resp_adu = sock.recv(1024)
-
-    assert tcp.parse_response_adu(resp_adu) == 0
+    assert tcp.send_message(req_adu, sock) == 0
 
 
 @pytest.mark.parametrize('function, values', [
@@ -84,7 +73,4 @@ def test_response_multi_value_write_request(sock, function, values):
     slave_id, starting_address = (1, 0)
     req_adu = function(slave_id, starting_address, values)
 
-    sock.send(req_adu)
-    resp_adu = sock.recv(1024)
-
-    assert tcp.parse_response_adu(resp_adu) == 2
+    assert tcp.send_message(req_adu, sock) == 2

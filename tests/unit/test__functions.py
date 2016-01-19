@@ -15,9 +15,14 @@ from umodbus._functions import (create_function_from_response_pdu, ReadCoils,
 
 
 def test_create_function_from_response_pdu():
+    read_coils = ReadCoils()
+    read_coils.starting_address = 1
+    read_coils.quantity = 9
+
+    req_pdu = read_coils.request_pdu
     resp_pdu = struct.pack('>BBB', 1, 1, 3)
 
-    assert isinstance(create_function_from_response_pdu(resp_pdu, 3),
+    assert isinstance(create_function_from_response_pdu(resp_pdu, req_pdu),
                       ReadCoils)
 
 
@@ -73,11 +78,13 @@ class TestReadCoils:
         """ Test if correct request PDU is build. """
         assert read_coils.request_pdu == struct.pack('>BHH', 1, 1, 9)
 
-    def test_create_from_response_pdu(self):
+    def test_create_from_response_pdu(self, read_coils):
         """ Test if function instance is created correctly from response PDU.
         """
+        req_pdu = read_coils.request_pdu
         resp_pdu = struct.pack('>BBBB', 2, 2, 170, 2)
-        read_coils = ReadCoils.create_from_response_pdu(resp_pdu, 10)
+
+        read_coils = ReadCoils.create_from_response_pdu(resp_pdu, req_pdu)
 
         assert read_coils.data == [0, 1, 0, 1, 0, 1, 0, 1, 0, 1]
 
@@ -113,15 +120,16 @@ class TestReadDiscreteInputs:
         """ Test if correct request PDU is build. """
         assert read_discrete_inputs.request_pdu == struct.pack('>BHH', 2, 8, 2)
 
-    def test_create_from_response_pdu(self):
+    def test_create_from_response_pdu(self, read_discrete_inputs):
         """ Test if function instance is created correctly from response PDU.
         """
+        req_pdu = read_discrete_inputs.request_pdu
         resp_pdu = struct.pack('>BBB', 1, 1, 3)
 
         read_discrete_inputs = \
-            ReadDiscreteInputs.create_from_response_pdu(resp_pdu, 3)
+            ReadDiscreteInputs.create_from_response_pdu(resp_pdu, req_pdu)
 
-        assert read_discrete_inputs.data == [1, 1, 0]
+        assert read_discrete_inputs.data == [1, 1]
 
 
 class TestReadHoldingRegisters:
@@ -156,13 +164,14 @@ class TestReadHoldingRegisters:
         assert read_holding_registers.request_pdu == \
             struct.pack('>BHH', 3, 5, 6)
 
-    def test_create_from_response_pdu(self):
+    def test_create_from_response_pdu(self, read_holding_registers):
         """ Test if function instance is created correctly from response PDU.
         """
+        req_pdu = read_holding_registers.request_pdu
         resp_pdu = struct.pack('>BBHHH', 3, 6, 3, 1337, 28490)
 
         read_holding_registers = \
-            ReadHoldingRegisters.create_from_response_pdu(resp_pdu, 3)
+            ReadHoldingRegisters.create_from_response_pdu(resp_pdu, req_pdu)
 
         assert read_holding_registers.data == [3, 1337, 28490]
 
@@ -199,13 +208,14 @@ class TestReadInputRegisters:
         assert read_input_registers.request_pdu == \
             struct.pack('>BHH', 4, 1, 6)
 
-    def test_create_from_response_pdu(self):
+    def test_create_from_response_pdu(self, read_input_registers):
         """ Test if function instance is created correctly from response PDU.
         """
+        req_pdu = read_input_registers.request_pdu
         resp_pdu = struct.pack('>BBHH', 4, 4, 9209, 230)
 
         read_input_registers = \
-            ReadInputRegisters.create_from_response_pdu(resp_pdu, 2)
+            ReadInputRegisters.create_from_response_pdu(resp_pdu, req_pdu)
 
         assert read_input_registers.data == [9209, 230]
 
