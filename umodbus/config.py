@@ -31,6 +31,13 @@ class Config(object):
         self.SIGNED_VALUES = os.environ.get('UMODBUS_SIGNED_VALUES', False)
         self.BIT_SIZE = os.environ.get('UMODBUS_BIT_SIZE', 16)
 
+    @property
+    def TYPE_CHAR(self):
+        if self.SIGNED_VALUES:
+            return 'h'
+
+        return 'H'
+
     def _set_multi_bit_value_format_character(self):
         """ Set format character for multibit values.
 
