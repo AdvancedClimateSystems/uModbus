@@ -1,21 +1,6 @@
 import pytest
-import struct
 
 from umodbus.client import tcp
-
-
-def unpack_single_bit_values(response):
-    byte_count = struct.unpack('>B', response[8:9])[0]
-
-    fmt = '>' + ('B' * byte_count)
-    return struct.unpack(fmt, response[9:])
-
-
-def unpack_multi_bit_values(response):
-    byte_count = struct.unpack('>B', response[8:9])[0]
-
-    fmt = '>' + ('H' * (byte_count // 2))
-    return struct.unpack(fmt, response[9:])
 
 
 @pytest.mark.parametrize('function', [
