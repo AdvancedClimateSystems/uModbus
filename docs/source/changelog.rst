@@ -1,6 +1,17 @@
 Changelog
 =========
 
+0.4.0 (2016-01-22)
+++++++++++++++++++
+
+**Features**
+
+* `#23`_  Implemenent Modbus client.
+* `#28`_  Implemenent signed integers for Modbus client.
+
+.. _#23: https://github.com/AdvancedClimateSystems/uModbus/issues/23
+.. _#28: https://github.com/AdvancedClimateSystems/uModbus/issues/28
+
 0.3.1 (2015-12-12)
 ++++++++++++++++++
 
