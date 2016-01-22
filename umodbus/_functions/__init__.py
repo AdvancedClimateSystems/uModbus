@@ -744,11 +744,17 @@ class WriteSingleRegister(ModbusFunction):
 
     @value.setter
     def value(self, value):
-        """ Data must be value between and including 0 and 0xFFFF. """
-        if 0 <= value <= 0xFFFF:
-            self._value = value
-        else:
+        """ Value to be written on register.
+
+        :param value: An integer.
+        :raises: IllegalDataValueError when value isn't in range.
+        """
+        try:
+            struct.pack('>' + conf.TYPE_CHAR, value)
+        except struct.error:
             raise IllegalDataValueError
+
+        self._value = value
 
     @property
     def request_pdu(self):
