@@ -3,7 +3,9 @@ try:
 except ImportError:
     from SocketServer import TCPServer
 
-from umodbus import get_server, RequestHandler
+from umodbus import get_server, RequestHandler, conf
+
+conf.SIGNED_VALUES = True
 
 app = get_server(TCPServer, ('localhost', 0), RequestHandler)
 
@@ -15,7 +17,7 @@ def read_status(slave_id, address):
 
 @app.route(slave_ids=[1], function_codes=[3, 4], addresses=list(range(0, 10)))
 def read_register(slave_id, address):
-    return address
+    return -address
 
 
 @app.route(slave_ids=[1], function_codes=[5, 15], addresses=list(range(0, 10)))

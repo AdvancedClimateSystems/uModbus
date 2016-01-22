@@ -138,7 +138,7 @@ class TestReadHoldingRegisters:
         """ Return instance of ReadCoils. """
         read_holding_registers = ReadHoldingRegisters()
         read_holding_registers.starting_address = 5
-        read_holding_registers.quantity = 6
+        read_holding_registers.quantity = 3
 
         return read_holding_registers
 
@@ -159,10 +159,6 @@ class TestReadHoldingRegisters:
         with pytest.raises(IllegalDataValueError):
             read_holding_registers.quantity = quantity
 
-    def test_request_pdu(self, read_holding_registers):
-        """ Test if correct request PDU is build. """
-        assert read_holding_registers.request_pdu == \
-            struct.pack('>BHH', 3, 5, 6)
 
     def test_create_from_response_pdu(self, read_holding_registers):
         """ Test if function instance is created correctly from response PDU.
@@ -182,7 +178,7 @@ class TestReadInputRegisters:
         """ Return instance of ReadInputRegisters. """
         read_input_registers = ReadInputRegisters()
         read_input_registers.starting_address = 1
-        read_input_registers.quantity = 6
+        read_input_registers.quantity = 2
 
         return read_input_registers
 
@@ -206,7 +202,7 @@ class TestReadInputRegisters:
     def test_request_pdu(self, read_input_registers):
         """ Test if correct request PDU is build. """
         assert read_input_registers.request_pdu == \
-            struct.pack('>BHH', 4, 1, 6)
+            struct.pack('>BHH', 4, 1, 2)
 
     def test_create_from_response_pdu(self, read_input_registers):
         """ Test if function instance is created correctly from response PDU.

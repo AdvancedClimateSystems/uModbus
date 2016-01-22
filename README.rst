@@ -80,8 +80,11 @@ Doing a Modbus request requires even less code:
     # scripts/examples/simple_client.py
     import socket
 
+    from umodbus import conf
     from umodbus.client import tcp
 
+    # Enable values to be signed (default is False).
+    conf.SIGNED_VALUES = True
 
     sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
     sock.connect(('localhost', 502))

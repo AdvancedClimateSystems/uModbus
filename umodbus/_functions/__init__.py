@@ -53,6 +53,7 @@ try:
 except ImportError:
     pass
 
+from umodbus import conf
 from umodbus.exceptions import (error_code_to_exception_map,
                                 IllegalDataValueError)
 
@@ -481,7 +482,7 @@ class ReadHoldingRegisters(ModbusFunction):
         read_holding_registers.byte_count = \
             struct.unpack('>B', resp_pdu[1:2])[0]
 
-        fmt = '>' + ('H' * int(read_holding_registers.byte_count / 2))
+        fmt = '>' + (conf.TYPE_CHAR * read_holding_registers.quantity)
         read_holding_registers.data = list(struct.unpack(fmt, resp_pdu[2:]))
 
         return read_holding_registers
@@ -593,7 +594,7 @@ class ReadInputRegisters(ModbusFunction):
         read_input_registers.byte_count = \
             struct.unpack('>B', resp_pdu[1:2])[0]
 
-        fmt = '>' + ('H' * int(read_input_registers.byte_count / 2))
+        fmt = '>' + (conf.TYPE_CHAR * read_input_registers.quantity)
         read_input_registers.data = list(struct.unpack(fmt, resp_pdu[2:]))
 
         return read_input_registers
@@ -743,11 +744,17 @@ class WriteSingleRegister(ModbusFunction):
 
     @value.setter
     def value(self, value):
-        """ Data must be value between and including 0 and 0xFFFF. """
-        if 0 <= value <= 0xFFFF:
-            self._value = value
-        else:
+        """ Value to be written on register.
+
+        :param value: An integer.
+        :raises: IllegalDataValueError when value isn't in range.
+        """
+        try:
+            struct.pack('>' + conf.TYPE_CHAR, value)
+        except struct.error:
             raise IllegalDataValueError
+
+        self._value = value
 
     @property
     def request_pdu(self):
@@ -759,8 +766,8 @@ class WriteSingleRegister(ModbusFunction):
             # TODO Raise proper exception.
             raise Exception
 
-        return struct.pack('>BHH', self.function_code, self.address,
-                           self.value)
+        return struct.pack('>BH' + conf.TYPE_CHAR, self.function_code,
+                           self.address, self.value)
 
     @staticmethod
     def create_from_response_pdu(resp_pdu):
@@ -771,7 +778,7 @@ class WriteSingleRegister(ModbusFunction):
         """
         write_single_register = WriteSingleRegister()
 
-        address, value = struct.unpack('>HH', resp_pdu[1:5])
+        address, value = struct.unpack('>H' + conf.TYPE_CHAR, resp_pdu[1:5])
 
         write_single_register.address = address
         write_single_register.data = value
@@ -936,7 +943,7 @@ class WriteMultipleRegisters(ModbusFunction):
 
     @property
     def request_pdu(self):
-        fmt = '>BHHB' + ('H' * len(self.values))
+        fmt = '>BHHB' + (conf.TYPE_CHAR * len(self.values))
         return struct.pack(fmt, self.function_code, self.starting_address,
                            len(self.values), len(self.values) * 2,
                            *self.values)
