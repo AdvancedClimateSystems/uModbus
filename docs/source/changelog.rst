@@ -1,6 +1,15 @@
 Changelog
 =========
 
+0.4.1 (2016-01-22)
+++++++++++++++++++
+
+**Bugs**
+
+* `#31`_  Add subpackages `umodbus.client` and `umodbus._functions` to `setup.py`.
+
+.. _#31: https://github.com/AdvancedClimateSystems/uModbus/issues/31
+
 0.4.0 (2016-01-22)
 ++++++++++++++++++
 
