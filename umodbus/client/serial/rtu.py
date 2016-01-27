@@ -8,7 +8,7 @@ from umodbus._functions import (create_function_from_response_pdu, ReadCoils,
                                 WriteMultipleRegisters)
 
 
-def create_request_adu(slave_id, req_pdu):
+def _create_request_adu(slave_id, req_pdu):
     """ Return request ADU for Modbus RTU.
 
     :param slave_id: Slave id.
@@ -18,13 +18,6 @@ def create_request_adu(slave_id, req_pdu):
     first_part_adu = struct.pack('>B', slave_id) + req_pdu
 
     return first_part_adu + get_crc(first_part_adu)
-
-
-def parse_response_adu(adu, quantity):
-    """ Parse Modbus RTU response ADU. """
-    validate_crc(adu[:-2], adu[-2:])
-
-    return create_function_from_response_pdu(adu[1:-2], quantity)
 
 
 def read_coils(slave_id, starting_address, quantity):
@@ -37,7 +30,7 @@ def read_coils(slave_id, starting_address, quantity):
     function.starting_address = starting_address
     function.quantity = quantity
 
-    return create_request_adu(slave_id, function.request_pdu)
+    return _create_request_adu(slave_id, function.request_pdu)
 
 
 def read_discrete_inputs(slave_id, starting_address, quantity):
@@ -50,7 +43,7 @@ def read_discrete_inputs(slave_id, starting_address, quantity):
     function.starting_address = starting_address
     function.quantity = quantity
 
-    return create_request_adu(slave_id, function.request_pdu)
+    return _create_request_adu(slave_id, function.request_pdu)
 
 
 def read_holding_registers(slave_id, starting_address, quantity):
@@ -63,7 +56,7 @@ def read_holding_registers(slave_id, starting_address, quantity):
     function.starting_address = starting_address
     function.quantity = quantity
 
-    return create_request_adu(slave_id, function.request_pdu)
+    return _create_request_adu(slave_id, function.request_pdu)
 
 
 def read_input_registers(slave_id, starting_address, quantity):
@@ -76,7 +69,7 @@ def read_input_registers(slave_id, starting_address, quantity):
     function.starting_address = starting_address
     function.quantity = quantity
 
-    return create_request_adu(slave_id, function.request_pdu)
+    return _create_request_adu(slave_id, function.request_pdu)
 
 
 def write_single_coil(slave_id, address, value):
@@ -89,7 +82,7 @@ def write_single_coil(slave_id, address, value):
     function.address = address
     function.value = value
 
-    return create_request_adu(slave_id, function.request_pdu)
+    return _create_request_adu(slave_id, function.request_pdu)
 
 
 def write_single_register(slave_id, address, value):
@@ -102,7 +95,7 @@ def write_single_register(slave_id, address, value):
     function.address = address
     function.value = value
 
-    return create_request_adu(slave_id, function.request_pdu)
+    return _create_request_adu(slave_id, function.request_pdu)
 
 
 def write_multiple_coils(slave_id, starting_address, values):
@@ -115,7 +108,7 @@ def write_multiple_coils(slave_id, starting_address, values):
     function.starting_address = starting_address
     function.values = values
 
-    return create_request_adu(slave_id, function.request_pdu)
+    return _create_request_adu(slave_id, function.request_pdu)
 
 
 def write_multiple_registers(slave_id, starting_address, values):
@@ -128,4 +121,20 @@ def write_multiple_registers(slave_id, starting_address, values):
     function.starting_address = starting_address
     function.values = values
 
-    return create_request_adu(slave_id, function.request_pdu)
+    return _create_request_adu(slave_id, function.request_pdu)
+
+
+def parse_response_adu(resp_adu, req_adu=None):
+    """ Parse response ADU and return response data. Some functions require
+    request ADU to fully understand request ADU.
+
+    :param resp_adu: Resonse ADU.
+    :param req_adu: Request ADU, default None.
+    :return: Response data.
+    """
+    resp_pdu = resp_adu[1:-2]
+    validate_crc(resp_adu[:-2], resp_adu[-2:])
+
+    function = create_function_from_response_pdu(resp_pdu, req_adu)
+
+    return function.data
