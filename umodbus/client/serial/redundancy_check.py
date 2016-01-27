@@ -34,8 +34,7 @@ look_up_table = generate_look_up_table()
 def get_crc(msg):
     """ Return CRC of 2 byte for message.
 
-        >>> assert get_crc('<H', b'\x02\x07') ==\
-                struct.unpack('<H', b'\x41\x12')
+        >>> assert get_crc(b'\x02\x07') == struct.unpack('<H', b'\x41\x12')
 
     :param msg: A byte array.
     :return: Byte array of 2 bytes.
@@ -43,8 +42,9 @@ def get_crc(msg):
     register = 0xFFFF
 
     for byte_ in msg:
+        val = struct.unpack('<B', byte_)[0]
         register = \
-            (register >> 8) ^ look_up_table[(register ^ byte_) & 0xFF]
+            (register >> 8) ^ look_up_table[(register ^ val) & 0xFF]
 
     # CRC is little-endian!
     return struct.pack('<H', register)
