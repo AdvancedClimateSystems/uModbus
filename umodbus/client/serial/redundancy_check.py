@@ -42,7 +42,13 @@ def get_crc(msg):
     register = 0xFFFF
 
     for byte_ in msg:
-        val = struct.unpack('<B', byte_)[0]
+        try:
+            val = struct.unpack('<B', byte_)[0]
+        # Iterating over a bit-like objects in Python 3 gets you ints.
+        # Because fuck logic.
+        except TypeError:
+            val = byte_
+
         register = \
             (register >> 8) ^ look_up_table[(register ^ val) & 0xFF]
 
