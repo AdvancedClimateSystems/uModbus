@@ -21,6 +21,9 @@ setup(name='uModbus',
       license='MPL',
       packages=[
           'umodbus',
+          'umodbus._functions',
+          'umodbus.client',
+          'umodbus.client.serial',
       ],
       classifiers=[
           'Development Status :: 3 - Alpha',
