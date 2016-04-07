@@ -1,6 +1,15 @@
 Changelog
 =========
 
+0.4.2 (2016-04-07)
+++++++++++++++++++
+
+**Bugs**
+
+* `#20`_ uModbus should close connection when client closes it.
+
+.. _#20: https://github.com/AdvancedClimateSystems/uModbus/issues/20
+
 0.4.1 (2016-01-22)
 ++++++++++++++++++
 
