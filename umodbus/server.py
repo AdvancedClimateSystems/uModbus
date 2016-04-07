@@ -61,9 +61,15 @@ class RequestHandler(BaseRequestHandler):
     """
     def handle(self):
         try:
-            request_adu = self.request.recv(1024)
-            response_adu = self.process(request_adu)
-            self.respond(response_adu)
+            while True:
+                request_adu = self.request.recv(1024)
+
+                # When client terminate connection length of request_adu is 0.
+                if len(request_adu) == 0:
+                    return
+
+                response_adu = self.process(request_adu)
+                self.respond(response_adu)
         except:
             import traceback
             log.exception('Error while handling request: {0}.'
