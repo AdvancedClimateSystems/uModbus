@@ -64,7 +64,7 @@ class RequestHandler(BaseRequestHandler):
             while True:
                 request_adu = self.request.recv(1024)
 
-                # When client terminate connection length of request_adu is 0.
+                # When client terminates connection length of request_adu is 0.
                 if len(request_adu) == 0:
                     return
 
