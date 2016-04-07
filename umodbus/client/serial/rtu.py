@@ -1,4 +1,5 @@
 import struct
+from serial.exceptions import SerialTimeoutException
 
 from umodbus.client.serial.redundancy_check import get_crc, validate_crc
 from umodbus._functions import (create_function_from_response_pdu, ReadCoils,
@@ -143,3 +144,14 @@ def parse_response_adu(resp_adu, req_adu=None):
     function = create_function_from_response_pdu(resp_pdu, req_pdu)
 
     return function.data
+
+
+def send_message(adu, serial_port):
+    """ Send Modbus message over serial port and parse response. """
+    try:
+        serial_port.write(adu)
+        response = serial_port.read(256)
+    except SerialTimeoutException:
+        pass
+
+    return parse_response_adu(response, adu)
