@@ -11,22 +11,22 @@ app = get_server(TCPServer, ('localhost', 0), RequestHandler)
 
 
 @app.route(slave_ids=[1], function_codes=[1, 2], addresses=list(range(0, 10)))
-def read_status(slave_id, address):
+def read_status(slave_id, function_code, address):
     return address % 2
 
 
 @app.route(slave_ids=[1], function_codes=[3, 4], addresses=list(range(0, 10)))
-def read_register(slave_id, address):
+def read_register(slave_id, function_code, address):
     return -address
 
 
 @app.route(slave_ids=[1], function_codes=[5, 15], addresses=list(range(0, 10)))
-def write_status(slave_id, address, value):
+def write_status(slave_id, function_code, address, value):
     pass
 
 
 @app.route(slave_ids=[1], function_codes=[6, 16], addresses=list(range(0, 10)))
-def write_register(slave_id, address, value):
+def write_register(slave_id, function_code, address, value):
     pass
 
 

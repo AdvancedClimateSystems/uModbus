@@ -16,7 +16,7 @@ sock.connect(('localhost', 502))
 message = tcp.write_multiple_coils(slave_id=1, starting_address=1, values=[1, 0, 1, 1])
 
 # Response depends on Modbus function code. This particular returns the
-# amount of coils written, in this case it isr3.
+# amount of coils written, in this case it is.
 response = tcp.send_message(message, sock)
 
 sock.close()

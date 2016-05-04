@@ -87,7 +87,8 @@ class ReadFunction(object):
                                  self.starting_address + self.quantity):
                 endpoint = route_map.match(slave_id, self.function_code,
                                            address)
-                values.append(endpoint(slave_id=slave_id, address=address))
+                values.append(endpoint(slave_id=slave_id, address=address,
+                                       function_code=self.function_code))
 
             return values
         # route_map.match() returns None if no match is found. Calling None
@@ -110,7 +111,8 @@ class WriteSingleValueFunction(object):
         """
         endpoint = route_map.match(slave_id, self.function_code, self.address)
         try:
-            endpoint(slave_id=slave_id, address=self.address, value=self.value)
+            endpoint(slave_id=slave_id, address=self.address, value=self.value,
+                     function_code=self.function_code)
         # route_map.match() returns None if no match is found. Calling None
         # results in TypeError.
         except TypeError:
@@ -146,7 +148,8 @@ class WriteMultipleValueFunction(object):
             endpoint = route_map.match(slave_id, self.function_code, address)
 
             try:
-                endpoint(slave_id=slave_id, address=address, value=value)
+                endpoint(slave_id=slave_id, address=address, value=value,
+                         function_code=self.function_code)
             # route_map.match() returns None if no match is found. Calling None
             # results in TypeError.
             except TypeError:

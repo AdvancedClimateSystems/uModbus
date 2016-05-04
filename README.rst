@@ -51,13 +51,13 @@ Creating a Modbus server is easy:
 
 
     @app.route(slave_ids=[1], function_codes=[3, 4], addresses=list(range(0, 10)))
-    def read_data_store(slave_id, address):
+    def read_data_store(slave_id, function_code, address):
         """" Return value of address. """
         return data_store[address]
 
 
     @app.route(slave_ids=[1], function_codes=[6, 16], addresses=list(range(0, 10)))
-    def write_data_store(slave_id, address, value):
+    def write_data_store(slave_id, function_code, address, value):
         """" Set value for address. """
         data_store[address] = value
 
@@ -94,7 +94,7 @@ Doing a Modbus request requires even less code:
     message = tcp.write_multiple_coils(slave_id=1, starting_address=1, values=[1, 0, 1, 1])
 
     # Response depends on Modbus function code. This particular returns the
-    # amount of coils written, in this case it isr3.
+    # amount of coils written, in this case it is.
     response = tcp.send_message(message, sock)
 
     sock.close()
