@@ -1,15 +1,13 @@
-Modbus client
----------------
+Modbus TCP
+----------
 
-Sample use
-==========
+Example
+=======
 
-Currently a client has been implemented to do Modbus TCP requests. All
-functions codes for Modbus TCP/IP are supported. U can use the client like
+All functions codes for Modbus TCP/IP are supported. U can use the client like
 this:
 
-
-.. include:: ../../scripts/examples/simple_client.py
+.. include:: ../../../scripts/examples/simple_tcp_client.py
     :code: python
 
 

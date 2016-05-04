@@ -77,7 +77,7 @@ Doing a Modbus request requires even less code:
 .. code:: python
 
     #!/usr/bin/env python
-    # scripts/examples/simple_client.py
+    # scripts/examples/simple_tcp_client.py
     import socket
 
     from umodbus import conf

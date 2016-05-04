@@ -10,7 +10,7 @@ How uModus works
 
    installation
    modbus_server
-   modbus_client
+   client/index
    configuration
    changelog
 
