@@ -25,6 +25,9 @@ setup(name='uModbus',
           'umodbus.client',
           'umodbus.client.serial',
       ],
+      install_requires=[
+          'pyserial>=3.0.1',
+      ],
       classifiers=[
           'Development Status :: 3 - Alpha',
           'Intended Audience :: Developers',
