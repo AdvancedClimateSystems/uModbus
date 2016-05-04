@@ -1,6 +1,15 @@
 Changelog
 =========
 
+0.5.0 (2016-05-03)
+++++++++++++++++++
+
+**Bugs**
+
+* `#36`_ Parameter `function_code` is missing in signature of routes.
+
+.. _#36: https://github.com/AdvancedClimateSystems/uModbus/issues/36
+
 0.4.2 (2016-04-07)
 ++++++++++++++++++
 
