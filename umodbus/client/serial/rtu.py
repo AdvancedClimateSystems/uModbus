@@ -1,5 +1,5 @@
 import struct
-from serial.exceptions import SerialTimeoutException
+from serial import SerialTimeoutException
 
 from umodbus.client.serial.redundancy_check import get_crc, validate_crc
 from umodbus._functions import (create_function_from_response_pdu, ReadCoils,
