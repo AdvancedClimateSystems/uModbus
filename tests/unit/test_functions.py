@@ -140,7 +140,7 @@ class TestReadFunction:
         correct result.
         """
         def match_mock(*args, **kwargs):
-            return lambda slave_id, address: address % 2
+            return lambda slave_id, function_code, address: address % 2
 
         monkeypatch.setattr(route_map, 'match', match_mock)
         assert read_coils.execute(1, route_map) == [0, 1, 0]
@@ -167,6 +167,7 @@ class TestWriteSingleValueFunction:
         write_single_coil.execute(1, route_map)
 
         endpoint_mock.assert_called_once_with(slave_id=1,
+                                              function_code=write_single_coil.function_code,  # NOQA
                                               address=write_single_coil.address,  # NOQA
                                               value=write_single_coil.value)
 
@@ -208,18 +209,21 @@ class TestWriteMultipleValueFunction:
         monkeypatch.setattr(route_map, 'match', match_mock)
         write_multiple_coils.execute(1, route_map)
 
+        # Short cut to prevent following lines growing longer than 80
+        # characters.
+        fn_code = write_multiple_coils.function_code
         assert endpoint_mock.call_count == 10
         calls = [
-            call(slave_id=1, address=100, value=0),
-            call(slave_id=1, address=101, value=1),
-            call(slave_id=1, address=102, value=0),
-            call(slave_id=1, address=103, value=0),
-            call(slave_id=1, address=104, value=0),
-            call(slave_id=1, address=105, value=0),
-            call(slave_id=1, address=106, value=0),
-            call(slave_id=1, address=107, value=0),
-            call(slave_id=1, address=108, value=1),
-            call(slave_id=1, address=109, value=0),
+            call(slave_id=1, function_code=fn_code, address=100, value=0),
+            call(slave_id=1, function_code=fn_code, address=101, value=1),
+            call(slave_id=1, function_code=fn_code, address=102, value=0),
+            call(slave_id=1, function_code=fn_code, address=103, value=0),
+            call(slave_id=1, function_code=fn_code, address=104, value=0),
+            call(slave_id=1, function_code=fn_code, address=105, value=0),
+            call(slave_id=1, function_code=fn_code, address=106, value=0),
+            call(slave_id=1, function_code=fn_code, address=107, value=0),
+            call(slave_id=1, function_code=fn_code, address=108, value=1),
+            call(slave_id=1, function_code=fn_code, address=109, value=0),
         ]
         endpoint_mock.assert_has_calls(calls)
 
