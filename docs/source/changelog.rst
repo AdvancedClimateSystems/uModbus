@@ -1,6 +1,15 @@
 Changelog
 =========
 
+0.6.0 (Not released yet)
+++++++++++++++++++++++++
+
+**Feature**
+
+* `#24`  Add Modbus RTU client.
+
+.. _#24: https://github.com/AdvancedClimateSystems/uModbus/issues/24
+
 0.5.0 (2016-05-03)
 ++++++++++++++++++
 
