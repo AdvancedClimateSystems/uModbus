@@ -1,5 +1,5 @@
-Client
-======
+Modbus Client
+=============
 
 uModbus contains a client for Modbus TCP and Modbus RTU.
 

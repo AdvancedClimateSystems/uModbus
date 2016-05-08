@@ -1,4 +1,4 @@
-Modbus server
+Modbus Server
 -------------
 
 Viewpoint

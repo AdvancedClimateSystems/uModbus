@@ -3,7 +3,7 @@
 .. note:: This section is based on `MODBUS Messaging on TCP/IP
     Implementation Guide V1.0b`_.
 
-The Application Data Unit (ADU) for Modbus responses carried over a TCP/IP are
+The Application Data Unit (ADU) for Modbus messages carried over a TCP/IP are
 build out of two components: a MBAP header and a PDU. The Modbus Application
 Header (MBAP) is what makes Modbus TCP/IP requests and responsen different from
 their counterparts send over a serial line.  Below the components of the Modbus
