@@ -1,7 +1,7 @@
-Functions
----------
+Modbus Functions
+----------------
 
-The Modbus functions have been implemented.
+These Modbus functions have been implemented.
 
 01: Read Coils
 ==============

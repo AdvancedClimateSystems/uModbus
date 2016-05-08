@@ -12,15 +12,15 @@ uModbus
 
 uModbus or (μModbus) is a pure Python implementation of the Modbus protocol as
 described in the `MODBUS Application Protocol Specification V1.1b3`_. uModbus
-implements both a Modbus client (or master in Modbus language) and a Modbus
-server (or slave). The "u" or "μ" in the name comes from the the SI prefix
+implements both a Modbus client (both TCP and RTU) and a Modbus TCP server
+(only TCP). ThereThe "u" or "μ" in the name comes from the the SI prefix
 "micro-". uModbus is very small and lightweight. The source can be found on
 GitHub_. Documentation is available at `Read the Docs`_.
 
 Quickstart
 ----------
 
-Creating a Modbus server is easy:
+Creating a Modbus TCP server is easy:
 
 ..
     Because GitHub doesn't support the include directive the source of
@@ -91,7 +91,7 @@ Doing a Modbus request requires even less code:
     message = tcp.write_multiple_coils(slave_id=1, address=1, values=[1, 0, 1, 1])
 
     # Response depends on Modbus function code. This particular returns the
-    # amount of coils written, in this case it isr3.
+    # amount of coils written, in this case it is.
     response = tcp.send_message(message, sock)
 
     sock.close()
@@ -121,14 +121,14 @@ uModbus is far from complete. The next, unordered list shows what is going
 to be implemented in the future:
 
 * Support for all Modbus functions
-* Modbus RTU
+* Modbus RTU server
 * Use asyncio for handling of requests
 * Other Modbus 'flavours', so uModbus is able to handle 32 bit values.
 
 License
 -------
 
-uModbus software is licensed under `Mozilla Public License`_. © 2015 `Advanced
+uModbus software is licensed under `Mozilla Public License`_. © 2016 `Advanced
 Climate Systems`_.
 
 .. External References:

@@ -10,7 +10,6 @@ this:
 .. include:: ../../../scripts/examples/simple_tcp_client.py
     :code: python
 
-
 API
 ===
 

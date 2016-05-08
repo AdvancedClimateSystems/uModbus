@@ -1,3 +1,25 @@
+"""
+.. note:: This section is based on `MODBUS over Serial Line Specification and
+    Implementation Guide V1.02`_.
+
+The ADU for Modbus RTU messages differs from Modbus TCP/IP messages. Messages
+send over RTU don't have a MBAP header, instead they have an Address field.
+This field contains the slave id.  A CRC is appended to the message. Below all
+parts of a Modbus RTU message are listed together with their byte size:
+
++---------------+-----------------+
+| **Component** | **Size** (bytes)|
++---------------+-----------------+
+| Address field | 1               |
++---------------+-----------------+
+| PDU           | N               |
++---------------+-----------------+
+| CRC           | 2               |
++---------------+-----------------+
+
+The CRC is calculated from the Address field and the PDU.
+"""
+
 import struct
 from serial import SerialTimeoutException
 

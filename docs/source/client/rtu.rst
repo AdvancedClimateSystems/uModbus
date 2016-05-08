@@ -17,6 +17,9 @@ Example
     * 15: Write Multiple Coils
     * 16: Write Multiple Registers
 
+.. include:: ../../../scripts/examples/simple_rtu_client.py
+    :code: python
+
 API
 ===
 
