@@ -6,8 +6,10 @@ Changelog
 
 **Bugs**
 
+* `#37`  Pretty print binary data in shell.
 * `#38`  Fix type in sumple_rtu_client.py
 
+.. _#37: https://github.com/AdvancedClimateSystems/uModbus/issues/37
 .. _#38: https://github.com/AdvancedClimateSystems/uModbus/issues/38
 
 

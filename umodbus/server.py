@@ -112,8 +112,8 @@ class RequestHandler(BaseRequestHandler):
         response_mbap = pack_mbap(transaction_id, protocol_id,
                                   len(response_pdu) + 1, unit_id)
 
-        log.debug('Response MBAP {0}'.format(response_mbap))
-        log.debug('Response PDU {0}'.format(response_pdu))
+        log.debug('Response MBAP {0}'.format(hexlify(response_mbap)))
+        log.debug('Response PDU {0}'.format(hexlify(response_pdu)))
 
         response_adu = response_mbap + response_pdu
 
