@@ -4,7 +4,7 @@ import fcntl
 import struct
 from serial import Serial, PARITY_NONE
 
-from umodbus.client.serial impor rtu
+from umodbus.client.serial import rtu
 
 
 def get_serial_port():
