@@ -1,6 +1,16 @@
 Changelog
 =========
 
+0.6.1 (unreleased)
+++++++++++++++++++
+
+**Bugs**
+
+* `#38`  Fix type in sumple_rtu_client.py
+
+.. _#38: https://github.com/AdvancedClimateSystems/uModbus/issues/38
+
+
 0.6.0 (2016-05-08)
 ++++++++++++++++++
 
