@@ -4,7 +4,7 @@ unit tests.
 """
 import pytest
 
-from umodbus.server import RequestHandler
+from umodbus.server.tcp import RequestHandler
 
 
 def test_handle_raising_exception():

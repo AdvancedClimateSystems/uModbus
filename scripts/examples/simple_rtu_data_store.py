@@ -1,11 +1,9 @@
 #!/usr/bin/env python
 # scripts/examples/simple_data_store.py
 import logging
-from socketserver import TCPServer
 from collections import defaultdict
 
-from umodbus import get_server, RequestHandler, conf
-from umodbus.utils import log_to_stream
+from umodbus.server.serial import rtu
 
 # Add stream handler to logger 'uModbus'.
 log_to_stream(level=logging.DEBUG)
@@ -16,8 +14,7 @@ data_store = defaultdict(int)
 # Enable values to be signed (default is False).
 conf.SIGNED_VALUES = True
 
-TCPServer.allow_reuse_address = True
-app = get_server(TCPServer, ('localhost', 502), RequestHandler)
+app = rtu.get_server('/dev/ttyS1')
 
 
 @app.route(slave_ids=[1], function_codes=[1, 2], addresses=list(range(0, 10)))

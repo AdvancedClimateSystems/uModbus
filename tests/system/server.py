@@ -3,7 +3,9 @@ try:
 except ImportError:
     from SocketServer import TCPServer
 
-from umodbus import get_server, RequestHandler, conf
+from umodbus import conf
+from umodbus.server import get_server
+from umodbus.server.tcp import RequestHandler
 
 conf.SIGNED_VALUES = True
 

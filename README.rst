@@ -24,17 +24,19 @@ Creating a Modbus TCP server is easy:
 
 ..
     Because GitHub doesn't support the include directive the source of
-    scripts/examples/simple_data_store.py has been copied to this file.
+    scripts/examples/simple_tcp_server.py has been copied to this file.
 
 .. code:: python
 
     #!/usr/bin/env python
-    # scripts/examples/simple_data_store.py
+    # scripts/examples/simple_tcp_server.py
     import logging
     from socketserver import TCPServer
     from collections import defaultdict
 
-    from umodbus import get_server, RequestHandler, conf
+    from umodbus import conf
+    from umodbus.server import get_server
+    from umodbus.server.tcp import RequestHandler
     from umodbus.utils import log_to_stream
 
     # Add stream handler to logger 'uModbus'.

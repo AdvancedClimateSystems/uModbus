@@ -91,6 +91,7 @@ class ReadFunction(object):
                                        function_code=self.function_code))
 
             return values
+
         # route_map.match() returns None if no match is found. Calling None
         # results in TypeError.
         except TypeError:
