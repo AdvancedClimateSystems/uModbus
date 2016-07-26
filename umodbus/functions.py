@@ -86,8 +86,8 @@ REPORT_SERVER_ID = 17
 
 
 def create_function_from_response_pdu(resp_pdu, req_pdu=None):
-    """ Parse response PDU and return instance of :class:`Function` or raise
-    error.
+    """ Parse response PDU and return instance of :class:`ModbusFunction` or
+    raise error.
 
     :param resp_pdu: PDU of response.
     :param  req_pdu: Request PDU, some functions require more info than in
@@ -195,7 +195,6 @@ class ReadCoils(ModbusFunction):
     max_quantity = 2000
     format_character = 'B'
 
-    byte_count = None
     data = None
     starting_address = None
     _quantity = None
@@ -281,9 +280,9 @@ class ReadCoils(ModbusFunction):
         """
         read_coils = ReadCoils()
         read_coils.quantity = struct.unpack('>H', req_pdu[-2:])[0]
-        read_coils.byte_count = struct.unpack('>B', resp_pdu[1:2])[0]
+        byte_count = struct.unpack('>B', resp_pdu[1:2])[0]
 
-        fmt = '>' + ('B' * read_coils.byte_count)
+        fmt = '>' + ('B' * byte_count)
         bytes_ = struct.unpack(fmt, resp_pdu[2:])
 
         data = list()
@@ -391,7 +390,6 @@ class ReadDiscreteInputs(ModbusFunction):
     max_quantity = 2000
     format_character = 'B'
 
-    byte_count = None
     data = None
     starting_address = None
     _quantity = None
@@ -477,9 +475,9 @@ class ReadDiscreteInputs(ModbusFunction):
         """
         read_discrete_inputs = ReadDiscreteInputs()
         read_discrete_inputs.quantity = struct.unpack('>H', req_pdu[-2:])[0]
-        read_discrete_inputs.byte_count = struct.unpack('>B', resp_pdu[1:2])[0]
+        byte_count = struct.unpack('>B', resp_pdu[1:2])[0]
 
-        fmt = '>' + ('B' * read_discrete_inputs.byte_count)
+        fmt = '>' + ('B' * byte_count)
         bytes_ = struct.unpack(fmt, resp_pdu[2:])
 
         data = list()
@@ -577,7 +575,6 @@ class ReadHoldingRegisters(ModbusFunction):
     function_code = READ_HOLDING_REGISTERS
     max_quantity = 0x007D
 
-    byte_count = None
     data = None
     starting_address = None
     _quantity = None
@@ -740,7 +737,6 @@ class ReadInputRegisters(ModbusFunction):
     function_code = READ_INPUT_REGISTERS
     max_quantity = 0x007D
 
-    byte_count = None
     data = None
     starting_address = None
     _quantity = None
@@ -815,8 +811,6 @@ class ReadInputRegisters(ModbusFunction):
         """
         read_input_registers = ReadInputRegisters()
         read_input_registers.quantity = struct.unpack('>H', req_pdu[-2:])[0]
-        read_input_registers.byte_count = \
-            struct.unpack('>B', resp_pdu[1:2])[0]
 
         fmt = '>' + (conf.TYPE_CHAR * read_input_registers.quantity)
         read_input_registers.data = list(struct.unpack(fmt, resp_pdu[2:]))
@@ -1305,6 +1299,7 @@ class WriteMultipleCoils(ModbusFunction):
             except TypeError:
                 raise IllegalDataAddressError()
 
+
 class WriteMultipleRegisters(ModbusFunction):
     """ Implement Modbus function 16 (0x10) Write Multiple Registers.
 
@@ -1362,6 +1357,14 @@ class WriteMultipleRegisters(ModbusFunction):
         if not (1 <= len(values) <= 0x7B0):
             raise IllegalDataValueError
 
+
+        for value in values:
+            try:
+                struct.pack(">" + conf.MULTI_BIT_VALUE_FORMAT_CHARACTER, value)
+            except struct.error:
+                raise IllegalDataValueError
+
+        self._values = values
         self._values = values
 
     @property
