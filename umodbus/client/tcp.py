@@ -75,7 +75,7 @@ byte) + PDU (5 bytes).
 import struct
 from random import randint
 
-from umodbus._functions import (create_function_from_response_pdu, ReadCoils,
+from umodbus.functions import (create_function_from_response_pdu, ReadCoils,
                                 ReadDiscreteInputs, ReadHoldingRegisters,
                                 ReadInputRegisters, WriteSingleCoil,
                                 WriteSingleRegister, WriteMultipleCoils,
