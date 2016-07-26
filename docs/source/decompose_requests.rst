@@ -11,7 +11,7 @@ of the way it's transported.
 PDU
 ===
 
-.. automodule:: umodbus._functions
+.. automodule:: umodbus.functions
 
 ADU for TCP/IP requests and responses
 =====================================

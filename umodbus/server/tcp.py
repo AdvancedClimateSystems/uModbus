@@ -4,7 +4,7 @@ from umodbus import log
 from umodbus.server import AbstractRequestHandler
 from umodbus.utils import (unpack_mbap, pack_mbap, pack_exception_pdu,
                            get_function_code_from_request_pdu)
-from umodbus.functions import function_factory
+from umodbus.functions import create_function_from_request_pdu
 from umodbus.exceptions import ModbusError, ServerDeviceFailureError
 
 
@@ -26,7 +26,7 @@ class RequestHandler(AbstractRequestHandler):
             transaction_id, protocol_id, _, unit_id = \
                 unpack_mbap(request_adu[:7])
 
-            function = function_factory(request_adu[7:])
+            function = create_function_from_request_pdu(request_adu[7:])
             results = function.execute(unit_id, self.server.route_map)
 
             try:

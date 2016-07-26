@@ -21,9 +21,10 @@ setup(name='uModbus',
       license='MPL',
       packages=[
           'umodbus',
-          'umodbus._functions',
           'umodbus.client',
           'umodbus.client.serial',
+          'umodbus.server',
+          'umodbus.server.serial',
       ],
       install_requires=[
           'pyserial>=3.0.1',

@@ -24,11 +24,11 @@ import struct
 from serial import SerialTimeoutException
 
 from umodbus.client.serial.redundancy_check import get_crc, validate_crc
-from umodbus._functions import (create_function_from_response_pdu, ReadCoils,
-                                ReadDiscreteInputs, ReadHoldingRegisters,
-                                ReadInputRegisters, WriteSingleCoil,
-                                WriteSingleRegister, WriteMultipleCoils,
-                                WriteMultipleRegisters)
+from umodbus.functions import (create_function_from_response_pdu, ReadCoils,
+                               ReadDiscreteInputs, ReadHoldingRegisters,
+                               ReadInputRegisters, WriteSingleCoil,
+                               WriteSingleRegister, WriteMultipleCoils,
+                               WriteMultipleRegisters)
 
 
 def _create_request_adu(slave_id, req_pdu):
