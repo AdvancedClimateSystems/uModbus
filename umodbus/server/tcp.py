@@ -1,11 +1,29 @@
-from binascii import hexlify
+import struct
+from types import MethodType
 
-from umodbus import log
-from umodbus.server import AbstractRequestHandler
-from umodbus.utils import (unpack_mbap, pack_mbap, pack_exception_pdu,
-                           get_function_code_from_request_pdu)
-from umodbus.functions import create_function_from_request_pdu
-from umodbus.exceptions import ModbusError, ServerDeviceFailureError
+from umodbus.route import Map
+from umodbus.server import AbstractRequestHandler, route
+from umodbus.utils import unpack_mbap, pack_mbap
+from umodbus.exceptions import ServerDeviceFailureError
+
+
+def get_server(server_class, server_address, request_handler_class):
+    """ Return instance of :param:`server_class` with :param:`request_handler`
+    bound to it.
+    This method also binds a :func:`route` method to the server instance.
+        >>> server = get_server(TcpServer, ('localhost', 502), RequestHandler)
+        >>> server.serve_forever()
+    :param server_class: (sub)Class of :class:`socketserver.BaseServer`.
+    :param request_handler_class: (sub)Class of
+        :class:`umodbus.server.RequestHandler`.
+    :return: Instance of :param:`server_class`.
+    """
+    s = server_class(server_address, request_handler_class)
+
+    s.route_map = Map()
+    s.route = MethodType(route, s)
+
+    return s
 
 
 class RequestHandler(AbstractRequestHandler):
@@ -13,45 +31,46 @@ class RequestHandler(AbstractRequestHandler):
     incoming Modbus TCP/IP request using the server's :attr:`route_map`.
 
     """
-    def process(self, request_adu):
-        """ Process request ADU and return response.
+    def get_meta_data(self, request_adu):
+        """" Extract MBAP header from request adu and return it. The dict has
+        4 keys: transaction_id, protocol_id, length and unit_id.
 
-        :param request_adu: A bytearray containing the ADU request.
-        :return: A bytearray containing the response of the ADU request.
+        :param request_adu: A bytearray containing request ADU.
+        :return: Dict with meta data of request.
         """
-        log.debug('Lenght of received ADU is {0}.'.format(len(request_adu)))
-        log.info('<-- {0} - {1}.'.format(self.client_address[0],
-                 hexlify(request_adu)))
         try:
-            transaction_id, protocol_id, _, unit_id = \
+            transaction_id, protocol_id, length, unit_id = \
                 unpack_mbap(request_adu[:7])
+        except struct.error:
+            raise ServerDeviceFailureError()
 
-            function = create_function_from_request_pdu(request_adu[7:])
-            results = function.execute(unit_id, self.server.route_map)
+        return {
+            'transaction_id': transaction_id,
+            'protocol_id': protocol_id,
+            'length': length,
+            'unit_id': unit_id,
+        }
 
-            try:
-                # ReadFunction's use results of callbacks to build response
-                # PDU...
-                response_pdu = function.create_response_pdu(results)
-            except TypeError:
-                # ...other functions don't.
-                response_pdu = function.create_response_pdu()
-        except ModbusError as e:
-            function_code = get_function_code_from_request_pdu(request_adu[7:])
-            response_pdu = pack_exception_pdu(function_code, e.error_code)
-        except Exception as e:
-            log.exception('Could not handle request: {0}.'.format(e))
-            function_code = get_function_code_from_request_pdu(request_adu[7:])
-            response_pdu = \
-                pack_exception_pdu(function_code,
-                                   ServerDeviceFailureError.error_code)
+    def get_request_pdu(self, request_adu):
+        """ Extract PDU from request ADU and return it.
 
-        response_mbap = pack_mbap(transaction_id, protocol_id,
-                                  len(response_pdu) + 1, unit_id)
+        :param request_adu: A bytearray containing request ADU.
+        :return: An bytearray container request PDU.
+        """
+        return request_adu[7:]
 
-        log.debug('Response MBAP {0}'.format(hexlify(response_mbap)))
-        log.debug('Response PDU {0}'.format(hexlify(response_pdu)))
+    def create_response_adu(self, meta_data, response_pdu):
+        """ Build response ADU from meta data and response PDU and return it.
 
-        response_adu = response_mbap + response_pdu
+        :param meta_data: A dict with meta data.
+        :param request_pdu: A bytearray containing request PDU.
+        :return: A bytearray containing request ADU.
+        """
+        response_mbap = pack_mbap(
+            transaction_id=meta_data['transaction_id'],
+            protocol_id=meta_data['protocol_id'],
+            length=len(response_pdu) + 1,
+            unit_id=meta_data['unit_id']
+        )
 
-        return response_adu
+        return response_mbap + response_pdu

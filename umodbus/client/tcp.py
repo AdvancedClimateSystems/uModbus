@@ -37,19 +37,19 @@ The MBAP header is 7 bytes long::
 
 The MBAP header contains the following fields:
 
-+------------------------+--------------------+--------------------------------------+
-| **Field**              | **Length** (bytes) | **Description**                      |
-+------------------------+--------------------+--------------------------------------+
-| Transaction identifier | 2                  | Identification of a                  |
-|                        |                    | Modbus request/response transaction. |
-+------------------------+--------------------+--------------------------------------+
-| Protocol identifier    | 2                  | Protocol ID, is 0 for Modbus.        |
-+------------------------+--------------------+--------------------------------------+
-| Length                 | 2                  | Number of following bytes            |
-+------------------------+--------------------+--------------------------------------+
-| Unit identifier        | 1                  | Identification of a                  |
-|                        |                    | remote slave                         |
-+------------------------+--------------------+--------------------------------------+
++------------------------+--------------------+--------------------------------------+  # NOQA
+| **Field**              | **Length** (bytes) | **Description**                      |  # NOQA
++------------------------+--------------------+--------------------------------------+  # NOQA
+| Transaction identifier | 2                  | Identification of a                  |  # NOQA
+|                        |                    | Modbus request/response transaction. |  # NOQA
++------------------------+--------------------+--------------------------------------+  # NOQA
+| Protocol identifier    | 2                  | Protocol ID, is 0 for Modbus.        |  # NOQA
++------------------------+--------------------+--------------------------------------+  # NOQA
+| Length                 | 2                  | Number of following bytes            |  # NOQA
++------------------------+--------------------+--------------------------------------+  # NOQA
+| Unit identifier        | 1                  | Identification of a                  |  # NOQA
+|                        |                    | remote slave                         |  # NOQA
++------------------------+--------------------+--------------------------------------+  # NOQA
 
 When unpacked, these fields have the following values::
 
@@ -76,10 +76,10 @@ import struct
 from random import randint
 
 from umodbus.functions import (create_function_from_response_pdu, ReadCoils,
-                                ReadDiscreteInputs, ReadHoldingRegisters,
-                                ReadInputRegisters, WriteSingleCoil,
-                                WriteSingleRegister, WriteMultipleCoils,
-                                WriteMultipleRegisters)
+                               ReadDiscreteInputs, ReadHoldingRegisters,
+                               ReadInputRegisters, WriteSingleCoil,
+                               WriteSingleRegister, WriteMultipleCoils,
+                               WriteMultipleRegisters)
 
 
 def _create_request_adu(slave_id, pdu):

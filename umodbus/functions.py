@@ -44,7 +44,7 @@ A response PDU could look like this::
     >>> coil_status = resp[2:]
     'b\x06'
 
-.. _MODBUS Application Protocol Specification V1.1b3: http://modbus.org/docs/Modbus_Application_Protocol_V1_1b3.pdf
+.. _MODBUS Application Protocol Specification V1.1b3: http://modbus.org/docs/Modbus_Application_Protocol_V1_1b3.pdf  # NOQA
 """
 import struct
 import inspect
@@ -73,7 +73,7 @@ WRITE_MULTIPLE_REGISTERS = 16
 READ_FILE_RECORD = 20
 
 WRITE_FILE_RECORD = 21
-MASK_WRITE_REGISTER = 22
+
 READ_WRITE_MULTIPLE_REGISTERS = 23
 READ_FIFO_QUEUE = 24
 
@@ -263,8 +263,8 @@ class ReadCoils(ModbusFunction):
         log.debug('Reduced single bit data to {0}.'.format(bytes_))
         # The first 2 B's of the format encode the function code (1 byte) and
         # the length (1 byte) of the following byte series. Followed by # a B
-        # for every byte in the series of bytes. 3 lead to the format '>BBB' and
-        # 257 lead to the format '>BBBB'.
+        # for every byte in the series of bytes. 3 lead to the format '>BBB'
+        # and 257 lead to the format '>BBBB'.
         fmt = '>BB' + self.format_character * len(bytes_)
         return struct.pack(fmt, self.function_code, len(bytes_), *bytes_)
 
@@ -458,8 +458,8 @@ class ReadDiscreteInputs(ModbusFunction):
         log.debug('Reduced single bit data to {0}.'.format(bytes_))
         # The first 2 B's of the format encode the function code (1 byte) and
         # the length (1 byte) of the following byte series. Followed by # a B
-        # for every byte in the series of bytes. 3 lead to the format '>BBB' and
-        # 257 lead to the format '>BBBB'.
+        # for every byte in the series of bytes. 3 lead to the format '>BBB'
+        # and 257 lead to the format '>BBBB'.
         fmt = '>BB' + self.format_character * len(bytes_)
         return struct.pack(fmt, self.function_code, len(bytes_), *bytes_)
 
@@ -926,7 +926,7 @@ class WriteSingleCoil(ModbusFunction):
 
         :param pdu: A response PDU.
         """
-        _, address, value = struct.unpack('>BHH' , pdu)
+        _, address, value = struct.unpack('>BHH', pdu)
 
         instance = WriteSingleCoil()
         instance.address = address
@@ -1207,8 +1207,8 @@ class WriteMultipleCoils(ModbusFunction):
         Again, assume starting address 100 and  byte value is 6. But now
         quantity is 4. So the value byte is addressing 4 coils. The binary
         representation of 6 is now 0b0110. LSB again is 0, meaning status of
-        coil 100 is 0. Status of 101 and 102 is 1, like in the previous example.
-        Status of coil 104 is 0.
+        coil 100 is 0. Status of 101 and 102 is 1, like in the previous
+        example. Status of coil 104 is 0.
 
         coil address  104     102     101     100
                         0       1       1       0
@@ -1357,7 +1357,6 @@ class WriteMultipleRegisters(ModbusFunction):
         if not (1 <= len(values) <= 0x7B0):
             raise IllegalDataValueError
 
-
         for value in values:
             try:
                 struct.pack(">" + conf.MULTI_BIT_VALUE_FORMAT_CHARACTER, value)
@@ -1385,7 +1384,8 @@ class WriteMultipleRegisters(ModbusFunction):
             struct.unpack('>BHHB', pdu[:6])
 
         # Values are 16 bit, so each value takes up 2 bytes.
-        fmt = '>' + (conf.MULTI_BIT_VALUE_FORMAT_CHARACTER * int((byte_count / 2)))
+        fmt = '>' + (conf.MULTI_BIT_VALUE_FORMAT_CHARACTER *
+                     int((byte_count / 2)))
 
         values = list(struct.unpack(fmt, pdu[6:]))
 

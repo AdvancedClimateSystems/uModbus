@@ -1,7 +1,8 @@
 import struct
 import pytest
 
-from umodbus.client.serial.redundancy_check import get_crc, validate_crc
+from umodbus.client.serial.redundancy_check import (get_crc, validate_crc,
+                                                    CRCError)
 
 
 def test_get_crc():
@@ -19,5 +20,5 @@ def test_validate_valid_crc():
 
 def test_validate_invalid_crc():
     """" Method should raise assertion error. """
-    with pytest.raises(AssertionError):
+    with pytest.raises(CRCError):
         validate_crc(b'\x02\x07', b'\x41\x11')

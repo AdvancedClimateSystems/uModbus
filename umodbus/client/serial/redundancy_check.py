@@ -1,6 +1,6 @@
 """ CRC is calculated over slave id + PDU.
 
-Most code is taken from: https://github.com/pyhys/minimalmodbus/blob/e99f4d74c83258c6039073082955ac9bed3f2155/minimalmodbus.py
+Most code is taken from: https://github.com/pyhys/minimalmodbus/blob/e99f4d74c83258c6039073082955ac9bed3f2155/minimalmodbus.py  # NOQA
 """
 import struct
 
@@ -63,5 +63,10 @@ def validate_crc(msg, crc):
     :param crc: Byte array holding CRC to check.
     :raise: AssertionError.
     """
-    assert struct.unpack('<H', get_crc(msg)) == \
-        struct.unpack('<H', crc)
+    if not struct.unpack('<H', get_crc(msg)) == struct.unpack('<H', crc):
+        raise CRCError
+
+
+class CRCError(Exception):
+    """ Valid error to raise when CRC isn't correct. """
+    pass

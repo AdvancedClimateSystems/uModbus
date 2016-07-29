@@ -4,10 +4,11 @@ import socket
 from threading import Thread
 
 from .server import app
+from .rtu import app as rtu
 
 
 @pytest.fixture(autouse=True, scope="session")
-def server(request):
+def tcp_server(request):
     t = Thread(target=app.serve_forever)
     t.start()
 
@@ -21,13 +22,18 @@ def server(request):
 
 
 @pytest.yield_fixture
-def sock(server):
+def sock(tcp_server):
     sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-    sock.connect(server.socket.getsockname())
+    sock.connect(tcp_server.socket.getsockname())
 
     yield sock
 
     sock.close()
+
+
+@pytest.fixture
+def rtu_server():
+    return rtu
 
 
 @pytest.fixture

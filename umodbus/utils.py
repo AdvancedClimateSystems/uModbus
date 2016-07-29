@@ -60,19 +60,20 @@ def pack_exception_pdu(function_code, error_code):
         "The exception response message has two fields that differentiate it
         from a nor mal response: Function Code Field: In a normal response, the
         server echoes the function code of the original request in the function
-        code field of the response. All function codes have a most - significant
-        bit (MSB) of 0 (their values are all below 80 hexadecimal). In an
-        exception response, the server sets the MSB of the function code to 1.
-        This makes the function code value in an exception response exactly 80
-        hexadecimal higher than the value would be for a normal response.
+        code field of the response. All function codes have a most -
+        significant bit (MSB) of 0 (their values are all below 80 hexadecimal).
+        In an exception response, the server sets the MSB of the function code
+        to 1.  This makes the function code value in an exception response
+        exactly 80 hexadecimal higher than the value would be for a normal
+        response.
 
         With the function code's MSB set, the client's application program can
         recognize the exception response and can examine the data field for the
-        exception code.  Data Field: In a normal response, the server may return
-        data or statistics in the data field (any information that was requested
-        in the request). In an exception response, the server returns an
-        exception code in the data field. This defines the server condition that
-        caused the exception."
+        exception code.  Data Field: In a normal response, the server may
+        return data or statistics in the data field (any information that was
+        requested in the request). In an exception response, the server returns
+        an exception code in the data field. This defines the server condition
+        that caused the exception."
 
         -- MODBUS Application Protocol Specification V1.1b3, chapter 7
 

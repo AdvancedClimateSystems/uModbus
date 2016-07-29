@@ -41,8 +41,8 @@ class Config(object):
     def _set_multi_bit_value_format_character(self):
         """ Set format character for multibit values.
 
-        The format character depends on size of the value and whether values are
-        signed or unsigned.
+        The format character depends on size of the value and whether values
+        are signed or unsigned.
 
         """
         self.MULTI_BIT_VALUE_FORMAT_CHARACTER = \

@@ -170,10 +170,7 @@ def parse_response_adu(resp_adu, req_adu=None):
 
 def send_message(adu, serial_port):
     """ Send Modbus message over serial port and parse response. """
-    try:
-        serial_port.write(adu)
-        response = serial_port.read(256)
-    except SerialTimeoutException:
-        pass
+    serial_port.write(adu)
+    response = serial_port.read(serial_port.in_waiting)
 
     return parse_response_adu(response, adu)
