@@ -3,22 +3,22 @@ import pytest
 import socket
 from threading import Thread
 
-from .server import app
-from .rtu import app as rtu
+from .tcp_server import app as tcp
+from .rtu_server import app as rtu
 
 
 @pytest.fixture(autouse=True, scope="session")
 def tcp_server(request):
-    t = Thread(target=app.serve_forever)
+    t = Thread(target=tcp.serve_forever)
     t.start()
 
     def fin():
-        app.shutdown()
-        app.server_close()
+        tcp.shutdown()
+        tcp.server_close()
         t.join()
 
     request.addfinalizer(fin)
-    return app
+    return tcp
 
 
 @pytest.yield_fixture
