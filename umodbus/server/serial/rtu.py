@@ -11,7 +11,7 @@ class RTUServer(AbstractSerialServer):
         :param request_adu: A bytearray containing the ADU request.
         :return: A bytearray containing the response of the ADU request.
         """
-        validate_crc(request_adu, get_crc(request_adu))
+        validate_crc(request_adu)
         return super(RTUServer, self).process(request_adu)
 
     def create_response_adu(self, meta_data, response_pdu):

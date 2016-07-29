@@ -19,9 +19,7 @@ parts of a Modbus RTU message are listed together with their byte size:
 
 The CRC is calculated from the Address field and the PDU.
 """
-
 import struct
-from serial import SerialTimeoutException
 
 from umodbus.client.serial.redundancy_check import get_crc, validate_crc
 from umodbus.functions import (create_function_from_response_pdu, ReadCoils,
@@ -156,7 +154,7 @@ def parse_response_adu(resp_adu, req_adu=None):
     :return: Response data.
     """
     resp_pdu = resp_adu[1:-2]
-    validate_crc(resp_adu[:-2], resp_adu[-2:])
+    validate_crc(resp_adu)
 
     req_pdu = None
 

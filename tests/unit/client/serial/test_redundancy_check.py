@@ -15,10 +15,10 @@ def test_get_crc():
 
 def test_validate_valid_crc():
     """" Method should not raise assertion error. """
-    validate_crc(b'\x02\x07', b'\x41\x12')
+    validate_crc(b'\x00\x01\x02\xf1\x91')
 
 
 def test_validate_invalid_crc():
     """" Method should raise assertion error. """
     with pytest.raises(CRCError):
-        validate_crc(b'\x02\x07', b'\x41\x11')
+        validate_crc(b'\x01\x02\x07')

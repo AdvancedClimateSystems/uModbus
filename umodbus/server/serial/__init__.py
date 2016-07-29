@@ -8,6 +8,7 @@ from umodbus.server import AbstractRequestHandler, route
 from umodbus.functions import create_function_from_request_pdu
 from umodbus.exceptions import ModbusError, ServerDeviceFailureError
 from umodbus.utils import get_function_code_from_request_pdu, pack_exception_pdu
+from umodbus.client.serial.redundancy_check import CRCError
 
 
 def get_server(server_class, serial_port):
@@ -72,7 +73,10 @@ class AbstractSerialServer(object):
         self.serial_port.timeout = poll_interval
 
         while not self.__shutdown_request:
-            self.serve_once()
+            try:
+                self.serve_once()
+            except CRCError:
+                pass
 
     def process(self, request_adu):
         """ Process request ADU and return response.

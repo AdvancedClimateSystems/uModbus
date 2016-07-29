@@ -56,14 +56,23 @@ def get_crc(msg):
     return struct.pack('<H', register)
 
 
-def validate_crc(msg, crc):
+def add_crc(msg):
+    """ Append CRC to message.
+
+    :param msg: A byte array.
+    :return: Byte array.
+    """
+    return msg + get_crc(msg)
+
+
+def validate_crc(msg):
     """ Validate CRC of message.
 
-    :param msg: Byte array with message where CRC is calculated on.
-    :param crc: Byte array holding CRC to check.
-    :raise: AssertionError.
+    :param msg: Byte array with message with CRC.
+    :raise: CRCError.
     """
-    if not struct.unpack('<H', get_crc(msg)) == struct.unpack('<H', crc):
+    if not struct.unpack('<H', get_crc(msg[:-2])) ==\
+            struct.unpack('<H', msg[-2:]):
         raise CRCError
 
 
