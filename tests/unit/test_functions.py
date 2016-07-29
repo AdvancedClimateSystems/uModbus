@@ -48,6 +48,7 @@ def read_holding_registers():
 
     return instance
 
+
 @pytest.fixture
 def read_input_registers():
     instance = ReadInputRegisters()
@@ -151,6 +152,7 @@ def test_read_coils_with_invalid_attributes(read_coils):
     with pytest.raises(IllegalDataValueError):
         read_coils.quantity = 2001
 
+
 def test_read_coils_request_pdu(read_coils):
     instance = ReadCoils.create_from_request_pdu(read_coils.request_pdu)
     assert instance.starting_address == 100
@@ -205,7 +207,9 @@ def test_read_holding_registers_request_pdu(read_holding_registers):
 
 
 def test_read_holding_registers_response_pdu(read_holding_registers):
-    response_pdu = read_holding_registers.create_response_pdu([1337, 17, 21, 18])
+    response_pdu =\
+        read_holding_registers.create_response_pdu([1337, 17, 21, 18])
+
     instance = ReadHoldingRegisters.create_from_response_pdu(response_pdu, read_holding_registers.request_pdu)  # NOQA
 
     assert instance.data == [1337, 17, 21, 18]

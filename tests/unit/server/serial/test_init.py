@@ -20,4 +20,3 @@ def test_abract_serial_server_shutdown(abstract_serial_server):
     abstract_serial_server.shutdown()
 
     assert abstract_serial_server._shutdown_request is True
-

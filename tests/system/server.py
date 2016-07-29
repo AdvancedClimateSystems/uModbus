@@ -6,9 +6,10 @@ except ImportError:
 from umodbus import conf
 from umodbus.server.tcp import get_server, RequestHandler
 
+from tests.system import route
+
 conf.SIGNED_VALUES = True
 
 app = get_server(TCPServer, ('localhost', 0), RequestHandler)
 
-from tests.system import route
 route.bind_routes(app)

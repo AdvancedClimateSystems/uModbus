@@ -37,7 +37,8 @@ def test_request_returning_invalid_data_value_error(rtu_server, function_code,
     """
     starting_address = 0
     slave_id = 1
-    adu = add_crc(struct.pack('>BBHH', slave_id, function_code, starting_address, quantity))
+    adu = add_crc(struct.pack('>BBHH', slave_id, function_code,
+                              starting_address, quantity))
 
     rtu_server.serial_port.write(adu)
     rtu_server.serve_once()
