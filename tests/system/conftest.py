@@ -3,8 +3,8 @@ import pytest
 import socket
 from threading import Thread
 
-from .server import app
-from .rtu import app as rtu
+from server import app
+from rtu import app as rtu
 
 
 @pytest.fixture(autouse=True, scope="session")
