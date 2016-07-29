@@ -1,6 +1,6 @@
 import struct
 
-from umodbus.server.serial import SerialRequestHandler, AbstractSerialServer
+from umodbus.server.serial import AbstractSerialServer
 from umodbus.client.serial.redundancy_check import get_crc, validate_crc
 
 

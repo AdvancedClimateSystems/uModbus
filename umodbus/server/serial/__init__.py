@@ -4,10 +4,11 @@ from types import MethodType
 
 from umodbus import log
 from umodbus.route import Map
-from umodbus.server import AbstractRequestHandler, route
+from umodbus.server import route
 from umodbus.functions import create_function_from_request_pdu
 from umodbus.exceptions import ModbusError, ServerDeviceFailureError
-from umodbus.utils import get_function_code_from_request_pdu, pack_exception_pdu
+from umodbus.utils import (get_function_code_from_request_pdu,
+                           pack_exception_pdu)
 from umodbus.client.serial.redundancy_check import CRCError
 
 
@@ -31,16 +32,8 @@ def get_server(server_class, serial_port):
     return s
 
 
-class SerialRequestHandler(AbstractRequestHandler):
-    """ A subclass of :class:`socketserver.BaseRequestHandler` dispatching
-    incoming Modbus TCP/IP request using the server's :attr:`route_map`.
-
-    """
-    pass
-
-
 class AbstractSerialServer(object):
-    __shutdown_request = False
+    _shutdown_request = False
 
     def get_meta_data(self, request_adu):
         """" Extract MBAP header from request adu and return it. The dict has
@@ -72,7 +65,7 @@ class AbstractSerialServer(object):
         """ Wait for incomming requests. """
         self.serial_port.timeout = poll_interval
 
-        while not self.__shutdown_request:
+        while not self._shutdown_request:
             try:
                 self.serve_once()
             except CRCError:
@@ -132,4 +125,4 @@ class AbstractSerialServer(object):
         self.serial_port.write(response_adu)
 
     def shutdown(self):
-        self.__shutdown_request = True
+        self._shutdown_request = True

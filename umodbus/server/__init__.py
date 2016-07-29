@@ -7,7 +7,8 @@ from binascii import hexlify
 from umodbus import log
 from umodbus.functions import create_function_from_request_pdu
 from umodbus.exceptions import ModbusError, ServerDeviceFailureError
-from umodbus.utils import get_function_code_from_request_pdu, pack_exception_pdu
+from umodbus.utils import (get_function_code_from_request_pdu,
+                           pack_exception_pdu)
 
 
 def route(self, slave_ids=None, function_codes=None, addresses=None):
