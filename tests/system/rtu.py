@@ -9,5 +9,5 @@ conf.SIGNED_VALUES = True
 s = serial_for_url('loop://')
 app = get_server(RTUServer, s)
 
-import route
+from tests.system import route
 route.bind_routes(app)

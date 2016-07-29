@@ -49,7 +49,7 @@ class AbstractSerialServer(object):
         :return: Dict with meta data of request.
         """
         return {
-            'unit_id': struct.unpack('>B', request_adu[0])[0],
+            'unit_id': struct.unpack('>B', request_adu[:1])[0],
         }
 
     def get_request_pdu(self, request_adu):
@@ -124,7 +124,7 @@ class AbstractSerialServer(object):
 
         :param response_adu: A bytearray containing the response of an ADU.
         """
-        print('-->' + hexlify(response_adu))
+        print('--> {0}'.format(hexlify(response_adu)))
         self.serial_port.write(response_adu)
 
     def shutdown(self):

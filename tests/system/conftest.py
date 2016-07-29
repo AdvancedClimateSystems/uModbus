@@ -3,12 +3,11 @@ import pytest
 import socket
 from threading import Thread
 
-from server import app
-from rtu import app as rtu
 
 
 @pytest.fixture(autouse=True, scope="session")
 def tcp_server(request):
+    from .server import app
     t = Thread(target=app.serve_forever)
     t.start()
 
@@ -33,6 +32,7 @@ def sock(tcp_server):
 
 @pytest.fixture
 def rtu_server():
+    from .rtu import app as rtu
     return rtu
 
 

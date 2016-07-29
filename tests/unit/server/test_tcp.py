@@ -55,7 +55,7 @@ def test_request_handler_get_meta_data(request_handler, mbap_header,
 
 def test_request_handler_get_meta_data_raising_error(request_handler):
     with pytest.raises(ServerDeviceFailureError):
-        request_handler.get_meta_data('')
+        request_handler.get_meta_data(b'')
 
 
 def def_test_get_request_pdu(request_handler, mbap_header):
@@ -64,4 +64,4 @@ def def_test_get_request_pdu(request_handler, mbap_header):
 
 
 def test_response_adu(request_handler, mbap_header, meta_data):
-    assert len(request_handler.create_response_adu(meta_data, '')) == 7
+    assert len(request_handler.create_response_adu(meta_data, b'')) == 7

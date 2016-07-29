@@ -10,5 +10,5 @@ conf.SIGNED_VALUES = True
 
 app = get_server(TCPServer, ('localhost', 0), RequestHandler)
 
-import route
+from tests.system import route
 route.bind_routes(app)
