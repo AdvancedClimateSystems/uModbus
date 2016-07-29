@@ -22,7 +22,7 @@ function code 1. It requests data of slave with 1, starting at coil 100, for
 the length of 3 coils::
 
     >>> # Read coils, starting from coil 100 for the length of 3 coils.
-    >>> adu = b'\x00\x08\x00\x00\x00\x06\x01\x01\x00d\x00\x03'
+    >>> adu = b'\\x00\\x08\\x00\\x00\\x00\\x06\\x01\\x01\\x00d\\x00\\x03'
 
 The length of the ADU is 12 bytes::
 
@@ -33,38 +33,38 @@ The MBAP header is 7 bytes long::
 
     >>> mbap = adu[:7]
     >>> mbap
-    b'\x00\x08\x00\x00\x00\x06\x01'
+    b'\\x00\\x08\\x00\\x00\\x00\\x06\\x01'
 
 The MBAP header contains the following fields:
 
-+------------------------+--------------------+--------------------------------------+  # NOQA
-| **Field**              | **Length** (bytes) | **Description**                      |  # NOQA
-+------------------------+--------------------+--------------------------------------+  # NOQA
-| Transaction identifier | 2                  | Identification of a                  |  # NOQA
-|                        |                    | Modbus request/response transaction. |  # NOQA
-+------------------------+--------------------+--------------------------------------+  # NOQA
-| Protocol identifier    | 2                  | Protocol ID, is 0 for Modbus.        |  # NOQA
-+------------------------+--------------------+--------------------------------------+  # NOQA
-| Length                 | 2                  | Number of following bytes            |  # NOQA
-+------------------------+--------------------+--------------------------------------+  # NOQA
-| Unit identifier        | 1                  | Identification of a                  |  # NOQA
-|                        |                    | remote slave                         |  # NOQA
-+------------------------+--------------------+--------------------------------------+  # NOQA
++------------------------+--------------------+--------------------------------------+
+| **Field**              | **Length** (bytes) | **Description**                      |
++------------------------+--------------------+--------------------------------------+
+| Transaction identifier | 2                  | Identification of a                  |
+|                        |                    | Modbus request/response transaction. |
++------------------------+--------------------+--------------------------------------+
+| Protocol identifier    | 2                  | Protocol ID, is 0 for Modbus.        |
++------------------------+--------------------+--------------------------------------+
+| Length                 | 2                  | Number of following bytes            |
++------------------------+--------------------+--------------------------------------+
+| Unit identifier        | 1                  | Identification of a                  |
+|                        |                    | remote slave                         |
++------------------------+--------------------+--------------------------------------+
 
 When unpacked, these fields have the following values::
 
     >>> transaction_id = mbap[:2]
     >>> transaction_id
-    b'\x00\x08'
+    b'\\x00\\x08'
     >>> protocol_id = mbap[2:4]
     >>> protocol_id
-    b'\x00\x00'
+    b'\\x00\\x00'
     >>> length = mbap[4:6]
     >>> length
-    b'\x00\x06'
+    b'\\x00\\x06'
     >>> unit_id = mbap[6:]
     >>> unit_id
-    b'\0x01'
+    b'\\0x01'
 
 The request in words: a request with Transaction ID 8 for slave 1. The
 request uses Protocol ID 0, which is the Modbus protocol. The length of the

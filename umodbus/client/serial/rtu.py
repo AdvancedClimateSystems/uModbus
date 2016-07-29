@@ -18,6 +18,19 @@ parts of a Modbus RTU message are listed together with their byte size:
 +---------------+-----------------+
 
 The CRC is calculated from the Address field and the PDU.
+
+Below you see an hexidecimal presentation of request over RTU with Modbus
+function code 1. It requests data of slave with 1, starting at coil 100, for
+the length of 3 coils::
+
+    >>> # Read coils, starting from coil 100 for the length of 3 coils.
+    >>> adu = b'\\x01\\x01\\x00d\\x00\\x03=\\xd4'
+
+The lenght of this ADU is 8 bytes::
+
+    >>> len(adu)
+    8
+
 """
 import struct
 

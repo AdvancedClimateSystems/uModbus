@@ -1,14 +1,21 @@
 Changelog
 =========
 
-0.6.1 (unreleased)
+0.7.0 (29-07-2016)
 ++++++++++++++++++
+
+**Features**
+
+* `#22` Add Modbus RTU server.
 
 **Bugs**
 
+* `#39`  Merge functions module with _functions package.
 * `#37`  Pretty print binary data in shell.
 * `#38`  Fix type in sumple_rtu_client.py
 
+.. _#22: https://github.com/AdvancedClimateSystems/uModbus/issues/22
+.. _#29: https://github.com/AdvancedClimateSystems/uModbus/issues/29
 .. _#37: https://github.com/AdvancedClimateSystems/uModbus/issues/37
 .. _#38: https://github.com/AdvancedClimateSystems/uModbus/issues/38
 
@@ -16,7 +23,7 @@ Changelog
 0.6.0 (2016-05-08)
 ++++++++++++++++++
 
-**Feature**
+**Features**
 
 * `#24`  Add Modbus RTU client.
 

@@ -44,7 +44,6 @@ A response PDU could look like this::
     >>> coil_status = resp[2:]
     'b\x06'
 
-.. _MODBUS Application Protocol Specification V1.1b3: http://modbus.org/docs/Modbus_Application_Protocol_V1_1b3.pdf  # NOQA
 """
 import struct
 import inspect

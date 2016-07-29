@@ -23,10 +23,16 @@ route map.
 The following code example demonstrates how to implement a very simple data
 store for 10 addresses.
 
-Sample use
-==========
+Modbus TCP example
+==================
 
-.. include:: ../../scripts/examples/simple_data_store.py
+.. include:: ../../scripts/examples/simple_tcp_server.py
+    :code: python
+
+Modbus RTU example
+==================
+
+.. include:: ../../scripts/examples/simple_rtu_server.py
     :code: python
 
 .. _Flask: http://flask.pocoo.org/
