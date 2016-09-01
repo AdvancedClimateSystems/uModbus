@@ -1,6 +1,15 @@
 Changelog
 =========
 
+0.7.1 (01-09-2016)
+++++++++++++++++++
+
+**Bugs**
+
+* `#41` RTU server doesn't handle frames correct.
+
+.. _#41: https://github.com/AdvancedClimateSystems/uModbus/issues/41
+
 0.7.0 (29-07-2016)
 ++++++++++++++++++
 
