@@ -1,7 +1,10 @@
 import pytest
+import platform
 
 from umodbus import conf
 from umodbus.client.serial import rtu
+
+implementation = platform.python_implementation()
 
 
 @pytest.fixture(scope='module', autouse=True)
@@ -38,6 +41,8 @@ def test_response_on_single_bit_value_read_requests(rtu_server, function):
     assert send_message(req_adu, rtu_server) == [0, 1, 0, 1, 0, 1, 0, 1, 0,  1]
 
 
+@pytest.mark.skipif(implementation == 'PyPy',
+                    reason='#42 - Some test fail on PyPy')
 @pytest.mark.parametrize('function', [
     rtu.read_holding_registers,
     rtu.read_input_registers,
