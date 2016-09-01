@@ -73,7 +73,7 @@ def validate_crc(msg):
     """
     if not struct.unpack('<H', get_crc(msg[:-2])) ==\
             struct.unpack('<H', msg[-2:]):
-        raise CRCError
+        raise CRCError('invalid CRC.')
 
 
 class CRCError(Exception):

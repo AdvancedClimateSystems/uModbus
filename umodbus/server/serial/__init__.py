@@ -1,6 +1,7 @@
 import struct
 from binascii import hexlify
 from types import MethodType
+from serial import SerialTimeoutException
 
 from umodbus import log
 from umodbus.route import Map
@@ -56,10 +57,7 @@ class AbstractSerialServer(object):
 
     def serve_once(self):
         """ Listen and handle 1 request. """
-        request_adu = self.serial_port.read(self.serial_port.in_waiting)
-
-        response_adu = self.process(request_adu)
-        self.respond(response_adu)
+        raise NotImplementedError
 
     def serve_forever(self, poll_interval=0.5):
         """ Wait for incomming requests. """
@@ -68,7 +66,9 @@ class AbstractSerialServer(object):
         while not self._shutdown_request:
             try:
                 self.serve_once()
-            except CRCError:
+            except (CRCError, struct.error) as e:
+                log.error('Can\'t handle request: {0}'.format(e))
+            except SerialTimeoutException:
                 pass
 
     def process(self, request_adu):
