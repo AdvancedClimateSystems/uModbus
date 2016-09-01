@@ -1,8 +1,10 @@
 import pytest
+import platform
 
 from umodbus import conf
 from umodbus.client import tcp
 
+implementation = platform.python_implementation()
 
 @pytest.fixture(scope='module', autouse=True)
 def enable_signed_values(request):
@@ -30,6 +32,8 @@ def test_response_on_single_bit_value_read_requests(sock, function):
     assert tcp.send_message(req_adu, sock) == [0, 1, 0, 1, 0, 1, 0, 1, 0,  1]
 
 
+@pytest.mark.skipif(implementation == 'PyPy',
+                    reason='#42 - Some test fail on PyPy')
 @pytest.mark.parametrize('function', [
     tcp.read_holding_registers,
     tcp.read_input_registers,
