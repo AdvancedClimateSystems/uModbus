@@ -49,7 +49,7 @@ class RTUServer(AbstractSerialServer):
         """ Listen and handle 1 request. """
         # 256 is the maximum size of a Modbus RTU frame.
         request_adu = self.serial_port.read(256)
-        log.debug('<-- {0}'.format(request_adu))
+        log.debug('<-- {0}'.format(hexlify(request_adu)))
 
         response_adu = self.process(request_adu)
         self.respond(response_adu)
