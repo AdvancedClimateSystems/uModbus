@@ -1,6 +1,15 @@
 Changelog
 =========
 
+0.7.2 (unreleased)
+++++++++++++++++++
+
+**Bugs**
+
+* `#44` Remove print statement.
+
+.. _#44: https://github.com/AdvancedClimateSystems/uModbus/issues/44
+
 0.7.1 (01-09-2016)
 ++++++++++++++++++
 
