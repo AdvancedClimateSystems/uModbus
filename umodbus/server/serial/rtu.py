@@ -1,6 +1,8 @@
 from __future__ import division
 import struct
+from binascii import hexlify
 
+from umodbus import log
 from umodbus.server.serial import AbstractSerialServer
 from umodbus.client.serial.redundancy_check import get_crc, validate_crc
 
@@ -47,6 +49,7 @@ class RTUServer(AbstractSerialServer):
         """ Listen and handle 1 request. """
         # 256 is the maximum size of a Modbus RTU frame.
         request_adu = self.serial_port.read(256)
+        log.debug('<-- {0}'.format(request_adu))
 
         response_adu = self.process(request_adu)
         self.respond(response_adu)

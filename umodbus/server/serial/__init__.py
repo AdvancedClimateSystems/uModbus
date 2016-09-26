@@ -121,7 +121,7 @@ class AbstractSerialServer(object):
 
         :param response_adu: A bytearray containing the response of an ADU.
         """
-        print('--> {0}'.format(hexlify(response_adu)))
+        log.debug('--> {0}'.format(hexlify(response_adu)))
         self.serial_port.write(response_adu)
 
     def shutdown(self):
