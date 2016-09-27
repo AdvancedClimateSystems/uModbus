@@ -99,8 +99,8 @@ def _create_mbap_header(slave_id, pdu):
     :param pdu: Byte array with PDU.
     :return: Byte array of 7 bytes with MBAP header.
     """
-    # 65536 = 2**16 aka maximum number that fits in 2 bytes.
-    transaction_id = randint(0, 65536)
+    # 65535 = (2**16)-1 aka maximum number that fits in 2 bytes.
+    transaction_id = randint(0, 65535)
     length = len(pdu) + 1
 
     return struct.pack('>HHHB', transaction_id, 0, length, slave_id)
