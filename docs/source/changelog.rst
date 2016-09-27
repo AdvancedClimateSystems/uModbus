@@ -1,14 +1,17 @@
 Changelog
 =========
 
-0.7.2 (unreleased)
+0.7.2 (2016-09-27)
 ++++++++++++++++++
 
 **Bugs**
 
 * `#44` Remove print statement.
+* `#46` Transaction ID overflow. Thanks `@greg0pearce`
 
 .. _#44: https://github.com/AdvancedClimateSystems/uModbus/issues/44
+.. _#46: https://github.com/AdvancedClimateSystems/uModbus/issues/46
+.. _@greg0pearce`: https://github.com/greg0pearce
 
 0.7.1 (01-09-2016)
 ++++++++++++++++++
