@@ -1,6 +1,15 @@
 Changelog
 =========
 
+0.8.0 (2016-10-31)
+++++++++++++++++++
+
+**Features**
+
+* `#48` Update to pyserial 3.2.1
+
+.. _#48: https://github.com/AdvancedClimateSystems/uModbus/issues/48
+
 0.7.2 (2016-09-27)
 ++++++++++++++++++
 

@@ -12,7 +12,7 @@ cwd = os.path.dirname(os.path.abspath(__name__))
 long_description = open(os.path.join(cwd, 'README.rst'), 'r').read()
 
 setup(name='uModbus',
-      version='0.7.2',
+      version='0.8.0',
       author='Auke Willem Oosterhoff',
       author_email='oosterhoff@baopt.nl',
       description='Implementation of the Modbus protocol in pure Python.',
@@ -27,7 +27,7 @@ setup(name='uModbus',
           'umodbus.server.serial',
       ],
       install_requires=[
-          'pyserial~=3.1.1',
+          'pyserial~=3.2.1',
       ],
       classifiers=[
           'Development Status :: 4 - Beta',
