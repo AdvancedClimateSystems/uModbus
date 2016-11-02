@@ -62,7 +62,7 @@ def read_input_registers():
 def write_single_coil():
     instance = WriteSingleCoil()
     instance.address = 100
-    instance.value = 0xFF00
+    instance.value = 1
 
     return instance
 
@@ -252,7 +252,7 @@ def test_write_single_coil_request_pdu(write_single_coil):
     instance = WriteSingleCoil.create_from_request_pdu(write_single_coil.request_pdu)  # NOQA
 
     assert instance.address == 100
-    assert instance.value == 0xFF00
+    assert instance.value == 1
 
 
 def test_write_single_coil_response_pdu(write_single_coil):
@@ -260,7 +260,7 @@ def test_write_single_coil_response_pdu(write_single_coil):
     instance = WriteSingleCoil.create_from_response_pdu(response_pdu)
 
     assert instance.address == 100
-    assert instance.data == 0xFF00
+    assert instance.data == 1
 
 
 def test_write_single_registers_class_attributes():

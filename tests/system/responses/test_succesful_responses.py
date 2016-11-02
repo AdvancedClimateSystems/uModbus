@@ -46,15 +46,15 @@ def test_response_on_multi_bit_value_read_requests(sock, function):
 
 
 @pytest.mark.parametrize('function, value', [
-    (tcp.write_single_coil, 0),
+    (tcp.write_single_coil, 1),
     (tcp.write_single_register, -1337),
 ])
 def test_response_single_value_write_request(sock, function, value):
     """ Validate responde of succesful Read Single Coil and Read Single
     Register request.
     """
-    slave_id, starting_address, quantity = (1, 0, value)
-    req_adu = function(slave_id, starting_address, quantity)
+    slave_id, starting_address, value = (1, 0, value)
+    req_adu = function(slave_id, starting_address, value)
 
     assert tcp.send_message(req_adu, sock) == value
 

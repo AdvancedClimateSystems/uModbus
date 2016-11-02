@@ -897,13 +897,17 @@ class WriteSingleCoil(ModbusFunction):
 
     @property
     def value(self):
+        if self._value == 0xFF00:
+            return 1
+
         return self._value
 
     @value.setter
     def value(self, value):
-        if value not in [0, 0xFF00]:
+        if value not in [0, 1, 0xFF00]:
             raise IllegalDataValueError
 
+        value = 0xFF00 if value == 1 else value
         self._value = value
 
     @property
@@ -917,7 +921,7 @@ class WriteSingleCoil(ModbusFunction):
             raise Exception
 
         return struct.pack('>BHH', self.function_code, self.address,
-                           self.value)
+                           self._value)
 
     @staticmethod
     def create_from_request_pdu(pdu):
@@ -926,6 +930,8 @@ class WriteSingleCoil(ModbusFunction):
         :param pdu: A response PDU.
         """
         _, address, value = struct.unpack('>BHH', pdu)
+
+        value = 1 if value == 0xFF00 else value
 
         instance = WriteSingleCoil()
         instance.address = address
@@ -940,7 +946,7 @@ class WriteSingleCoil(ModbusFunction):
         :return: Byte array of at least 4 bytes.
         """
         fmt = '>BHH'
-        return struct.pack(fmt, self.function_code, self.address, self.value)
+        return struct.pack(fmt, self.function_code, self.address, self._value)
 
     @staticmethod
     def create_from_response_pdu(resp_pdu):
@@ -952,6 +958,7 @@ class WriteSingleCoil(ModbusFunction):
         write_single_coil = WriteSingleCoil()
 
         address, value = struct.unpack('>HH', resp_pdu[1:5])
+        value = 1 if value == 0xFF00 else value
 
         write_single_coil.address = address
         write_single_coil.data = value
