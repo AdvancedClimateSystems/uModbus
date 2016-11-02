@@ -4,8 +4,6 @@ python:
     - 3.4
     - 3.3
     - 2.7
-    - pypy
-    - pypy3
 
 install:
     - pip install -r dev_requirements.txt
