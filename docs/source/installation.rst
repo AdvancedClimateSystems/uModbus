@@ -1,7 +1,7 @@
 Installation
 ------------
 
-uModbus has been tested_ on Python 2.7, Python 3.3+ and Pypy.
+uModbus has been tested_ on Python 2.7 and Python 3.3+.
 
 As package
 ==========
