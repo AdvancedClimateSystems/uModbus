@@ -1,6 +1,17 @@
 Changelog
 =========
 
+0.8.1 (2016-11-02)
+++++++++++++++++++
+
+**Bugs**
+
+* `#27` Route is called with wrong value when one write single coil with value 1.
+* `#42` Drop support for PyPy.
+
+.. _#27: https://github.com/AdvancedClimateSystems/uModbus/issues/27
+.. _#42: https://github.com/AdvancedClimateSystems/uModbus/issues/42
+
 0.8.0 (2016-10-31)
 ++++++++++++++++++
 
