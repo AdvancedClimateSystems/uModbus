@@ -1,6 +1,16 @@
 Changelog
 =========
 
+0.8.2 (2016-11-11)
+++++++++++++++++++
+
+**Bugs**
+
+* `#47` Fix import errors in sample code. `@tiagocoutinho`
+
+.. _#47: https://github.com/AdvancedClimateSystems/uModbus/issues/47
+.. _@tiagocoutinho: https://github.com/tiagocoutinho
+
 0.8.1 (2016-11-02)
 ++++++++++++++++++
 
