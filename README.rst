@@ -103,7 +103,7 @@ Doing a Modbus request requires even less code:
 Features
 --------
 
-The following Modbus functions have been implemented:
+The following functions have been implemented for Modbus TCP and Modbus RTU:
 
 * 01: Read Coils
 * 02: Read Discrete Inputs
@@ -117,15 +117,6 @@ The following Modbus functions have been implemented:
 Other featues:
 
 * Support for signed and unsigned register values.
-
-Roadmap
---------
-
-uModbus is far from complete. The next, unordered list shows what is going to
-be implemented in the future:
-
-* Support for all Modbus functions
-* Other Modbus 'flavours', so uModbus is able to handle 32 bit values.
 
 License
 -------
