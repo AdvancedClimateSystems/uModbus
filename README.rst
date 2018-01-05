@@ -7,6 +7,9 @@
 .. image:: https://img.shields.io/pypi/v/uModbus.svg
     :target: https://pypi.python.org/pypi/uModbus
 
+.. image:: https://img.shields.io/pypi/pyversions/uModbus.svg
+    :target: https://pypi.python.org/pypi/uModbus
+
 uModbus
 =======
 
@@ -121,7 +124,7 @@ Other featues:
 License
 -------
 
-uModbus software is licensed under `Mozilla Public License`_. © 2016 `Advanced
+uModbus software is licensed under `Mozilla Public License`_. © 2018 `Advanced
 Climate Systems`_.
 
 .. External References:

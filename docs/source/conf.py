@@ -51,8 +51,8 @@ master_doc = 'index'
 
 # General information about the project.
 project = 'uModbus'
-copyright = '2016, Auke Willem Oosterhoff <oosterhoff@baopt.nl>'
-author = 'Auke Willem Oosterhoff <oosterhoff@baopt.nl>'
+copyright = '2018, Auke Willem Oosterhoff <a.oosterhoff@climotion.com>'
+author = 'Auke Willem Oosterhoff <a.oosterhoff@climotion.com>'
 
 # The version info for the project you're documenting, acts as replacement for
 # |version| and |release|, also used in various other places throughout the
@@ -230,7 +230,7 @@ latex_elements = {
 #  author, documentclass [howto, manual, or own class]).
 latex_documents = [
   (master_doc, 'Modbus.tex', 'Modbus Documentation',
-   'Auke Willem Oosterhoff \\textless{}oosterhoff@baopt.nl\\textgreater{}', 'manual'),
+   'Auke Willem Oosterhoff \\textless{}a.oosterhoff@climotion.com\\textgreater{}', 'manual'),
 ]
 
 # The name of an image file (relative to this directory) to place at the top of
