@@ -1,6 +1,15 @@
 Changelog
 =========
 
+1.0.0 (2018-01-06)
+++++++++++++++++++
+
+**Bugs**
+
+* `#50` Fix handling of empty ADU's.
+
+.. _#50: https://github.com/AdvancedClimateSystems/uModbus/issues/50
+
 0.8.2 (2016-11-11)
 ++++++++++++++++++
 
