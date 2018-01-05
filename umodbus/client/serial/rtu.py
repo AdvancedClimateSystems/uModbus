@@ -21,7 +21,17 @@ The CRC is calculated from the Address field and the PDU.
 
 Below you see an hexidecimal presentation of request over RTU with Modbus
 function code 1. It requests data of slave with 1, starting at coil 100, for
-the length of 3 coils::
+the length of 3 coils:
+
+..
+    Note: the backslash in the bytes below are escaped using an extra back
+    slash. Without escaping the bytes aren't printed correctly in the HTML
+    output of this docs.
+
+    To work with the bytes in Python you need to remove the escape sequences.
+    `b'\\x01\\x00d` -> `b\x01\x00d`
+
+.. code-block:: python
 
     >>> # Read coils, starting from coil 100 for the length of 3 coils.
     >>> adu = b'\\x01\\x01\\x00d\\x00\\x03=\\xd4'

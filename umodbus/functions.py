@@ -19,30 +19,40 @@ structure is listed in table below:
 +---------------+-----------------+
 
 Below you see the request PDU with function code 1, requesting status of 3
-coils, starting from coil 100::
+coils, starting from coil 100.
 
-    >>> req_pdu = b'\x01\x00d\x00\x03'
+..
+    Note: the backslash in the bytes below are escaped using an extra back
+    slash. Without escaping the bytes aren't printed correctly in the HTML
+    output of this docs.
+
+    To work with the bytes in Python you need to remove the escape sequences.
+    `b'\\x01\\x00d` -> `b\x01\x00d`
+
+.. code-block:: python
+
+    >>> req_pdu = b'\\x01\x00d\\x00\\x03'
     >>> function_code = req_pdu[:1]
     >>> function_code
-    b'\x01'
+    b'\\x01'
     >>> starting_address = req_pdu[1:3]
     >>> starting_address
-    b'\x00d'
+    b'\\x00d'
     >>> quantity = req_pdu[3:]
     >>> quantity
-    b'\x00\x03'
+    b'\\x00\\x03'
 
 A response PDU could look like this::
 
-    >>> resp_pdu = b'\x01\x01\x06'
+    >>> resp_pdu = b'\\x01\\x01\\x06'
     >>> function_code = resp_pdu[:1]
     >>> function_code
-    b'\x01'
+    b'\\x01'
     >>> byte_count = resp[1:2]
     >>> byte_count
-    b'\x01'
+    b'\\x01'
     >>> coil_status = resp[2:]
-    'b\x06'
+    'b\\x06'
 
 """
 import struct
@@ -162,9 +172,19 @@ class ReadCoils(ModbusFunction):
         Quantity         2
         ================ ===============
 
-    The PDU can unpacked to this::
+    The PDU can unpacked to this:
 
-        >>> struct.unpack('>BHH', b'\x01\x00d\x00\x03')
+    ..
+        Note: the backslash in the bytes below are escaped using an extra back
+        slash. Without escaping the bytes aren't printed correctly in the HTML
+        output of this docs.
+
+        To work with the bytes in Python you need to remove the escape sequences.
+        `b'\\x01\\x00d` -> `b\x01\x00d`
+
+    .. code-block:: python
+
+        >>> struct.unpack('>BHH', b'\\x01\\x00d\\x00\\x03')
         (1, 100, 3)
 
     The reponse PDU varies in length, depending on the request. Each 8 coils
@@ -187,7 +207,7 @@ class ReadCoils(ModbusFunction):
     The PDU can packed like this::
 
         >>> struct.pack('>BBB', function_code, byte_count, 3)
-        b'\x01\x01\x03'
+        b'\\x01\\x01\\x03'
 
     """
     function_code = READ_COILS
@@ -357,9 +377,19 @@ class ReadDiscreteInputs(ModbusFunction):
         Quantity         2
         ================ ===============
 
-    The PDU can unpacked to this::
+    The PDU can unpacked to this:
 
-        >>> struct.unpack('>BHH', b'\x02\x00d\x00\x03')
+    ..
+        Note: the backslash in the bytes below are escaped using an extra back
+        slash. Without escaping the bytes aren't printed correctly in the HTML
+        output of this docs.
+
+        To work with the bytes in Python you need to remove the escape sequences.
+        `b'\\x01\\x00d` -> `b\x01\x00d`
+
+    .. code-block:: python
+
+        >>> struct.unpack('>BHH', b'\\x02\\x00d\\x00\\x03')
         (2, 100, 3)
 
     The reponse PDU varies in length, depending on the request. 8 inputs
@@ -382,7 +412,7 @@ class ReadDiscreteInputs(ModbusFunction):
     The PDU can packed like this::
 
         >>> struct.pack('>BBB', function_code, byte_count, 3)
-        b'\x02\x01\x03'
+        b'\\x02\\x01\\x03'
 
     """
     function_code = READ_DISCRETE_INPUTS
@@ -545,9 +575,19 @@ class ReadHoldingRegisters(ModbusFunction):
         Quantity         2
         ================ ===============
 
-    The PDU can unpacked to this::
+    The PDU can unpacked to this:
 
-        >>> struct.unpack('>BHH', b'\x03\x00d\x00\x03')
+    ..
+        Note: the backslash in the bytes below are escaped using an extra back
+        slash. Without escaping the bytes aren't printed correctly in the HTML
+        output of this docs.
+
+        To work with the bytes in Python you need to remove the escape sequences.
+        `b'\\x01\\x00d` -> `b\x01\x00d`
+
+    .. code-block:: python
+
+        >>> struct.unpack('>BHH', b'\\x03\\x00d\\x00\\x03')
         (3, 100, 3)
 
     The reponse PDU varies in length, depending on the request. By default,
@@ -568,7 +608,7 @@ class ReadHoldingRegisters(ModbusFunction):
 
         >>> data = [8, 0, 15]
         >>> struct.pack('>BBHHH', function_code, len(data) * 2, *data)
-        '\x03\x06\x00\x08\x00\x00\x00\x0f'
+        b'\\x03\\x06\\x00\\x08\\x00\\x00\\x00\\x0f'
 
     """
     function_code = READ_HOLDING_REGISTERS
@@ -707,9 +747,19 @@ class ReadInputRegisters(ModbusFunction):
         Quantity         2
         ================ ===============
 
-    The PDU can unpacked to this::
+    The PDU can unpacked to this:
 
-        >>> struct.unpack('>BHH', b'\x04\x00d\x00\x03')
+    ..
+        Note: the backslash in the bytes below are escaped using an extra back
+        slash. Without escaping the bytes aren't printed correctly in the HTML
+        output of this docs.
+
+        To work with the bytes in Python you need to remove the escape sequences.
+        `b'\\x01\\x00d` -> `b\x01\x00d`
+
+    .. code-block:: python
+
+        >>> struct.unpack('>BHH', b'\\x04\\x00d\\x00\\x03')
         (4, 100, 3)
 
     The reponse PDU varies in length, depending on the request. By default,
@@ -730,7 +780,7 @@ class ReadInputRegisters(ModbusFunction):
 
         >>> data = [8, 0, 15]
         >>> struct.pack('>BBHHH', function_code, len(data) * 2, *data)
-        '\x04\x06\x00\x08\x00\x00\x00\x0f'
+        b'\\x04\\x06\\x00\\x08\\x00\\x00\\x00\\x0f'
 
     """
     function_code = READ_INPUT_REGISTERS
@@ -872,9 +922,19 @@ class WriteSingleCoil(ModbusFunction):
         Value            2
         ================ ===============
 
-    The PDU can unpacked to this::
+    The PDU can unpacked to this:
 
-        >>> struct.unpack('>BHH', b'\x05\x00d\xFF\x00')
+    ..
+        Note: the backslash in the bytes below are escaped using an extra back
+        slash. Without escaping the bytes aren't printed correctly in the HTML
+        output of this docs.
+
+        To work with the bytes in Python you need to remove the escape sequences.
+        `b'\\x01\\x00d` -> `b\x01\x00d`
+
+    .. code-block:: python
+
+        >>> struct.unpack('>BHH', b'\\x05\\x00d\\xFF\\x00')
         (5, 100, 65280)
 
     The reponse PDU is a copy of the request PDU.
@@ -1003,9 +1063,19 @@ class WriteSingleRegister(ModbusFunction):
         Value            2
         ================ ===============
 
-    The PDU can unpacked to this::
+    The PDU can unpacked to this:
 
-        >>> struct.unpack('>BHH', b'\x06\x00d\x00\x03')
+    ..
+        Note: the backslash in the bytes below are escaped using an extra back
+        slash. Without escaping the bytes aren't printed correctly in the HTML
+        output of this docs.
+
+        To work with the bytes in Python you need to remove the escape sequences.
+        `b'\\x01\\x00d` -> `b\x01\x00d`
+
+    .. code-block:: python
+
+        >>> struct.unpack('>BHH', b'\\x06\\x00d\\x00\\x03')
         (6, 100, 3)
 
     The reponse PDU is a copy of the request PDU.
@@ -1136,9 +1206,19 @@ class WriteMultipleCoils(ModbusFunction):
         Value            n
         ================ ===============
 
-    The PDU can unpacked to this::
+    The PDU can unpacked to this:
 
-        >>> struct.unpack('>BHHBB', b'\x0f\x00d\x00\x03\x01\x05')
+    ..
+        Note: the backslash in the bytes below are escaped using an extra back
+        slash. Without escaping the bytes aren't printed correctly in the HTML
+        output of this docs.
+
+        To work with the bytes in Python you need to remove the escape sequences.
+        `b'\\x01\\x00d` -> `b\x01\x00d`
+
+    .. code-block:: python
+
+        >>> struct.unpack('>BHHBB', b'\\x0f\\x00d\\x00\\x03\\x01\\x05')
         (16, 100, 3, 1, 5)
 
     The reponse PDU is 5 bytes and contains following structure:
@@ -1332,9 +1412,19 @@ class WriteMultipleRegisters(ModbusFunction):
         Value            Quantity * 2
         ================ ===============
 
-    The PDU can unpacked to this::
+    The PDU can unpacked to this:
 
-        >>> struct.unpack('>BHHBH', b'\x10\x00d\x00\x01\x02\x00\x05')
+    ..
+        Note: the backslash in the bytes below are escaped using an extra back
+        slash. Without escaping the bytes aren't printed correctly in the HTML
+        output of this docs.
+
+        To work with the bytes in Python you need to remove the escape sequences.
+        `b'\\x01\\x00d` -> `b\x01\x00d`
+
+    .. code-block:: python
+
+        >>> struct.unpack('>BHHBH', b'\\x10\\x00d\\x00\\x01\\x02\\x00\\x05')
         (16, 100, 1, 2, 5)
 
     The reponse PDU is 5 bytes and contains following structure:
