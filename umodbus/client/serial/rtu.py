@@ -185,6 +185,6 @@ def send_message(adu, serial_port):
     response = serial_port.read(serial_port.in_waiting)
 
     if len(response) == 0:
-        raise TimeoutError
+        raise ValueError
 
     return parse_response_adu(response, adu)

@@ -8,5 +8,5 @@ def test_send_message_with_timeout():
     """ Test if TimoutError is raised when serial port doesn't receive data."""
     s = serial_for_url('loop://', timeout=0)
 
-    with pytest.raises(TimeoutError):
+    with pytest.raises(ValueError):
         send_message(b'', s)
