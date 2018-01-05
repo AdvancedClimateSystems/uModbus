@@ -51,6 +51,9 @@ class RTUServer(AbstractSerialServer):
         request_adu = self.serial_port.read(256)
         log.debug('<-- {0}'.format(hexlify(request_adu)))
 
+        if len(request_adu) == 0:
+            raise ValueError
+
         response_adu = self.process(request_adu)
         self.respond(response_adu)
 

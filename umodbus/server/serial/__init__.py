@@ -68,7 +68,7 @@ class AbstractSerialServer(object):
                 self.serve_once()
             except (CRCError, struct.error) as e:
                 log.error('Can\'t handle request: {0}'.format(e))
-            except SerialTimeoutException:
+            except (SerialTimeoutException, ValueError):
                 pass
 
     def process(self, request_adu):
