@@ -2,7 +2,7 @@ Configuration
 =============
 
 :attr:`umodbus.conf` is a global configuration object and is an instance of
-`umodbus.config.Config`. This instance can be used like this:
+`umodbus.config.Config`. It can be used like this:
 
 .. code:: python
     
