@@ -5,8 +5,8 @@ Example
 =======
 
 .. note::
-    uModbus doesn't support all functions defined for Modbus RTU. It currently
-    support the following functions:
+    uModbus doesn't support all the functions defined for Modbus RTU.
+    It currently supports the following functions:
 
     * 01: Read Coils
     * 02: Read Discrete Inputs
