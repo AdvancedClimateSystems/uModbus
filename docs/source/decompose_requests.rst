@@ -1,11 +1,11 @@
 Decompose requests
 ------------------
 
-A Modbus requests and responses contains a Application Data Unit (ADU) which
-contains a Protocol Data Unit (PDU). The ADU is the enveloppe containing a
-message, the PDU is the message itself. Modbus requests can be send
-communication layers layers, like RTU or TCP/IP. The ADU for these layers
-differs.  But the PDU, the message, has always the same strcuture, independent
+Modbus requests and responses contain an Application Data Unit (ADU) which
+contains a Protocol Data Unit (PDU). The ADU is an envelope containing a
+message, the PDU is the message itself. Modbus requests can be sent via
+two communication layers, RTU or TCP/IP. The ADU for these layers
+differs.  But the PDU, the message, always has the same strcuture, regardless
 of the way it's transported.
 
 PDU
