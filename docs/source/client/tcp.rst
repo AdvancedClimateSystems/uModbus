@@ -4,7 +4,7 @@ Modbus TCP
 Example
 =======
 
-All functions codes for Modbus TCP/IP are supported. U can use the client like
+All function codes for Modbus TCP/IP are supported. You can use the client like
 this:
 
 .. include:: ../../../scripts/examples/simple_tcp_client.py
