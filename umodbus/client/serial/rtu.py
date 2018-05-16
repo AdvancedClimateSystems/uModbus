@@ -42,14 +42,16 @@ The lenght of this ADU is 8 bytes::
     8
 
 """
+import io
 import struct
 
 from umodbus.client.serial.redundancy_check import get_crc, validate_crc
-from umodbus.functions import (create_function_from_response_pdu, ReadCoils,
-                               ReadDiscreteInputs, ReadHoldingRegisters,
-                               ReadInputRegisters, WriteSingleCoil,
-                               WriteSingleRegister, WriteMultipleCoils,
-                               WriteMultipleRegisters)
+from umodbus.functions import (create_function_from_response_pdu,
+                               expected_response_pdu_size_from_request_pdu,
+                               ReadCoils, ReadDiscreteInputs,
+                               ReadHoldingRegisters, ReadInputRegisters,
+                               WriteSingleCoil, WriteSingleRegister,
+                               WriteMultipleCoils, WriteMultipleRegisters)
 
 
 def _create_request_adu(slave_id, req_pdu):
@@ -191,8 +193,13 @@ def parse_response_adu(resp_adu, req_adu=None):
 
 def send_message(adu, serial_port):
     """ Send Modbus message over serial port and parse response. """
+    expected_response_size = \
+        expected_response_pdu_size_from_request_pdu(adu[1:-2]) + 3
     serial_port.write(adu)
-    response = serial_port.read(serial_port.in_waiting)
+    bio = io.BufferedRWPair(serial_port, serial_port)
+    bio.write(adu)
+    bio.flush()
+    response = bio.read(expected_response_size)
 
     if len(response) == 0:
         raise ValueError

@@ -82,14 +82,16 @@ bytes after the Length field is 6 bytes. These 6 bytes are Unit Identifier (1
 byte) + PDU (5 bytes).
 
 """
+import io
 import struct
 from random import randint
 
-from umodbus.functions import (create_function_from_response_pdu, ReadCoils,
-                               ReadDiscreteInputs, ReadHoldingRegisters,
-                               ReadInputRegisters, WriteSingleCoil,
-                               WriteSingleRegister, WriteMultipleCoils,
-                               WriteMultipleRegisters)
+from umodbus.functions import (create_function_from_response_pdu,
+                               expected_response_pdu_size_from_request_pdu,
+                               ReadCoils, ReadDiscreteInputs,
+                               ReadHoldingRegisters, ReadInputRegisters,
+                               WriteSingleCoil, WriteSingleRegister,
+                               WriteMultipleCoils, WriteMultipleRegisters)
 
 
 def _create_request_adu(slave_id, pdu):
@@ -241,6 +243,11 @@ def send_message(adu, sock):
     :param sock: Socket instance.
     :return: Parsed response from server.
     """
-    sock.send(adu)
-    response = sock.recv(1024)
+    adu_expected_response_size = \
+        expected_response_pdu_size_from_request_pdu(adu[7:]) + 7
+    fd = sock.makefile('rwb')
+    bio = io.BufferedRWPair(fd, fd)
+    bio.write(adu)
+    bio.flush()
+    response = bio.read(adu_expected_response_size)
     return parse_response_adu(response, adu)

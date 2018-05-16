@@ -136,6 +136,15 @@ def create_function_from_request_pdu(pdu):
     return function_class.create_from_request_pdu(pdu)
 
 
+def expected_response_pdu_size_from_request_pdu(pdu):
+    """ Return number of bytes expected for response PDU, based on request PDU.
+
+    :param pdu: Array of bytes.
+    :return: number of bytes.
+    """
+    return create_function_from_request_pdu(pdu).expected_response_pdu_size
+
+
 class ModbusFunction(object):
     function_code = None
 
@@ -263,6 +272,14 @@ class ReadCoils(ModbusFunction):
         instance.quantity = quantity
 
         return instance
+
+    @property
+    def expected_response_pdu_size(self):
+        """ Return number of bytes expected for response PDU.
+
+        :return: number of bytes.
+        """
+        return 2 + self.quantity
 
     def create_response_pdu(self, data):
         """ Create response pdu.
@@ -469,6 +486,14 @@ class ReadDiscreteInputs(ModbusFunction):
 
         return instance
 
+    @property
+    def expected_response_pdu_size(self):
+        """ Return number of bytes expected for response PDU.
+
+        :return: number of bytes.
+        """
+        return 2 + self.quantity
+
     def create_response_pdu(self, data):
         """ Create response pdu.
 
@@ -665,6 +690,14 @@ class ReadHoldingRegisters(ModbusFunction):
 
         return instance
 
+    @property
+    def expected_response_pdu_size(self):
+        """ Return number of bytes expected for response PDU.
+
+        :return: number of bytes.
+        """
+        return 2 + self.quantity * 2
+
     def create_response_pdu(self, data):
         """ Create response pdu.
 
@@ -837,6 +870,14 @@ class ReadInputRegisters(ModbusFunction):
 
         return instance
 
+    @property
+    def expected_response_pdu_size(self):
+        """ Return number of bytes expected for response PDU.
+
+        :return: number of bytes.
+        """
+        return 2 + self.quantity * 2
+
     def create_response_pdu(self, data):
         """ Create response pdu.
 
@@ -999,6 +1040,14 @@ class WriteSingleCoil(ModbusFunction):
 
         return instance
 
+    @property
+    def expected_response_pdu_size(self):
+        """ Return number of bytes expected for response PDU.
+
+        :return: number of bytes.
+        """
+        return len(self.create_response_pdu)
+
     def create_response_pdu(self):
         """ Create response pdu.
 
@@ -1140,6 +1189,14 @@ class WriteSingleRegister(ModbusFunction):
         instance.value = value
 
         return instance
+
+    @property
+    def expected_response_pdu_size(self):
+        """ Return number of bytes expected for response PDU.
+
+        :return: number of bytes.
+        """
+        return len(self.create_response_pdu)
 
     def create_response_pdu(self):
         fmt = '>BH' + conf.TYPE_CHAR
@@ -1347,6 +1404,14 @@ class WriteMultipleCoils(ModbusFunction):
 
         return instance
 
+    @property
+    def expected_response_pdu_size(self):
+        """ Return number of bytes expected for response PDU.
+
+        :return: number of bytes.
+        """
+        return 5
+
     def create_response_pdu(self):
         """ Create response pdu.
 
@@ -1490,6 +1555,14 @@ class WriteMultipleRegisters(ModbusFunction):
         instance.values = values
 
         return instance
+
+    @property
+    def expected_response_pdu_size(self):
+        """ Return number of bytes expected for response PDU.
+
+        :return: number of bytes.
+        """
+        return 5
 
     def create_response_pdu(self):
         """ Create response pdu.
