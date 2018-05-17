@@ -196,12 +196,8 @@ def send_message(adu, serial_port):
     expected_response_size = \
         expected_response_pdu_size_from_request_pdu(adu[1:-2]) + 3
     serial_port.write(adu)
-    bio = io.BufferedRWPair(serial_port, serial_port)
-    bio.write(adu)
-    bio.flush()
+    serial_port.flush()
+    bio = io.BufferedReader(serial_port, buffer_size=expected_response_size)
     response = bio.read(expected_response_size)
-
-    if len(response) == 0:
-        raise ValueError
 
     return parse_response_adu(response, adu)

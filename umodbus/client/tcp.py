@@ -243,11 +243,11 @@ def send_message(adu, sock):
     :param sock: Socket instance.
     :return: Parsed response from server.
     """
-    adu_expected_response_size = \
+    expected_response_size = \
         expected_response_pdu_size_from_request_pdu(adu[7:]) + 7
     fd = sock.makefile('rwb')
-    bio = io.BufferedRWPair(fd, fd)
-    bio.write(adu)
-    bio.flush()
-    response = bio.read(adu_expected_response_size)
+    fd.write(adu)
+    fd.flush()
+    bio = io.BufferedReader(fd, buffer_size=expected_response_size)
+    response = bio.read(expected_response_size)
     return parse_response_adu(response, adu)
