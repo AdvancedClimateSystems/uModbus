@@ -200,4 +200,7 @@ def send_message(adu, serial_port):
     bio = io.BufferedReader(serial_port, buffer_size=expected_response_size)
     response = bio.read(expected_response_size)
 
+    if len(response) < expected_response_size:
+        raise ValueError
+
     return parse_response_adu(response, adu)
