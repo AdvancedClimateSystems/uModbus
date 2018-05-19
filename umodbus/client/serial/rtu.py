@@ -42,7 +42,6 @@ The lenght of this ADU is 8 bytes::
     8
 
 """
-import io
 import struct
 
 from umodbus.client.serial.redundancy_check import get_crc, validate_crc
@@ -52,6 +51,7 @@ from umodbus.functions import (create_function_from_response_pdu,
                                ReadHoldingRegisters, ReadInputRegisters,
                                WriteSingleCoil, WriteSingleRegister,
                                WriteMultipleCoils, WriteMultipleRegisters)
+from umodbus.utils import recv_exactly
 
 
 def _create_request_adu(slave_id, req_pdu):
@@ -197,10 +197,6 @@ def send_message(adu, serial_port):
         expected_response_pdu_size_from_request_pdu(adu[1:-2]) + 3
     serial_port.write(adu)
     serial_port.flush()
-    bio = io.BufferedReader(serial_port, buffer_size=expected_response_size)
-    response = bio.read(expected_response_size)
-
-    if len(response) < expected_response_size:
-        raise ValueError
+    response = recv_exactly(serial_port.read, expected_response_size)
 
     return parse_response_adu(response, adu)

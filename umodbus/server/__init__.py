@@ -8,7 +8,7 @@ from umodbus import log
 from umodbus.functions import create_function_from_request_pdu
 from umodbus.exceptions import ModbusError, ServerDeviceFailureError
 from umodbus.utils import (get_function_code_from_request_pdu,
-                           pack_exception_pdu)
+                           pack_exception_pdu, recv_exactly)
 
 
 def route(self, slave_ids=None, function_codes=None, addresses=None):
@@ -38,13 +38,14 @@ class AbstractRequestHandler(BaseRequestHandler):
     def handle(self):
         try:
             while True:
-                request_adu = self.request.recv(1024)
-
-                # When client terminates connection length of request_adu is 0.
-                if len(request_adu) == 0:
+                try:
+                    mbap_header = recv_exactly(self.request.recv, 7)
+                    remaining = self.get_meta_data(mbap_header)['length'] - 1
+                    request_pdu = recv_exactly(self.request.recv, remaining)
+                except ValueError:
                     return
 
-                response_adu = self.process(request_adu)
+                response_adu = self.process(mbap_header + request_pdu)
                 self.respond(response_adu)
         except:
             import traceback
