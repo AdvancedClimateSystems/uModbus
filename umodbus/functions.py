@@ -57,6 +57,7 @@ A response PDU could look like this::
 """
 import struct
 import inspect
+import math
 try:
     from functools import reduce
 except ImportError:
@@ -198,8 +199,8 @@ class ReadCoils(ModbusFunction):
 
     The reponse PDU varies in length, depending on the request. Each 8 coils
     require 1 byte. The amount of bytes needed represent status of the coils to
-    can be calculated with: bytes = round(quantity / 8) + 1. This response
-    contains (3 / 8 + 1) = 1 byte to describe the status of the coils. The
+    can be calculated with: bytes = ceil(quantity / 8). This response
+    contains ceil(3 / 8) = 1 byte to describe the status of the coils. The
     structure of a compleet response PDU looks like this:
 
         ================ ===============
@@ -279,7 +280,7 @@ class ReadCoils(ModbusFunction):
 
         :return: number of bytes.
         """
-        return 2 + self.quantity
+        return 2 + math.ceil(self.quantity / 8)
 
     def create_response_pdu(self, data):
         """ Create response pdu.
@@ -411,8 +412,8 @@ class ReadDiscreteInputs(ModbusFunction):
 
     The reponse PDU varies in length, depending on the request. 8 inputs
     require 1 byte. The amount of bytes needed represent status of the inputs
-    to can be calculated with: bytes = round(quantity / 8) + 1. This response
-    contains (3 / 8 + 1) = 1 byte to describe the status of the inputs. The
+    to can be calculated with: bytes = ceil(quantity / 8). This response
+    contains ceil(3 / 8) = 1 byte to describe the status of the inputs. The
     structure of a compleet response PDU looks like this:
 
         ================ ===============
@@ -492,7 +493,7 @@ class ReadDiscreteInputs(ModbusFunction):
 
         :return: number of bytes.
         """
-        return 2 + self.quantity
+        return 2 + math.ceil(self.quantity / 8)
 
     def create_response_pdu(self, data):
         """ Create response pdu.
@@ -1046,7 +1047,7 @@ class WriteSingleCoil(ModbusFunction):
 
         :return: number of bytes.
         """
-        return len(self.create_response_pdu)
+        return 5
 
     def create_response_pdu(self):
         """ Create response pdu.
@@ -1196,7 +1197,7 @@ class WriteSingleRegister(ModbusFunction):
 
         :return: number of bytes.
         """
-        return len(self.create_response_pdu)
+        return 5
 
     def create_response_pdu(self):
         fmt = '>BH' + conf.TYPE_CHAR
