@@ -96,14 +96,12 @@ GET_COM_EVENT_LOG = 12
 REPORT_SERVER_ID = 17
 
 
-def create_function_from_response_pdu(resp_pdu, req_pdu=None):
-    """ Parse response PDU and return instance of :class:`ModbusFunction` or
+def pdu_to_function_code_or_raise_error(resp_pdu):
+    """ Parse response PDU and return of :class:`ModbusFunction` or
     raise error.
 
     :param resp_pdu: PDU of response.
-    :param  req_pdu: Request PDU, some functions require more info than in
-        response PDU in order to create instance. Default is None.
-    :return: Number or list with response data.
+    :return: Subclass of :class:`ModbusFunction` matching the response.
     :raises ModbusError: When response contains error code.
     """
     function_code = struct.unpack('>B', resp_pdu[0:1])[0]
@@ -112,6 +110,19 @@ def create_function_from_response_pdu(resp_pdu, req_pdu=None):
         error_code = struct.unpack('>B', resp_pdu[1:2])[0]
         raise error_code_to_exception_map[error_code]
 
+    return function_code
+
+
+def create_function_from_response_pdu(resp_pdu, req_pdu=None):
+    """ Parse response PDU and return instance of :class:`ModbusFunction` or
+    raise error.
+
+    :param resp_pdu: PDU of response.
+    :param  req_pdu: Request PDU, some functions require more info than in
+        response PDU in order to create instance. Default is None.
+    :return: Number or list with response data.
+    """
+    function_code = pdu_to_function_code_or_raise_error(resp_pdu)
     function = function_code_to_function_map[function_code]
 
     if req_pdu is not None and \

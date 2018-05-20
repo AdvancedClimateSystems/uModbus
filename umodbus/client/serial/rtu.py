@@ -47,10 +47,11 @@ import struct
 from umodbus.client.serial.redundancy_check import get_crc, validate_crc
 from umodbus.functions import (create_function_from_response_pdu,
                                expected_response_pdu_size_from_request_pdu,
-                               ReadCoils, ReadDiscreteInputs,
-                               ReadHoldingRegisters, ReadInputRegisters,
-                               WriteSingleCoil, WriteSingleRegister,
-                               WriteMultipleCoils, WriteMultipleRegisters)
+                               pdu_to_function_code_or_raise_error, ReadCoils,
+                               ReadDiscreteInputs, ReadHoldingRegisters,
+                               ReadInputRegisters, WriteSingleCoil,
+                               WriteSingleRegister, WriteMultipleCoils,
+                               WriteMultipleRegisters)
 from umodbus.utils import recv_exactly
 
 
@@ -191,12 +192,34 @@ def parse_response_adu(resp_adu, req_adu=None):
     return function.data
 
 
+def raise_for_exception_adu(resp_adu):
+    """ Check a response ADU for error
+
+    :param resp_adu: Response ADU.
+    :raises ModbusError: When a response contains an error code.
+    """
+    resp_pdu = resp_adu[1:-2]
+    pdu_to_function_code_or_raise_error(resp_pdu)
+
+
 def send_message(adu, serial_port):
-    """ Send Modbus message over serial port and parse response. """
-    expected_response_size = \
-        expected_response_pdu_size_from_request_pdu(adu[1:-2]) + 3
+    """ Send ADU over serial to to server and return parsed response.
+
+    :param adu: Request ADU.
+    :param sock: Serial port instance.
+    :return: Parsed response from server.
+    """
     serial_port.write(adu)
     serial_port.flush()
-    response = recv_exactly(serial_port.read, expected_response_size)
 
-    return parse_response_adu(response, adu)
+    # Check exception ADU (which is shorter than all other responses) first.
+    exception_adu_size = 5
+    response_error_adu = recv_exactly(serial_port.read, exception_adu_size)
+    raise_for_exception_adu(response_error_adu)
+
+    expected_response_size = \
+        expected_response_pdu_size_from_request_pdu(adu[1:-2]) + 3
+    response_remainder = recv_exactly(
+        serial_port.read, expected_response_size - exception_adu_size)
+
+    return parse_response_adu(response_error_adu + response_remainder, adu)
