@@ -9,8 +9,8 @@ def test_send_message_with_timeout():
     data.
     """
     s = serial_for_url('loop://', timeout=0)
-    # as we are using a loop, we need the request will be read back as response
-    # to test timeout we need a request with a response that needs more bytes
+    # As we are using a loop, the sent request will be read back as response.
+    # To test timeout use a request that needs more bytes for the response.
     message = read_coils(slave_id=0, starting_address=1, quantity=40)
 
     with pytest.raises(ValueError):
