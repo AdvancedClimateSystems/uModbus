@@ -12,7 +12,7 @@ cwd = os.path.dirname(os.path.abspath(__name__))
 long_description = open(os.path.join(cwd, 'README.rst'), 'r').read()
 
 setup(name='uModbus',
-      version='1.0.0',
+      version='1.0.2',
       author='Auke Willem Oosterhoff',
       author_email='a.oosterhoff@climotion.com',
       description='Implementation of the Modbus protocol in pure Python.',

@@ -1,6 +1,12 @@
 Changelog
 =========
 
+1.0.2 (2018-05-22)
+++++++++++++++++++
+
+I released uModbus 1.0.1 without updating the version number in `setup.py`.
+This releases fixes this.
+
 1.0.1 (2018-05-22)
 ++++++++++++++++++
 
