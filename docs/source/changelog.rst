@@ -1,12 +1,25 @@
 Changelog
 =========
 
+1.0.1 (2018-05-22)
+++++++++++++++++++
+
+`@wthomson`_ has fixed a couple of typo's in the documentation. Thanks!
+
+**Bugs**
+
+* `#49`_ Fix clients being to greedy when reading response. Thanks `@lutostag`_!
+
+.. _#49: https://github.com/AdvancedClimateSystems/uModbus/issues/49
+.. _@lutostag: https://github.com/lutostag
+.. _@wthomson: https://github.com/wthomson
+
 1.0.0 (2018-01-06)
 ++++++++++++++++++
 
 **Bugs**
 
-* `#50` Fix handling of empty ADU's.
+* `#50`_ Fix handling of empty ADU's.
 
 .. _#50: https://github.com/AdvancedClimateSystems/uModbus/issues/50
 
@@ -15,7 +28,7 @@ Changelog
 
 **Bugs**
 
-* `#47` Fix import errors in sample code. `@tiagocoutinho`
+* `#47`_ Fix import errors in sample code. Thanks `@tiagocoutinho`_!
 
 .. _#47: https://github.com/AdvancedClimateSystems/uModbus/issues/47
 .. _@tiagocoutinho: https://github.com/tiagocoutinho
@@ -25,8 +38,8 @@ Changelog
 
 **Bugs**
 
-* `#27` Route is called with wrong value when one write single coil with value 1.
-* `#42` Drop support for PyPy.
+* `#27`_ Route is called with wrong value when one write single coil with value 1.
+* `#42`_ Drop support for PyPy.
 
 .. _#27: https://github.com/AdvancedClimateSystems/uModbus/issues/27
 .. _#42: https://github.com/AdvancedClimateSystems/uModbus/issues/42
@@ -36,7 +49,7 @@ Changelog
 
 **Features**
 
-* `#48` Update to pyserial 3.2.1
+* `#48`_ Update to pyserial 3.2.1
 
 .. _#48: https://github.com/AdvancedClimateSystems/uModbus/issues/48
 
@@ -45,8 +58,8 @@ Changelog
 
 **Bugs**
 
-* `#44` Remove print statement.
-* `#46` Transaction ID overflow. Thanks `@greg0pearce`
+* `#44`_ Remove print statement.
+* `#46`_ Transaction ID overflow. Thanks `@greg0pearce`_
 
 .. _#44: https://github.com/AdvancedClimateSystems/uModbus/issues/44
 .. _#46: https://github.com/AdvancedClimateSystems/uModbus/issues/46
@@ -57,7 +70,7 @@ Changelog
 
 **Bugs**
 
-* `#41` RTU server doesn't handle frames correct.
+* `#41`_ RTU server doesn't handle frames correct.
 
 .. _#41: https://github.com/AdvancedClimateSystems/uModbus/issues/41
 
@@ -66,13 +79,13 @@ Changelog
 
 **Features**
 
-* `#22` Add Modbus RTU server.
+* `#22`_ Add Modbus RTU server.
 
 **Bugs**
 
-* `#39`  Merge functions module with _functions package.
-* `#37`  Pretty print binary data in shell.
-* `#38`  Fix type in sumple_rtu_client.py
+* `#39`_  Merge functions module with _functions package.
+* `#37`_  Pretty print binary data in shell.
+* `#38`_  Fix type in sumple_rtu_client.py
 
 .. _#22: https://github.com/AdvancedClimateSystems/uModbus/issues/22
 .. _#29: https://github.com/AdvancedClimateSystems/uModbus/issues/29
@@ -85,7 +98,7 @@ Changelog
 
 **Features**
 
-* `#24`  Add Modbus RTU client.
+* `#24`_  Add Modbus RTU client.
 
 .. _#24: https://github.com/AdvancedClimateSystems/uModbus/issues/24
 
