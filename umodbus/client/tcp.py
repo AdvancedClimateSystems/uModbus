@@ -85,11 +85,14 @@ byte) + PDU (5 bytes).
 import struct
 from random import randint
 
-from umodbus.functions import (create_function_from_response_pdu, ReadCoils,
+from umodbus.functions import (create_function_from_response_pdu,
+                               expected_response_pdu_size_from_request_pdu,
+                               pdu_to_function_code_or_raise_error, ReadCoils,
                                ReadDiscreteInputs, ReadHoldingRegisters,
                                ReadInputRegisters, WriteSingleCoil,
                                WriteSingleRegister, WriteMultipleCoils,
                                WriteMultipleRegisters)
+from umodbus.utils import recv_exactly
 
 
 def _create_request_adu(slave_id, pdu):
@@ -234,6 +237,16 @@ def parse_response_adu(resp_adu, req_adu=None):
     return function.data
 
 
+def raise_for_exception_adu(resp_adu):
+    """ Check a response ADU for error
+
+    :param resp_adu: Response ADU.
+    :raises ModbusError: When a response contains an error code.
+    """
+    resp_pdu = resp_adu[7:]
+    pdu_to_function_code_or_raise_error(resp_pdu)
+
+
 def send_message(adu, sock):
     """ Send ADU over socket to to server and return parsed response.
 
@@ -241,6 +254,16 @@ def send_message(adu, sock):
     :param sock: Socket instance.
     :return: Parsed response from server.
     """
-    sock.send(adu)
-    response = sock.recv(1024)
-    return parse_response_adu(response, adu)
+    sock.sendall(adu)
+
+    # Check exception ADU (which is shorter than all other responses) first.
+    exception_adu_size = 9
+    response_error_adu = recv_exactly(sock.recv, exception_adu_size)
+    raise_for_exception_adu(response_error_adu)
+
+    expected_response_size = \
+        expected_response_pdu_size_from_request_pdu(adu[7:]) + 7
+    response_remainder = recv_exactly(
+        sock.recv, expected_response_size - exception_adu_size)
+
+    return parse_response_adu(response_error_adu + response_remainder, adu)

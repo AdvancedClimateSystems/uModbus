@@ -112,3 +112,32 @@ def memoize(f):
             cache[arg] = f(arg)
         return cache[arg]
     return inner
+
+
+def recv_exactly(recv_fn, size):
+    """ Use the function to read and return exactly number of bytes desired.
+
+    https://docs.python.org/3/howto/sockets.html#socket-programming-howto for
+    more information about why this is necessary.
+
+    :param recv_fn: Function that can return up to given bytes
+        (i.e. socket.recv, file.read)
+    :param size: Number of bytes to read.
+    :return: Byte string with length size.
+    :raises ValueError: Could not receive enough data (usually timeout).
+    """
+    recv_bytes = 0
+    chunks = []
+    while recv_bytes < size:
+        chunk = recv_fn(size - recv_bytes)
+        if len(chunk) == 0:  # when closed or empty
+            break
+        recv_bytes += len(chunk)
+        chunks.append(chunk)
+
+    response = b''.join(chunks)
+
+    if len(response) != size:
+        raise ValueError
+
+    return response
