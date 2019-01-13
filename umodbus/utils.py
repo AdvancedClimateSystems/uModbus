@@ -141,3 +141,32 @@ def recv_exactly(recv_fn, size):
         raise ValueError
 
     return response
+
+
+def _short_packer(packed_data):
+    """ Pack the data to a list of short (int16, 2 bytes) """
+    packed_bytes = []
+    try:
+        for int16_chunk in packed_data:
+            # Iterate over all elements contained in the packed_data and build the short
+            # (int16, 2 bytes) packed_bytes list
+            # The ModBus standard register data dimension
+            packed_bytes.append(struct.pack('>H', int16_chunk))
+    except TypeError as ex:
+        packed_bytes.append(struct.pack('>H', 0))
+    finally:
+        return packed_bytes
+
+
+def data_packer(value, indianess='>', data_type='H'):
+    """ Returns the data packed, ready to be written """
+    packed_data = struct.pack('{0}{1}'.format(indianess, data_type), value)
+    packed_bytes = _short_packer(packed_data)
+    return packed_bytes
+
+
+
+def data_unpacker(data, indianess='>', data_type='H'):
+    """ Returns the unpacked data, as the format specified """
+    packed_bytes = _short_packer(data)
+    return struct.unpack('{0}{1}'.format(indianess, data_type), b''.join(packed_bytes))
