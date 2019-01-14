@@ -141,3 +141,32 @@ def recv_exactly(recv_fn, size):
         raise ValueError
 
     return response
+
+
+
+def _short_unpacker(packed_data):
+    """
+    Returns a tuple representing the packed data with the length
+    of the format type of the given original packed data
+    """
+    short_bytes_count = 'H' * int(len(packed_data)/2)
+    return struct.unpack('>{bytes_count}'.format(bytes_count=short_bytes_count), packed_data)
+
+def _short_packer(unpacked_data):
+    """ Returns a list representing the unpacked data as int16, 2 bytes packed list """
+    data = []
+    for unpacked_int16 in unpacked_data:
+        data.append(struct.pack('>H', unpacked_int16))
+    return data
+
+def data_packer(value, indianess='>', data_type='H'):
+    """ Returns the data packed, ready to be written """
+    packed_data = struct.pack('{0}{1}'.format(indianess, data_type), value)
+    unpacked_int16_data = _short_unpacker(packed_data)
+    return unpacked_int16_data
+
+
+def data_unpacker(data, indianess='>', data_type='H'):
+    """ Returns the unpacked data, as the format specified """
+    packed_bytes = _short_packer(data)
+    return struct.unpack('{0}{1}'.format(indianess, data_type), b''.join(packed_bytes))
