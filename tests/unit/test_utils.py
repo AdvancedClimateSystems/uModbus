@@ -4,7 +4,10 @@ from logging import getLogger
 
 from umodbus.utils import (log_to_stream, unpack_mbap, pack_mbap,
                            pack_exception_pdu,
-                           get_function_code_from_request_pdu)
+                           get_function_code_from_request_pdu,
+                           _short_packer,
+                           data_packer,
+                           data_unpacker)
 
 
 def test_log_to_stream():
@@ -44,3 +47,15 @@ def test_pack_exception_pdu():
 def test_get_function_code_from_request_pdu():
     """ Get correct function code from PDU. """
     assert get_function_code_from_request_pdu(b'\x01\x00d\x00\x03') == 1
+
+def test_get_short_packer():
+    """ Get correct function code from PDU. """
+    assert _short_packer(b'\x07[\xcd\x15') == [b'\x00\x07', b'\x00[', b'\x00\xcd', b'\x00\x15']
+
+def test_data_packer():
+    """ Tests if the data_packer returns the correct data as specified in the format char and indianess """
+    assert data_packer(123456789, '>', 'l') == [b'\x00\x07', b'\x00[', b'\x00\xcd', b'\x00\x15']
+
+def test_data_unpacker():
+    """ Tests if the data_unpacker returns the correct data as specified in the format char and indianess """
+    assert data_unpacker((1883, 52501), '>', 'l')[0] == 123456789

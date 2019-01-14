@@ -120,6 +120,7 @@ The following functions have been implemented for Modbus TCP and Modbus RTU:
 Other featues:
 
 * Support for signed and unsigned register values.
+* Helper methods (data_packer & data_unpacker) to keep simple the data read/write conversion
 
 License
 -------
