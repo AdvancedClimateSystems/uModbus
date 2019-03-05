@@ -72,6 +72,55 @@ Creating a Modbus TCP server is easy:
             app.shutdown()
             app.server_close()
 
+
+Creating an non-blocking (async) server:
+*This means the server can do other things, the example below increments the holding register 0 by 1 every 100ms*
+.. code:: python
+    #!/usr/bin/env python
+    # scripts/examples/simple_tcp_server.py
+    import logging
+    from collections import defaultdict
+    import socketserver 
+    from umodbus import conf
+    from umodbus.server.tcp import RequestHandler, get_async_server
+    from umodbus.utils import log_to_stream
+
+    # Add stream handler to logger 'uModbus'.
+    log_to_stream(level=logging.DEBUG)
+
+    # A very simple data store which maps addresss against their values.
+    data_store = defaultdict(int)
+
+    # Enable values to be signed (default is False).
+    conf.SIGNED_VALUES = False
+
+    socketserver.TCPServer.allow_reuse_address = True
+    app = get_async_server(('localhost', 5102), RequestHandler)
+
+
+    @app.route(slave_ids=[1], function_codes=[3, 4], addresses=list(range(0, 10)))
+    def read_data_store(slave_id, function_code, address):
+        """" Return value of address. """
+        return data_store[address]
+
+
+    @app.route(slave_ids=[1], function_codes=[6, 16], addresses=list(range(0, 10)))
+    def write_data_store(slave_id, function_code, address, value):
+        """" Set value for address. """
+        data_store[address] = value
+
+    if __name__ == '__main__':
+        app.start_async()
+        import time 
+        try:
+          while True:
+              data_store[0] = (data_store[0] + 1) % 65530
+              time.sleep(0.1)
+        except KeyboardInterrupt:
+              pass    
+
+        app.stop_async()
+
 Doing a Modbus request requires even less code:
 
 ..
