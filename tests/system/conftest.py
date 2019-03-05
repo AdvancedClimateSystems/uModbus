@@ -5,6 +5,7 @@ from threading import Thread
 
 from .tcp_server import app as tcp
 from .rtu_server import app as rtu
+from .async_tcp_server import app as async_tcp
 
 
 @pytest.fixture(autouse=True, scope="session")
@@ -30,6 +31,16 @@ def sock(tcp_server):
 
     sock.close()
 
+
+@pytest.fixture(autouse=True, scope="session")
+def async_tcp_server(request):
+    async_tcp.start_async()
+
+    def fin():
+        async_tcp.stop_async()
+
+    request.addfinalizer(fin)
+    return async_tcp
 
 @pytest.fixture
 def rtu_server():
