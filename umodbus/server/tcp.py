@@ -1,4 +1,6 @@
 import struct
+import socketserver
+import threading
 from types import MethodType
 
 from umodbus.route import Map
@@ -6,6 +8,19 @@ from umodbus.server import AbstractRequestHandler, route
 from umodbus.utils import unpack_mbap, pack_mbap
 from umodbus.exceptions import ServerDeviceFailureError
 
+class ThreadedTCPServer(socketserver.ThreadingMixIn, socketserver.TCPServer):
+    
+    def __init__(self, server_address, request_handler):
+      super().__init__(server_address, request_handler)
+      
+    def start_async(self):
+      self.server_thread = threading.Thread(target=self.serve_forever)
+      self.server_thread.daemon = True
+      self.server_thread.start()
+   
+    def stop_async(self):
+      self.shutdown()
+      self.server_close()
 
 def get_server(server_class, server_address, request_handler_class):
     """ Return instance of :param:`server_class` with :param:`request_handler`
@@ -25,6 +40,8 @@ def get_server(server_class, server_address, request_handler_class):
 
     return s
 
+def get_async_server(server_address, request_handler_class):
+    return get_server(ThreadedTCPServer, server_address, RequestHandler)
 
 class RequestHandler(AbstractRequestHandler):
     """ A subclass of :class:`socketserver.BaseRequestHandler` dispatching
