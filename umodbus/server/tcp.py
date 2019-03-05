@@ -1,5 +1,10 @@
 import struct
-import socketserver
+import sys
+if sys.version_info >= (3, 0):
+  import socketserver
+else: 
+  import SocketServer as socketserver
+
 import threading
 from types import MethodType
 
