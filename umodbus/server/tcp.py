@@ -2,7 +2,7 @@ import struct
 import sys
 if sys.version_info >= (3, 0):
   import socketserver
-else: 
+else:
   import SocketServer as socketserver
 
 import threading
@@ -14,15 +14,11 @@ from umodbus.utils import unpack_mbap, pack_mbap
 from umodbus.exceptions import ServerDeviceFailureError
 
 class ThreadedTCPServer(socketserver.ThreadingMixIn, socketserver.TCPServer):
-    
-    def __init__(self, server_address, request_handler):
-      super().__init__(server_address, request_handler)
-      
     def start_async(self):
       self.server_thread = threading.Thread(target=self.serve_forever)
       self.server_thread.daemon = True
       self.server_thread.start()
-   
+
     def stop_async(self):
       self.shutdown()
       self.server_close()
