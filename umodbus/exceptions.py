@@ -15,9 +15,8 @@ class IllegalFunctionError(ModbusError):
 
 
 class IllegalDataAddressError(ModbusError):
-    """ The data address received in de request is not an allowable address for
+    """ The data address received in the request is not an allowable address for
     the server.
-
     """
     error_code = 2
 

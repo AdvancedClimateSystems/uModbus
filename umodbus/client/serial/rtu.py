@@ -19,7 +19,7 @@ parts of a Modbus RTU message are listed together with their byte size:
 
 The CRC is calculated from the Address field and the PDU.
 
-Below you see an hexidecimal presentation of request over RTU with Modbus
+Below you see a hexadecimal presentation of request over RTU with Modbus
 function code 1. It requests data of slave with 1, starting at coil 100, for
 the length of 3 coils:
 

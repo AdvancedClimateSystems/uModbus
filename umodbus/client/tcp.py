@@ -5,7 +5,7 @@
 
 The Application Data Unit (ADU) for Modbus messages carried over a TCP/IP are
 build out of two components: a MBAP header and a PDU. The Modbus Application
-Header (MBAP) is what makes Modbus TCP/IP requests and responsen different from
+Header (MBAP) is what makes Modbus TCP/IP requests and responses different from
 their counterparts send over a serial line.  Below the components of the Modbus
 TCP/IP are listed together with their size in bytes:
 
@@ -17,7 +17,7 @@ TCP/IP are listed together with their size in bytes:
 | PDU           | N               |
 +---------------+-----------------+
 
-Below you see an hexidecimal presentation of request over TCP/IP with Modbus
+Below you see a hexadecimal presentation of request over TCP/IP with Modbus
 function code 1. It requests data of slave with 1, starting at coil 100, for
 the length of 3 coils:
 
