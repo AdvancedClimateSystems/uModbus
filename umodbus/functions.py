@@ -362,7 +362,7 @@ class ReadCoils(ModbusFunction):
             for address in range(self.starting_address,
                                  self.starting_address + self.quantity):
                 endpoint = route_map.match(slave_id, self.function_code,
-                                           address)
+                                           address, self.starting_address)
                 values.append(endpoint(slave_id=slave_id, address=address,
                                        function_code=self.function_code))
 
@@ -575,7 +575,7 @@ class ReadDiscreteInputs(ModbusFunction):
             for address in range(self.starting_address,
                                  self.starting_address + self.quantity):
                 endpoint = route_map.match(slave_id, self.function_code,
-                                           address)
+                                           address, self.starting_address)
                 values.append(endpoint(slave_id=slave_id, address=address,
                                        function_code=self.function_code))
 
@@ -755,7 +755,7 @@ class ReadHoldingRegisters(ModbusFunction):
             for address in range(self.starting_address,
                                  self.starting_address + self.quantity):
                 endpoint = route_map.match(slave_id, self.function_code,
-                                           address)
+                                           address, self.starting_address)
                 values.append(endpoint(slave_id=slave_id, address=address,
                                        function_code=self.function_code))
 
@@ -933,7 +933,7 @@ class ReadInputRegisters(ModbusFunction):
             for address in range(self.starting_address,
                                  self.starting_address + self.quantity):
                 endpoint = route_map.match(slave_id, self.function_code,
-                                           address)
+                                           address, self.starting_address)
                 values.append(endpoint(slave_id=slave_id, address=address,
                                        function_code=self.function_code))
 
@@ -1093,7 +1093,8 @@ class WriteSingleCoil(ModbusFunction):
         :param slave_id: Slave id.
         :param eindpoint: Instance of modbus.route.Map.
         """
-        endpoint = route_map.match(slave_id, self.function_code, self.address)
+        starting_address = self.address
+        endpoint = route_map.match(slave_id, self.function_code, self.address, starting_address)
         try:
             endpoint(slave_id=slave_id, address=self.address, value=self.value,
                      function_code=self.function_code)
@@ -1237,7 +1238,8 @@ class WriteSingleRegister(ModbusFunction):
         :param slave_id: Slave id.
         :param eindpoint: Instance of modbus.route.Map.
         """
-        endpoint = route_map.match(slave_id, self.function_code, self.address)
+        starting_address = self.address
+        endpoint = route_map.match(slave_id, self.function_code, self.address, starting_address)
         try:
             endpoint(slave_id=slave_id, address=self.address, value=self.value,
                      function_code=self.function_code)
@@ -1453,7 +1455,7 @@ class WriteMultipleCoils(ModbusFunction):
         """
         for index, value in enumerate(self.values):
             address = self.starting_address + index
-            endpoint = route_map.match(slave_id, self.function_code, address)
+            endpoint = route_map.match(slave_id, self.function_code, address, self.starting_address)
 
             try:
                 endpoint(slave_id=slave_id, address=address, value=value,
@@ -1605,7 +1607,7 @@ class WriteMultipleRegisters(ModbusFunction):
         """
         for index, value in enumerate(self.values):
             address = self.starting_address + index
-            endpoint = route_map.match(slave_id, self.function_code, address)
+            endpoint = route_map.match(slave_id, self.function_code, address, self.starting_address)
 
             try:
                 endpoint(slave_id=slave_id, address=address, value=value,

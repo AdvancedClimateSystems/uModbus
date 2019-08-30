@@ -11,7 +11,7 @@ from umodbus.utils import (get_function_code_from_request_pdu,
                            pack_exception_pdu, recv_exactly)
 
 
-def route(self, slave_ids=None, function_codes=None, addresses=None):
+def route(self, slave_ids=None, function_codes=None, addresses=None, starting_address=None):
     """ A decorator that is used to register an endpoint for a given
     rule::
 
@@ -24,7 +24,7 @@ def route(self, slave_ids=None, function_codes=None, addresses=None):
     :param addresses: A list or set with addresses.
     """
     def inner(f):
-        self.route_map.add_rule(f, slave_ids, function_codes, addresses)
+        self.route_map.add_rule(f, slave_ids, function_codes, addresses, starting_address)
         return f
 
     return inner
