@@ -594,10 +594,6 @@ class ReadDiscreteInputs(ModbusFunction):
                 endpoint = route_map.match(slave_id, self.function_code,
                                            address, self.starting_address,
                                            self.quantity)
-                values.append(endpoint(slave_id=slave_id, address=address,
-                                       function_code=self.function_code,
-                                       starting_address=self.starting_address,
-                                       quantity=self.quantity))
                 all_kwargs = {"slave_id":slave_id, "address":address,
                         "function_code": self.function_code,
                         "starting_address":self.starting_address,
