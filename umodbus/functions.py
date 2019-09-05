@@ -95,6 +95,17 @@ GET_COMM_EVENT_COUNTER = 11
 GET_COM_EVENT_LOG = 12
 REPORT_SERVER_ID = 17
 
+def fit_kwargs(func, **kwargs):
+    """ Runs a function removing not wanted kwargs
+    :param func: function
+    :param kwargs: key,value arguments
+
+    :return: what original function is supposed to return
+    """
+    if func == None:
+        raise TypeError
+    fitted_kwargs = {k:v for k,v in kwargs.items() if k in func.__code__.co_varnames}
+    return func(**fitted_kwargs)
 
 def pdu_to_function_code_or_raise_error(resp_pdu):
     """ Parse response PDU and return of :class:`ModbusFunction` or
@@ -364,8 +375,13 @@ class ReadCoils(ModbusFunction):
                 endpoint = route_map.match(slave_id, self.function_code,
                                            address, self.starting_address,
                                            self.quantity)
-                values.append(endpoint(slave_id=slave_id, address=address,
-                                       function_code=self.function_code))
+                all_kwargs= {"slave_id":slave_id, "address":address,
+                        "function_code": self.function_code,
+                        "starting_address":self.starting_address,
+                        "quantity":self.quantity}
+
+                values.append(fit_kwargs(endpoint, **all_kwargs))
+
 
             return values
 
@@ -579,7 +595,16 @@ class ReadDiscreteInputs(ModbusFunction):
                                            address, self.starting_address,
                                            self.quantity)
                 values.append(endpoint(slave_id=slave_id, address=address,
-                                       function_code=self.function_code))
+                                       function_code=self.function_code,
+                                       starting_address=self.starting_address,
+                                       quantity=self.quantity))
+                all_kwargs = {"slave_id":slave_id, "address":address,
+                        "function_code": self.function_code,
+                        "starting_address":self.starting_address,
+                        "quantity":self.quantity}
+
+                values.append(fit_kwargs(endpoint, **all_kwargs))
+
 
             return values
 
@@ -759,8 +784,13 @@ class ReadHoldingRegisters(ModbusFunction):
                 endpoint = route_map.match(slave_id, self.function_code,
                                            address, self.starting_address,
                                            self.quantity)
-                values.append(endpoint(slave_id=slave_id, address=address,
-                                       function_code=self.function_code))
+                all_kwargs= {"slave_id":slave_id, "address":address,
+                    "function_code": self.function_code,
+                    "starting_address":self.starting_address,
+                    "quantity":self.quantity}
+
+                values.append(fit_kwargs(endpoint, **all_kwargs))
+
 
             return values
 
@@ -938,8 +968,12 @@ class ReadInputRegisters(ModbusFunction):
                 endpoint = route_map.match(slave_id, self.function_code,
                                            address, self.starting_address,
                                            self.quantity)
-                values.append(endpoint(slave_id=slave_id, address=address,
-                                       function_code=self.function_code))
+                all_kwargs= {"slave_id":slave_id, "address":address,
+                        "function_code": self.function_code,
+                        "starting_address":self.starting_address,
+                        "quantity":self.quantity}
+
+                values.append(fit_kwargs(endpoint, **all_kwargs))
 
             return values
 
@@ -1102,8 +1136,15 @@ class WriteSingleCoil(ModbusFunction):
         endpoint = route_map.match(slave_id, self.function_code, self.address,
                                    starting_address, quantity)
         try:
-            endpoint(slave_id=slave_id, address=self.address, value=self.value,
-                     function_code=self.function_code)
+            all_kwargs= {"slave_id":slave_id, "address":self.address,
+                    "value":self.value,
+                    "function_code": self.function_code,
+                    "starting_address":starting_address,
+                    "quantity":quantity}
+
+            fit_kwargs(endpoint, **all_kwargs)
+
+
         # route_map.match() returns None if no match is found. Calling None
         # results in TypeError.
         except TypeError:
@@ -1249,8 +1290,15 @@ class WriteSingleRegister(ModbusFunction):
         endpoint = route_map.match(slave_id, self.function_code, self.address,
                                                   starting_address, quantity=1)
         try:
-            endpoint(slave_id=slave_id, address=self.address, value=self.value,
-                     function_code=self.function_code)
+            all_kwargs= {"slave_id":slave_id, "address":self.address,
+                    "value":self.value,
+                    "function_code": self.function_code,
+                    "starting_address":starting_address,
+                    "quantity":quantity}
+
+            fit_kwargs(endpoint, **all_kwargs)
+
+
         # route_map.match() returns None if no match is found. Calling None
         # results in TypeError.
         except TypeError:
@@ -1467,8 +1515,14 @@ class WriteMultipleCoils(ModbusFunction):
                                             self.starting_address, self.quantity)
 
             try:
-                endpoint(slave_id=slave_id, address=address, value=value,
-                         function_code=self.function_code)
+                all_kwargs= {"slave_id":slave_id, "address":address,
+                    "value":value,
+                    "function_code": self.function_code,
+                    "starting_address":self.starting_address,
+                    "quantity":self.quantity}
+
+                fit_kwargs(endpoint, **all_kwargs)
+
             # route_map.match() returns None if no match is found. Calling None
             # results in TypeError.
             except TypeError:
@@ -1621,8 +1675,14 @@ class WriteMultipleRegisters(ModbusFunction):
                                        self.starting_address, quantity)
 
             try:
-                endpoint(slave_id=slave_id, address=address, value=value,
-                         function_code=self.function_code)
+                all_kwargs = {"slave_id":slave_id, "address":address,
+                    "value":value,
+                    "function_code": self.function_code,
+                    "starting_address":self.starting_address,
+                    "quantity":quantity}
+
+                fit_kwargs(endpoint, **all_kwargs)
+
             # route_map.match() returns None if no match is found. Calling None
             # results in TypeError.
             except TypeError:
