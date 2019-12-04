@@ -1,6 +1,15 @@
 Changelog
 =========
 
+1.0.3 (2019-12-04)
+++++++++++++++++++
+
+* `#76`_ Remove use of deprecated `inspect.getargspec()` for Python>=3.5.
+* Drop support for Python 3.3
+* Add support for Python 3.7 and Python 3.8
+
+.. _#76: https://github.com/AdvancedClimateSystems/uModbus/issues/76
+
 1.0.2 (2018-05-22)
 ++++++++++++++++++
 
