@@ -126,7 +126,7 @@ def create_function_from_response_pdu(resp_pdu, req_pdu=None):
     function = function_code_to_function_map[function_code]
 
     if req_pdu is not None and \
-        'req_pdu' in inspect.getargspec(function.create_from_response_pdu).args:  # NOQA
+        'req_pdu' in inspect.getfullargspec(function.create_from_response_pdu).args:  # NOQA
 
         return function.create_from_response_pdu(resp_pdu, req_pdu)
 
