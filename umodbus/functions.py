@@ -57,8 +57,15 @@ A response PDU could look like this::
 """
 from __future__ import division
 import struct
-import inspect
 import math
+
+try:
+    from inspect import getfullargspec
+except ImportError:
+    # inspect.getfullargspec was introduced in Python 3.4.
+    # Earlier versions have inspect.getargspec.
+    from inspect import getargspec as getfullargspec
+
 try:
     from functools import reduce
 except ImportError:
@@ -126,7 +133,7 @@ def create_function_from_response_pdu(resp_pdu, req_pdu=None):
     function = function_code_to_function_map[function_code]
 
     if req_pdu is not None and \
-        'req_pdu' in inspect.getfullargspec(function.create_from_response_pdu).args:  # NOQA
+        'req_pdu' in getfullargspec(function.create_from_response_pdu).args:  # NOQA
 
         return function.create_from_response_pdu(resp_pdu, req_pdu)
 
