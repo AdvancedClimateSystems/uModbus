@@ -223,3 +223,26 @@ def send_message(adu, serial_port):
         serial_port.read, expected_response_size - exception_adu_size)
 
     return parse_response_adu(response_error_adu + response_remainder, adu)
+
+
+def send_message_over_tcp(adu, sock):
+    """ Send ADU over tcp to server and return parsed response.
+
+    :param adu: Request ADU.
+    :param sock: Sock instance.
+    :return: Parsed response from server.
+    """
+    sock.sendall(adu)
+
+    # Check exception ADU (which is shorter than all other responses) first.
+    exception_adu_size = 5
+    response_error_adu = recv_exactly(sock.recv, exception_adu_size)
+    raise_for_exception_adu(response_error_adu)
+
+    expected_response_size = \
+        expected_response_pdu_size_from_request_pdu(adu[1:-2]) + 3
+    response_remainder = recv_exactly(
+        sock.recv, expected_response_size - exception_adu_size)
+
+    return parse_response_adu(response_error_adu + response_remainder, adu)
+
