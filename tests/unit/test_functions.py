@@ -121,8 +121,8 @@ def test_create_function_from_request_pdu(pdu, cls):
     (5, AcknowledgeError),
     (6, ServerDeviceBusyError),
     (8, MemoryParityError),
-    (11, GatewayPathUnavailableError),
-    (12, GatewayTargetDeviceFailedToRespondError),
+    (10, GatewayPathUnavailableError),
+    (11, GatewayTargetDeviceFailedToRespondError),
 ])
 def test_create_from_response_pdu_raising_exception(error_code,
                                                     exception_class):
