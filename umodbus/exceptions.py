@@ -74,7 +74,7 @@ class MemoryParityError(ModbusError):
 
 class GatewayPathUnavailableError(ModbusError):
     """ The gateway is probably misconfigured or overloaded. """
-    error_code = 11
+    error_code = 10
 
     def __repr__(self):
         return self.__doc__
@@ -82,7 +82,7 @@ class GatewayPathUnavailableError(ModbusError):
 
 class GatewayTargetDeviceFailedToRespondError(ModbusError):
     """ Didn't get a response from target device. """
-    error_code = 12
+    error_code = 11
 
     def __repr__(self):
         return self.__doc__
