@@ -1,5 +1,6 @@
 -r requirements.txt
 
+mock==3.0.5;python_version<"3.3"
 pytest==5.3.1;python_version>="3.5"
 pytest==4.6.6;python_version<"3.5"
 pytest-cov==2.8.1
