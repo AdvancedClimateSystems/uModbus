@@ -89,8 +89,8 @@ class AbstractRequestHandler(BaseRequestHandler):
         except ModbusError as e:
             function_code = get_function_code_from_request_pdu(request_pdu)
             return pack_exception_pdu(function_code, e.error_code)
-        except Exception as e:
-            log.exception('Could not handle request: {0}.'.format(e))
+        except Exception:
+            log.exception('Could not handle request')
             function_code = get_function_code_from_request_pdu(request_pdu)
 
             return pack_exception_pdu(function_code,
