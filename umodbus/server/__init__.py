@@ -48,9 +48,7 @@ class AbstractRequestHandler(BaseRequestHandler):
                 response_adu = self.process(mbap_header + request_pdu)
                 self.respond(response_adu)
         except:
-            import traceback
-            log.exception('Error while handling request: {0}.'
-                          .format(traceback.print_exc()))
+            log.exception('Error while handling request')
             raise
 
     def process(self, request_adu):
