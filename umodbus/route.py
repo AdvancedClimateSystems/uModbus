@@ -20,9 +20,8 @@ class DataRule:
         self.addresses = addresses
 
     def match(self, slave_id, function_code, address):
-        if slave_id in self.slave_ids and\
-            function_code in self.function_codes and \
-                address in self.addresses:
-                    return True
-
-        return False
+        # A constraint of None matches any value
+        matches = lambda values, v: values is None or v in values
+        return matches(self.slave_ids, slave_id) and \
+               matches(self.function_codes, function_code) and \
+               matches(self.addresses, address)

@@ -19,9 +19,11 @@ def route(self, slave_ids=None, function_codes=None, addresses=None):
         def read_single_bit_values(slave_id, address):
             return random.choise([0, 1])
 
-    :param slave_ids: A list or set with slave id's.
-    :param function_codes: A list or set with function codes.
-    :param addresses: A list or set with addresses.
+    Any argument can be omitted to match any value.
+
+    :param slave_ids: A list (or iterable) of slave ids.
+    :param function_codes: A list (or iterable) of function codes.
+    :param addresses: A list (or iterable) of addresses.
     """
     def inner(f):
         self.route_map.add_rule(f, slave_ids, function_codes, addresses)
