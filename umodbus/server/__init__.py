@@ -48,9 +48,7 @@ class AbstractRequestHandler(BaseRequestHandler):
                 response_adu = self.process(mbap_header + request_pdu)
                 self.respond(response_adu)
         except:
-            import traceback
-            log.exception('Error while handling request: {0}.'
-                          .format(traceback.print_exc()))
+            log.exception('Error while handling request')
             raise
 
     def process(self, request_adu):
@@ -91,8 +89,8 @@ class AbstractRequestHandler(BaseRequestHandler):
         except ModbusError as e:
             function_code = get_function_code_from_request_pdu(request_pdu)
             return pack_exception_pdu(function_code, e.error_code)
-        except Exception as e:
-            log.exception('Could not handle request: {0}.'.format(e))
+        except Exception:
+            log.exception('Could not handle request')
             function_code = get_function_code_from_request_pdu(request_pdu)
 
             return pack_exception_pdu(function_code,
