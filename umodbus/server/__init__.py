@@ -103,6 +103,6 @@ class AbstractRequestHandler(BaseRequestHandler):
 
         :param response_adu: A bytearray containing the response of an ADU.
         """
-        log.info('--> {0} - {1}.'.format(self.client_address[0],
-                 hexlify(response_adu)))
+        log.debug('--> {0} - {1}.'.format(self.client_address[0],
+                  hexlify(response_adu)))
         self.request.sendall(response_adu)
