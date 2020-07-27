@@ -278,8 +278,8 @@ class ReadCoils(ModbusFunction):
         return struct.pack('>BHH', self.function_code, self.starting_address,
                            self.quantity)
 
-    @staticmethod
-    def create_from_request_pdu(pdu):
+    @classmethod
+    def create_from_request_pdu(cls, pdu):
         """ Create instance from request PDU.
 
         :param pdu: A request PDU.
@@ -287,7 +287,7 @@ class ReadCoils(ModbusFunction):
         """
         _, starting_address, quantity = struct.unpack('>BHH', pdu)
 
-        instance = ReadCoils()
+        instance = cls()
         instance.starting_address = starting_address
         instance.quantity = quantity
 
@@ -324,8 +324,8 @@ class ReadCoils(ModbusFunction):
         fmt = '>BB' + self.format_character * len(bytes_)
         return struct.pack(fmt, self.function_code, len(bytes_), *bytes_)
 
-    @staticmethod
-    def create_from_response_pdu(resp_pdu, req_pdu):
+    @classmethod
+    def create_from_response_pdu(cls, resp_pdu, req_pdu):
         """ Create instance from response PDU.
 
         Response PDU is required together with the quantity of coils read.
@@ -334,7 +334,7 @@ class ReadCoils(ModbusFunction):
         :param quantity: Number of coils read.
         :return: Instance of :class:`ReadCoils`.
         """
-        read_coils = ReadCoils()
+        read_coils = cls()
         read_coils.quantity = struct.unpack('>H', req_pdu[-2:])[0]
         byte_count = struct.unpack('>B', resp_pdu[1:2])[0]
 
@@ -360,7 +360,7 @@ class ReadCoils(ModbusFunction):
         """ Execute the Modbus function registered for a route.
 
         :param slave_id: Slave id.
-        :param eindpoint: Instance of modbus.route.Map.
+        :param route_map: Instance of modbus.route.Map.
         :return: Result of call to endpoint.
         """
         values = []
@@ -486,8 +486,8 @@ class ReadDiscreteInputs(ModbusFunction):
         return struct.pack('>BHH', self.function_code, self.starting_address,
                            self.quantity)
 
-    @staticmethod
-    def create_from_request_pdu(pdu):
+    @classmethod
+    def create_from_request_pdu(cls, pdu):
         """ Create instance from request PDU.
 
         :param pdu: A request PDU.
@@ -495,7 +495,7 @@ class ReadDiscreteInputs(ModbusFunction):
         """
         _, starting_address, quantity = struct.unpack('>BHH', pdu)
 
-        instance = ReadDiscreteInputs()
+        instance = cls()
         instance.starting_address = starting_address
         instance.quantity = quantity
 
@@ -532,8 +532,8 @@ class ReadDiscreteInputs(ModbusFunction):
         fmt = '>BB' + self.format_character * len(bytes_)
         return struct.pack(fmt, self.function_code, len(bytes_), *bytes_)
 
-    @staticmethod
-    def create_from_response_pdu(resp_pdu, req_pdu):
+    @classmethod
+    def create_from_response_pdu(cls, resp_pdu, req_pdu):
         """ Create instance from response PDU.
 
         Response PDU is required together with the quantity of inputs read.
@@ -542,7 +542,7 @@ class ReadDiscreteInputs(ModbusFunction):
         :param quantity: Number of inputs read.
         :return: Instance of :class:`ReadDiscreteInputs`.
         """
-        read_discrete_inputs = ReadDiscreteInputs()
+        read_discrete_inputs = cls()
         read_discrete_inputs.quantity = struct.unpack('>H', req_pdu[-2:])[0]
         byte_count = struct.unpack('>B', resp_pdu[1:2])[0]
 
@@ -568,7 +568,7 @@ class ReadDiscreteInputs(ModbusFunction):
         """ Execute the Modbus function registered for a route.
 
         :param slave_id: Slave id.
-        :param eindpoint: Instance of modbus.route.Map.
+        :param route_map: Instance of modbus.route.Map.
         :return: Result of call to endpoint.
         """
         values = []
@@ -685,16 +685,16 @@ class ReadHoldingRegisters(ModbusFunction):
         return struct.pack('>BHH', self.function_code, self.starting_address,
                            self.quantity)
 
-    @staticmethod
-    def create_from_request_pdu(pdu):
-
+    @classmethod
+    def create_from_request_pdu(cls, pdu):
         """ Create instance from request PDU.
+
         :param pdu: A request PDU.
         :return: Instance of this class.
         """
         _, starting_address, quantity = struct.unpack('>BHH', pdu)
 
-        instance = ReadHoldingRegisters()
+        instance = cls()
         instance.starting_address = starting_address
         instance.quantity = quantity
 
@@ -719,8 +719,8 @@ class ReadHoldingRegisters(ModbusFunction):
 
         return struct.pack(fmt, self.function_code, len(data) * 2, *data)
 
-    @staticmethod
-    def create_from_response_pdu(resp_pdu, req_pdu):
+    @classmethod
+    def create_from_response_pdu(cls, resp_pdu, req_pdu):
         """ Create instance from response PDU.
 
         Response PDU is required together with the number of registers read.
@@ -729,7 +729,7 @@ class ReadHoldingRegisters(ModbusFunction):
         :param quantity: Number of coils read.
         :return: Instance of :class:`ReadCoils`.
         """
-        read_holding_registers = ReadHoldingRegisters()
+        read_holding_registers = cls()
         read_holding_registers.quantity = struct.unpack('>H', req_pdu[-2:])[0]
         read_holding_registers.byte_count = \
             struct.unpack('>B', resp_pdu[1:2])[0]
@@ -743,7 +743,7 @@ class ReadHoldingRegisters(ModbusFunction):
         """ Execute the Modbus function registered for a route.
 
         :param slave_id: Slave id.
-        :param eindpoint: Instance of modbus.route.Map.
+        :param route_map: Instance of modbus.route.Map.
         :return: Result of call to endpoint.
         """
         values = []
@@ -860,8 +860,8 @@ class ReadInputRegisters(ModbusFunction):
         return struct.pack('>BHH', self.function_code, self.starting_address,
                            self.quantity)
 
-    @staticmethod
-    def create_from_request_pdu(pdu):
+    @classmethod
+    def create_from_request_pdu(cls, pdu):
         """ Create instance from request PDU.
 
         :param pdu: A request PDU.
@@ -869,7 +869,7 @@ class ReadInputRegisters(ModbusFunction):
         """
         _, starting_address, quantity = struct.unpack('>BHH', pdu)
 
-        instance = ReadInputRegisters()
+        instance = cls()
         instance.starting_address = starting_address
         instance.quantity = quantity
 
@@ -894,8 +894,8 @@ class ReadInputRegisters(ModbusFunction):
 
         return struct.pack(fmt, self.function_code, len(data) * 2, *data)
 
-    @staticmethod
-    def create_from_response_pdu(resp_pdu, req_pdu):
+    @classmethod
+    def create_from_response_pdu(cls, resp_pdu, req_pdu):
         """ Create instance from response PDU.
 
         Response PDU is required together with the number of registers read.
@@ -904,7 +904,7 @@ class ReadInputRegisters(ModbusFunction):
         :param quantity: Number of coils read.
         :return: Instance of :class:`ReadCoils`.
         """
-        read_input_registers = ReadInputRegisters()
+        read_input_registers = cls()
         read_input_registers.quantity = struct.unpack('>H', req_pdu[-2:])[0]
 
         fmt = '>' + (conf.TYPE_CHAR * read_input_registers.quantity)
@@ -916,7 +916,7 @@ class ReadInputRegisters(ModbusFunction):
         """ Execute the Modbus function registered for a route.
 
         :param slave_id: Slave id.
-        :param eindpoint: Instance of modbus.route.Map.
+        :param route_map: Instance of modbus.route.Map.
         :return: Result of call to endpoint.
         """
         values = []
@@ -1024,17 +1024,18 @@ class WriteSingleCoil(ModbusFunction):
         return struct.pack('>BHH', self.function_code, self.address,
                            self._value)
 
-    @staticmethod
-    def create_from_request_pdu(pdu):
+    @classmethod
+    def create_from_request_pdu(cls, pdu):
         """ Create instance from request PDU.
 
         :param pdu: A response PDU.
+        :return: Instance of this class.
         """
         _, address, value = struct.unpack('>BHH', pdu)
 
         value = 1 if value == 0xFF00 else value
 
-        instance = WriteSingleCoil()
+        instance = cls()
         instance.address = address
         instance.value = value
 
@@ -1057,14 +1058,14 @@ class WriteSingleCoil(ModbusFunction):
         fmt = '>BHH'
         return struct.pack(fmt, self.function_code, self.address, self._value)
 
-    @staticmethod
-    def create_from_response_pdu(resp_pdu):
+    @classmethod
+    def create_from_response_pdu(cls, resp_pdu):
         """ Create instance from response PDU.
 
         :param resp_pdu: Byte array with request PDU.
         :return: Instance of :class:`WriteSingleCoil`.
         """
-        write_single_coil = WriteSingleCoil()
+        write_single_coil = cls()
 
         address, value = struct.unpack('>HH', resp_pdu[1:5])
         value = 1 if value == 0xFF00 else value
@@ -1078,7 +1079,7 @@ class WriteSingleCoil(ModbusFunction):
         """ Execute the Modbus function registered for a route.
 
         :param slave_id: Slave id.
-        :param eindpoint: Instance of modbus.route.Map.
+        :param route_map: Instance of modbus.route.Map.
         """
         endpoint = route_map.match(slave_id, self.function_code, self.address)
         if endpoint is None:
@@ -1172,16 +1173,17 @@ class WriteSingleRegister(ModbusFunction):
         return struct.pack('>BH' + conf.TYPE_CHAR, self.function_code,
                            self.address, self.value)
 
-    @staticmethod
-    def create_from_request_pdu(pdu):
+    @classmethod
+    def create_from_request_pdu(cls, pdu):
         """ Create instance from request PDU.
 
-        :param pdu: A response PDU.
+        :param pdu: A request PDU.
+        :return: Instance of this class.
         """
         _, address, value = \
             struct.unpack('>BH' + conf.MULTI_BIT_VALUE_FORMAT_CHARACTER, pdu)
 
-        instance = WriteSingleRegister()
+        instance = cls()
         instance.address = address
         instance.value = value
 
@@ -1199,14 +1201,14 @@ class WriteSingleRegister(ModbusFunction):
         fmt = '>BH' + conf.TYPE_CHAR
         return struct.pack(fmt, self.function_code, self.address, self.value)
 
-    @staticmethod
-    def create_from_response_pdu(resp_pdu):
+    @classmethod
+    def create_from_response_pdu(cls, resp_pdu):
         """ Create instance from response PDU.
 
         :param resp_pdu: Byte array with request PDU.
         :return: Instance of :class:`WriteSingleRegister`.
         """
-        write_single_register = WriteSingleRegister()
+        write_single_register = cls()
 
         address, value = struct.unpack('>H' + conf.TYPE_CHAR, resp_pdu[1:5])
 
@@ -1219,7 +1221,7 @@ class WriteSingleRegister(ModbusFunction):
         """ Execute the Modbus function registered for a route.
 
         :param slave_id: Slave id.
-        :param eindpoint: Instance of modbus.route.Map.
+        :param route_map: Instance of modbus.route.Map.
         """
         endpoint = route_map.match(slave_id, self.function_code, self.address)
         if endpoint is None:
@@ -1322,8 +1324,8 @@ class WriteMultipleCoils(ModbusFunction):
                            len(self.values), (len(self.values) // 8) + 1,
                            *bytes_)
 
-    @staticmethod
-    def create_from_request_pdu(pdu):
+    @classmethod
+    def create_from_request_pdu(cls, pdu):
         """ Create instance from request PDU.
 
         This method requires some clarification regarding the unpacking of
@@ -1390,7 +1392,7 @@ class WriteMultipleCoils(ModbusFunction):
             # and reverse the list.
             res = res + [int(i) for i in fmt.format(value)][::-1]
 
-        instance = WriteMultipleCoils()
+        instance = cls()
         instance.starting_address = starting_address
         instance.quantity = quantity
 
@@ -1415,9 +1417,9 @@ class WriteMultipleCoils(ModbusFunction):
         return struct.pack('>BHH', self.function_code, self.starting_address,
                            len(self.values))
 
-    @staticmethod
-    def create_from_response_pdu(resp_pdu):
-        write_multiple_coils = WriteMultipleCoils()
+    @classmethod
+    def create_from_response_pdu(cls, resp_pdu):
+        write_multiple_coils = cls()
 
         starting_address, data = struct.unpack('>HH', resp_pdu[1:5])
 
@@ -1430,7 +1432,7 @@ class WriteMultipleCoils(ModbusFunction):
         """ Execute the Modbus function registered for a route.
 
         :param slave_id: Slave id.
-        :param eindpoint: Instance of modbus.route.Map.
+        :param route_map: Instance of modbus.route.Map.
         """
         for index, value in enumerate(self.values):
             address = self.starting_address + index
@@ -1524,8 +1526,8 @@ class WriteMultipleRegisters(ModbusFunction):
                            len(self.values), len(self.values) * 2,
                            *self.values)
 
-    @staticmethod
-    def create_from_request_pdu(pdu):
+    @classmethod
+    def create_from_request_pdu(cls, pdu):
         """ Create instance from request PDU.
 
         :param pdu: A request PDU.
@@ -1540,7 +1542,7 @@ class WriteMultipleRegisters(ModbusFunction):
 
         values = list(struct.unpack(fmt, pdu[6:]))
 
-        instance = WriteMultipleRegisters()
+        instance = cls()
         instance.starting_address = starting_address
         instance.values = values
 
@@ -1563,9 +1565,9 @@ class WriteMultipleRegisters(ModbusFunction):
         return struct.pack('>BHH', self.function_code, self.starting_address,
                            len(self.values))
 
-    @staticmethod
-    def create_from_response_pdu(resp_pdu):
-        write_multiple_registers = WriteMultipleRegisters()
+    @classmethod
+    def create_from_response_pdu(cls, resp_pdu):
+        write_multiple_registers = cls()
 
         starting_address, data = struct.unpack('>HH', resp_pdu[1:5])
 
@@ -1578,7 +1580,7 @@ class WriteMultipleRegisters(ModbusFunction):
         """ Execute the Modbus function registered for a route.
 
         :param slave_id: Slave id.
-        :param eindpoint: Instance of modbus.route.Map.
+        :param route_map: Instance of modbus.route.Map.
         """
         for index, value in enumerate(self.values):
             address = self.starting_address + index
