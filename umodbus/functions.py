@@ -1321,7 +1321,7 @@ class WriteMultipleCoils(ModbusFunction):
 
         fmt = '>BHHB' + 'B' * len(bytes_)
         return struct.pack(fmt, self.function_code, self.starting_address,
-                           len(self.values), (len(self.values) // 8) + 1,
+                           len(self.values), (len(self.values) + 7) // 8,
                            *bytes_)
 
     @classmethod
