@@ -1254,8 +1254,8 @@ class WriteMultipleCoils(ModbusFunction):
         ================ ===============
         Function code    1
         Starting Address 2
-        Byte count       1
         Quantity         2
+        Byte count       1
         Value            n
         ================ ===============
 
