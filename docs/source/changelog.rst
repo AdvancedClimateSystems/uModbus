@@ -1,6 +1,30 @@
 Changelog
 =========
 
+1.0.4 (2020-08-27)
+++++++++++++++++++
+
+**Bugs**
+
+* `#90`_ Fix error code of 2 Modbus errors. Thanks `@rgov`!
+* `#100`_ Improve check for missing routes. Thanks `@rgov`!
+* `#101`_ Fix crash if 1 of arguments of `umodbus.server.route` is `None` .Thanks `@rgov`!
+* `#105`_ Fix byte count when for WriteMultipleCoils. Thank `@acolomb`!
+
+**Improvements**
+
+* `#102`_ Remove redundant exception traceback. Thanks `@rgov`!
+* `#103`_ Fix error code of 2 Modbus errors. Thanks `@rgov`!
+* `#104`_ Denote hex dump of ADU in debug log. Thanks `@rgov`!
+
+.. _#90: https://github.com/AdvancedClimateSystems/uModbus/issues/90
+.. _#100: https://github.com/AdvancedClimateSystems/uModbus/issues/100
+.. _#101: https://github.com/AdvancedClimateSystems/uModbus/issues/101
+.. _#102: https://github.com/AdvancedClimateSystems/uModbus/issues/102
+.. _#103: https://github.com/AdvancedClimateSystems/uModbus/issues/103
+.. _#104: https://github.com/AdvancedClimateSystems/uModbus/issues/103
+.. _#105: https://github.com/AdvancedClimateSystems/uModbus/issues/105
+
 1.0.3 (2019-12-04)
 ++++++++++++++++++
 
