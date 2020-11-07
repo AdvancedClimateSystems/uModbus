@@ -1,10 +1,11 @@
 import struct
 import pytest
 import socket
+import asyncio
 from threading import Thread
 
 from .tcp_server import app as tcp
-from .rtu_server import app as rtu
+from .rtu_server import app as rtu, StreamReader, StreamWriter
 
 
 @pytest.fixture(autouse=True, scope="session")
@@ -31,9 +32,30 @@ def sock(tcp_server):
     sock.close()
 
 
+@pytest.yield_fixture
+async def async_tcp_streams(tcp_server):
+    host, port = tcp_server.socket.getsockname()
+    reader, writer = await asyncio.open_connection(host, port)
+
+    yield reader, writer
+
+    writer.close()
+    if hasattr(writer, 'wait_closed'):
+        await writer.wait_closed()
+
+
+
 @pytest.fixture
 def rtu_server():
     return rtu
+
+
+@pytest.fixture
+async def async_serial_streams(rtu_server):
+    reader = StreamReader(rtu_server.serial_port)
+    writer = StreamWriter(rtu_server.serial_port)
+    return reader, writer
+
 
 
 @pytest.fixture

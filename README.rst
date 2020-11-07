@@ -126,6 +126,39 @@ Doing a Modbus request requires even less code:
         response = tcp.send_message(message, sock)
 
 
+
+The same request can also be made using any asyncio_ compatible StreamReader
+and StreamWriter objects::
+
+    #!/usr/bin/env python
+    # scripts/examples/simple_async_tcp_client.py
+    import asyncio
+
+    from umodbus import conf
+    from umodbus.client import tcp
+
+    # Enable values to be signed (default is False).
+    conf.SIGNED_VALUES = True
+
+
+    async def main():
+        reader, writer = await asyncio.open_connection('localhost', 15020)
+
+        # Returns a message or Application Data Unit (ADU) specific for doing
+        # Modbus TCP/IP.
+        message = tcp.write_multiple_coils(slave_id=1, starting_address=1, values=[1, 0, 1, 1])
+
+        # Response depends on Modbus function code. This particular returns the
+        # amount of coils written, in this case it is.
+        response = await tcp.async_send_message(message, reader, writer)
+
+        writer.close()
+        await writer.wait_closed()
+
+
+    asyncio.run(main())
+
+
 Features
 --------
 
@@ -156,3 +189,4 @@ Climate Systems`_.
 .. _MODBUS Application Protocol Specification V1.1b3: http://modbus.org/docs/Modbus_Application_Protocol_V1_1b3.pdf
 .. _Mozilla Public License: https://github.com/AdvancedClimateSystems/uModbus/blob/develop/LICENSE
 .. _Read the Docs: http://umodbus.readthedocs.org/en/latest/
+.. _asyncio: https://docs.python.org/3/library/asyncio.html

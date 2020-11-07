@@ -4,6 +4,7 @@ mock==3.0.5;python_version<"3.3"
 pytest==5.3.1;python_version>="3.5"
 pytest==4.6.6;python_version<"3.5"
 pytest-cov==2.8.1
+pytest-asyncio==0.14.0
 Sphinx==2.2.2;python_version>="3.5"
 Sphinx==1.8.5;python_version<"3.5"
 sphinx-rtd-theme==0.4.3
