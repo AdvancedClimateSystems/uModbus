@@ -7,17 +7,12 @@ for Python 2.7, 3.4, 3.5, 3.6, 3.7 and 3.8.
 import os
 from setuptools import setup
 
-cwd = os.path.dirname(os.path.abspath(__name__))
-
-long_description = open(os.path.join(cwd, 'README.rst'), 'r').read()
-
 setup(name='uModbus',
       version='1.0.4',
       author='Auke Willem Oosterhoff',
       author_email='a.oosterhoff@climotion.com',
       description='Implementation of the Modbus protocol in pure Python.',
       url='https://github.com/AdvancedClimateSystems/umodbus/',
-      long_description=long_description,
       license='MPL',
       packages=[
           'umodbus',
