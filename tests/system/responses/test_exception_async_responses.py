@@ -2,11 +2,17 @@ import pytest
 import struct
 from functools import partial
 
-from ..validators import validate_response_mbap
+from ..validators import validate_response_mbap, validate_response_error
 from umodbus.client import tcp
 
 
 pytestmark = pytest.mark.asyncio
+
+
+async def req_rep(adu, reader, writer):
+    writer.write(adu)
+    await writer.drain()
+    return await reader.read(1024)
 
 
 @pytest.mark.parametrize('function_code, quantity', [
@@ -20,20 +26,17 @@ pytestmark = pytest.mark.asyncio
     (4, 0x007D + 1),
 ])
 async def test_request_returning_invalid_data_value_error(async_tcp_streams, mbap, function_code,
-                                                    quantity):
+                                                          quantity):
     """ Validate response PDU of request returning exception response with
     error code 3.
     """
-    function_code, starting_address, quantity = (function_code, 0, quantity)
+    starting_address = 0
     adu = mbap + struct.pack('>BHH', function_code, starting_address, quantity)
 
-    reader, writer = async_tcp_streams
-    writer.write(adu)
-    await writer.drain()
-    resp = await reader.read(1024)
+    resp = await req_rep(adu, *async_tcp_streams)
 
     validate_response_mbap(mbap, resp)
-    assert struct.unpack('>BB', resp[-2:]) == (0x80 + function_code, 3)
+    validate_response_error(resp, function_code, 3)
 
 
 @pytest.mark.parametrize('function', [
@@ -55,13 +58,10 @@ async def test_request_returning_invalid_data_address_error(async_tcp_streams, f
     mbap = adu[:7]
     function_code = struct.unpack('>B', adu[7:8])[0]
 
-    reader, writer = async_tcp_streams
-    writer.write(adu)
-    await writer.drain()
-    resp = await reader.read(1024)
+    resp = await req_rep(adu, *async_tcp_streams)
 
     validate_response_mbap(mbap, resp)
-    assert struct.unpack('>BB', resp[-2:]) == (0x80 + function_code, 2)
+    validate_response_error(resp, function_code, 2)
 
 
 @pytest.mark.parametrize('function', [
@@ -83,10 +83,7 @@ async def test_request_returning_server_device_failure_error(async_tcp_streams, 
     mbap = adu[:7]
     function_code = struct.unpack('>B', adu[7:8])[0]
 
-    reader, writer = async_tcp_streams
-    writer.write(adu)
-    await writer.drain()
-    resp = await reader.read(1024)
+    resp = await req_rep(adu, *async_tcp_streams)
 
     validate_response_mbap(mbap, resp)
-    assert struct.unpack('>BB', resp[-2:]) == (0x80 + function_code, 4)
+    validate_response_error(resp, function_code, 4)

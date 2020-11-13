@@ -27,7 +27,9 @@ async def test_response_on_single_bit_value_read_requests(async_tcp_streams, fun
     """ Validate response of a succesful Read Coils or Read Discrete Inputs
     request.
     """
-    slave_id, starting_address, quantity = (1, 0, 10)
+    slave_id = 1
+    starting_address = 0
+    quantity = 10
     req_adu = function(slave_id, starting_address, quantity)
 
     assert await tcp.async_send_message(req_adu, *async_tcp_streams) == [0, 1, 0, 1, 0, 1, 0, 1, 0,  1]
@@ -41,7 +43,9 @@ async def test_response_on_multi_bit_value_read_requests(async_tcp_streams, func
     """ Validate response of a succesful Read Holding Registers or Read
     Input Registers request.
     """
-    slave_id, starting_address, quantity = (1, 0, 10)
+    slave_id = 1
+    starting_address = 0
+    quantity = 10
     req_adu = function(slave_id, starting_address, quantity)
 
     assert await tcp.async_send_message(req_adu, *async_tcp_streams) ==\
@@ -56,7 +60,9 @@ async def test_response_single_value_write_request(async_tcp_streams, function, 
     """ Validate responde of succesful Read Single Coil and Read Single
     Register request.
     """
-    slave_id, starting_address, value = (1, 0, value)
+    slave_id = 1
+    starting_address = 0
+    quantity = 10
     req_adu = function(slave_id, starting_address, value)
 
     assert await tcp.async_send_message(req_adu, *async_tcp_streams) == value
@@ -72,7 +78,9 @@ async def test_async_response_multi_value_write_request(async_tcp_streams, funct
 
     Both requests write 2 values, starting address is 0.
     """
-    slave_id, starting_address = (1, 0)
+    slave_id = 1
+    starting_address = 0
+    quantity = 10
     req_adu = function(slave_id, starting_address, values)
 
     assert await tcp.async_send_message(req_adu, *async_tcp_streams) == 2

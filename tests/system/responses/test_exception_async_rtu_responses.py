@@ -2,7 +2,7 @@ import pytest
 import struct
 from functools import partial
 
-from ..validators import validate_response_mbap
+from ..validators import validate_response_error
 
 from umodbus.client.serial import rtu
 from umodbus.client.serial.redundancy_check import (get_crc, validate_crc,
@@ -10,6 +10,12 @@ from umodbus.client.serial.redundancy_check import (get_crc, validate_crc,
 
 
 pytestmark = pytest.mark.asyncio
+
+
+async def req_rep(adu, reader, writer, serial_port):
+    writer.write(adu)
+    await writer.drain()
+    return await reader.read(serial_port.in_waiting)
 
 
 @pytest.mark.parametrize('function_code, quantity', [
@@ -33,12 +39,10 @@ async def test_request_returning_invalid_data_value_error(
                               starting_address, quantity))
 
     reader, writer = async_serial_streams
-    writer.write(adu)
-    await writer.drain()
-    resp = await reader.read(rtu_server.serial_port.in_waiting)
+    resp = await req_rep(adu, reader, writer, rtu_server.serial_port)
 
     validate_crc(resp)
-    assert struct.unpack('>BB', resp[1:-2]) == (0x80 + function_code, 3)
+    validate_response_error(resp[:-2], function_code, 3)
 
 
 @pytest.mark.parametrize('function', [
@@ -60,12 +64,10 @@ async def test_request_returning_invalid_data_address_error(rtu_server, async_se
     function_code = struct.unpack('>B', adu[1:2])[0]
 
     reader, writer = async_serial_streams
-    writer.write(adu)
-    await writer.drain()
-    resp = await reader.read(rtu_server.serial_port.in_waiting)
+    resp = await req_rep(adu, reader, writer, rtu_server.serial_port)
 
     validate_crc(resp)
-    assert struct.unpack('>BB', resp[1:-2]) == (0x80 + function_code, 2)
+    validate_response_error(resp[:-2], function_code, 2)
 
 
 @pytest.mark.parametrize('function', [
@@ -87,9 +89,8 @@ async def test_request_returning_server_device_failure_error(rtu_server, async_s
     function_code = struct.unpack('>B', adu[1:2])[0]
 
     reader, writer = async_serial_streams
-    writer.write(adu)
-    await writer.drain()
-    resp = await reader.read(rtu_server.serial_port.in_waiting)
+    resp = await req_rep(adu, reader, writer, rtu_server.serial_port)
 
     validate_crc(resp)
-    assert struct.unpack('>BB', resp[1:-2]) == (0x80 + function_code, 4)
+    validate_response_error(resp[:-2], function_code, 4)
+

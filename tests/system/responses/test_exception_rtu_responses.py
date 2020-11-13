@@ -2,8 +2,7 @@ import pytest
 import struct
 from functools import partial
 
-from ..validators import validate_response_mbap
-
+from ..validators import validate_response_mbap, validate_response_error
 from umodbus.client.serial import rtu
 from umodbus.client.serial.redundancy_check import (get_crc, validate_crc,
                                                     add_crc, CRCError)
@@ -45,7 +44,7 @@ def test_request_returning_invalid_data_value_error(rtu_server, function_code,
     resp = rtu_server.serial_port.read(rtu_server.serial_port.in_waiting)
 
     validate_crc(resp)
-    assert struct.unpack('>BB', resp[1:-2]) == (0x80 + function_code, 3)
+    validate_response_error(resp[:-2], function_code, 3)
 
 
 @pytest.mark.parametrize('function', [
@@ -71,7 +70,7 @@ def test_request_returning_invalid_data_address_error(rtu_server, function):
     resp = rtu_server.serial_port.read(rtu_server.serial_port.in_waiting)
 
     validate_crc(resp)
-    assert struct.unpack('>BB', resp[1:-2]) == (0x80 + function_code, 2)
+    validate_response_error(resp[:-2], function_code, 2)
 
 
 @pytest.mark.parametrize('function', [
@@ -97,4 +96,4 @@ def test_request_returning_server_device_failure_error(rtu_server, function):
     resp = rtu_server.serial_port.read(rtu_server.serial_port.in_waiting)
 
     validate_crc(resp)
-    assert struct.unpack('>BB', resp[1:-2]) == (0x80 + function_code, 4)
+    validate_response_error(resp[:-2], function_code, 4)

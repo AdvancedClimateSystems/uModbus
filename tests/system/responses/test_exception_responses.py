@@ -2,7 +2,7 @@ import pytest
 import struct
 from functools import partial
 
-from ..validators import validate_response_mbap
+from ..validators import validate_response_mbap, validate_response_error
 from umodbus.client import tcp
 
 
@@ -28,7 +28,7 @@ def test_request_returning_invalid_data_value_error(sock, mbap, function_code,
     resp = sock.recv(1024)
 
     validate_response_mbap(mbap, resp)
-    assert struct.unpack('>BB', resp[-2:]) == (0x80 + function_code, 3)
+    validate_response_error(resp, function_code, 3)
 
 
 @pytest.mark.parametrize('function', [
@@ -54,7 +54,7 @@ def test_request_returning_invalid_data_address_error(sock, function):
     resp = sock.recv(1024)
 
     validate_response_mbap(mbap, resp)
-    assert struct.unpack('>BB', resp[-2:]) == (0x80 + function_code, 2)
+    validate_response_error(resp, function_code, 2)
 
 
 @pytest.mark.parametrize('function', [
@@ -80,4 +80,4 @@ def test_request_returning_server_device_failure_error(sock, function):
     resp = sock.recv(1024)
 
     validate_response_mbap(mbap, resp)
-    assert struct.unpack('>BB', resp[-2:]) == (0x80 + function_code, 4)
+    validate_response_error(resp, function_code, 4)
