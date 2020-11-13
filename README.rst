@@ -142,7 +142,7 @@ and StreamWriter objects::
 
 
     async def main():
-        reader, writer = await asyncio.open_connection('localhost', 15020)
+        reader, writer = await asyncio.open_connection('localhost', 502)
 
         # Returns a message or Application Data Unit (ADU) specific for doing
         # Modbus TCP/IP.
