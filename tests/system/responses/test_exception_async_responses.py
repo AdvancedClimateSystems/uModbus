@@ -21,7 +21,7 @@ pytestmark = pytest.mark.asyncio
 ])
 async def test_request_returning_invalid_data_value_error(async_tcp_streams, mbap, function_code,
                                                     quantity):
-    """ Validate response PDU of request returning excepetion response with
+    """ Validate response PDU of request returning exception response with
     error code 3.
     """
     function_code, starting_address, quantity = (function_code, 0, quantity)
@@ -47,7 +47,7 @@ async def test_request_returning_invalid_data_value_error(async_tcp_streams, mba
     (partial(tcp.write_multiple_registers, 1, 9, [1337, 15])),
 ])
 async def test_request_returning_invalid_data_address_error(async_tcp_streams, function):
-    """ Validate response PDU of request returning excepetion response with
+    """ Validate response PDU of request returning exception response with
     error code 2.
     """
     adu = function()
