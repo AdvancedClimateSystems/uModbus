@@ -1,6 +1,7 @@
 #!/usr/bin/env python
 # scripts/examples/simple_curio_tcp_client.py
 import curio
+from argparse import ArgumentParser
 
 from umodbus import conf
 from umodbus.client import tcp
@@ -31,7 +32,17 @@ class CurioStream:
 
 
 async def main():
-    sock = await curio.open_connection('localhost', 502)
+    # Parse command line arguments
+    parser = ArgumentParser()
+    parser.add_argument("-a", "--address", default="localhost:502")
+
+    args = parser.parse_args()
+    if ":" not in args.address:
+        args.address += ":502"
+    host, port = args.address.rsplit(":", 1)
+    port = int(port)
+
+    sock = await curio.open_connection(host, port)
     stream = CurioStream(sock)
 
     # Returns a message or Application Data Unit (ADU) specific for doing

@@ -157,7 +157,17 @@ StreamWriter objects:
 
 
     async def main():
-        reader, writer = await asyncio.open_connection('localhost', 502)
+        # Parse command line arguments
+        parser = ArgumentParser()
+        parser.add_argument("-a", "--address", default="localhost:502")
+
+        args = parser.parse_args()
+        if ":" not in args.address:
+            args.address += ":502"
+        host, port = args.address.rsplit(":", 1)
+        port = int(port)
+
+        reader, writer = await asyncio.open_connection(host, port)
 
         # Returns a message or Application Data Unit (ADU) specific for doing
         # Modbus TCP/IP.
