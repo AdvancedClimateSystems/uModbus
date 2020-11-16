@@ -91,7 +91,7 @@ Doing a Modbus request requires even less code:
 
 ..
     Because GitHub doesn't support the include directive the source of
-    scripts/examples/simple_data_store.py has been copied to this file.
+    scripts/examples/simple_tcp_client.py has been copied to this file.
 
 .. code:: python
 
@@ -128,9 +128,22 @@ Doing a Modbus request requires even less code:
         response = tcp.send_message(message, sock)
 
 
+uModbus client I/O model is designed to work well with many asynchronous
+concurrency libraries including asyncio_, curio_, trio_, anyio_ and even
+greenlet based libraries like gevent_.
 
-The same request can also be made using any asyncio_ compatible StreamReader
-and StreamWriter objects::
+As an example, the above client snippet can be made to work in a gevent
+context simply by replacing the ``import socket`` line with
+``from gevent import socket``.
+
+Here is the same request using any asyncio_ compatible StreamReader and
+StreamWriter objects:
+
+..
+    Because GitHub doesn't support the include directive the source of
+    scripts/examples/simple_tcp_client.py has been copied to this file.
+
+.. code:: python
 
     #!/usr/bin/env python
     # scripts/examples/simple_async_tcp_client.py
@@ -192,3 +205,7 @@ Climate Systems`_.
 .. _Mozilla Public License: https://github.com/AdvancedClimateSystems/uModbus/blob/develop/LICENSE
 .. _Read the Docs: http://umodbus.readthedocs.org/en/latest/
 .. _asyncio: https://docs.python.org/3/library/asyncio.html
+.. _curio: https://curio.rtfd.io/
+.. _trio: https://trio.rtfd.io/
+.. _anyio: https://anyio.rtfd.io/
+.. _gevent: http://www.gevent.org/
