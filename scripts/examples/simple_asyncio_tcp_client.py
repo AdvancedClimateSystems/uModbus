@@ -4,6 +4,8 @@ import asyncio
 
 from umodbus import conf
 from umodbus.client import tcp
+from umodbus.client.asynch import send_message
+
 
 # Enable values to be signed (default is False).
 conf.SIGNED_VALUES = True
@@ -18,7 +20,7 @@ async def main():
 
     # Response depends on Modbus function code. This particular returns the
     # amount of coils written, in this case it is.
-    response = await tcp.async_send_message(message, reader, writer)
+    response = await send_message(message, reader, writer)
 
     writer.close()
     await writer.wait_closed()

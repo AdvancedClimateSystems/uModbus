@@ -2,6 +2,7 @@ import pytest
 
 from umodbus import conf
 from umodbus.client.serial import rtu
+from umodbus.client.serial.asynch import send_message
 
 
 pytestmark = pytest.mark.asyncio
@@ -30,7 +31,7 @@ async def test_response_on_single_bit_value_read_requests(async_serial_streams, 
     slave_id, starting_address, quantity = (1, 0, 10)
     req_adu = function(slave_id, starting_address, quantity)
 
-    reply = await rtu.async_send_message(req_adu, *async_serial_streams)
+    reply = await send_message(req_adu, *async_serial_streams)
     assert reply == [0, 1, 0, 1, 0, 1, 0, 1, 0,  1]
 
 
@@ -46,7 +47,7 @@ async def test_response_on_multi_bit_value_read_requests(async_serial_streams, f
     slave_id, starting_address, quantity = (1, 0, 10)
     req_adu = function(slave_id, starting_address, quantity)
 
-    reply = await rtu.async_send_message(req_adu, *async_serial_streams)
+    reply = await send_message(req_adu, *async_serial_streams)
     assert reply == [0, -1, -2, -3, -4, -5, -6, -7, -8, -9]
 
 
@@ -61,7 +62,7 @@ async def test_response_single_value_write_request(async_serial_streams, functio
     slave_id, starting_address, quantity = (1, 0, value)
     req_adu = function(slave_id, starting_address, quantity)
 
-    reply = await rtu.async_send_message(req_adu, *async_serial_streams)
+    reply = await send_message(req_adu, *async_serial_streams)
     assert reply == value
 
 
@@ -78,5 +79,5 @@ async def test_response_multi_value_write_request(async_serial_streams, function
     slave_id, starting_address = (1, 0)
     req_adu = function(slave_id, starting_address, values)
 
-    reply = await rtu.async_send_message(req_adu, *async_serial_streams)
+    reply = await send_message(req_adu, *async_serial_streams)
     assert reply == 2

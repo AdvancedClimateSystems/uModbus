@@ -2,7 +2,7 @@ import pytest
 
 from umodbus import conf
 from umodbus.client import tcp
-
+from umodbus.client.tcp.asynch import send_message
 
 pytestmark = pytest.mark.asyncio
 
@@ -32,7 +32,7 @@ async def test_response_on_single_bit_value_read_requests(async_tcp_streams, fun
     quantity = 10
     req_adu = function(slave_id, starting_address, quantity)
 
-    assert await tcp.async_send_message(req_adu, *async_tcp_streams) == [0, 1, 0, 1, 0, 1, 0, 1, 0,  1]
+    assert await send_message(req_adu, *async_tcp_streams) == [0, 1, 0, 1, 0, 1, 0, 1, 0,  1]
 
 
 @pytest.mark.parametrize('function', [
@@ -48,7 +48,7 @@ async def test_response_on_multi_bit_value_read_requests(async_tcp_streams, func
     quantity = 10
     req_adu = function(slave_id, starting_address, quantity)
 
-    assert await tcp.async_send_message(req_adu, *async_tcp_streams) ==\
+    assert await send_message(req_adu, *async_tcp_streams) ==\
         [0, -1, -2, -3, -4, -5, -6, -7, -8, -9]
 
 
@@ -65,7 +65,7 @@ async def test_response_single_value_write_request(async_tcp_streams, function, 
     quantity = 10
     req_adu = function(slave_id, starting_address, value)
 
-    assert await tcp.async_send_message(req_adu, *async_tcp_streams) == value
+    assert await send_message(req_adu, *async_tcp_streams) == value
 
 
 @pytest.mark.parametrize('function, values', [
@@ -83,4 +83,4 @@ async def test_async_response_multi_value_write_request(async_tcp_streams, funct
     quantity = 10
     req_adu = function(slave_id, starting_address, values)
 
-    assert await tcp.async_send_message(req_adu, *async_tcp_streams) == 2
+    assert await send_message(req_adu, *async_tcp_streams) == 2
