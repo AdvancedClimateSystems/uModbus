@@ -3,7 +3,11 @@ Async I/O. Send ModBus TCP message over any asynchonous communication
 transport.
 """
 
-from .tcp import raise_for_exception_adu, expected_response_pdu_size_from_request_pdu, parse_response_adu
+from . import (
+    raise_for_exception_adu,
+    expected_response_pdu_size_from_request_pdu,
+    parse_response_adu,
+)
 
 
 async def send_message(adu, reader, writer):
@@ -21,9 +25,9 @@ async def send_message(adu, reader, writer):
     response_error_adu = await reader.readexactly(exception_adu_size)
     raise_for_exception_adu(response_error_adu)
 
-    expected_response_size = \
-        expected_response_pdu_size_from_request_pdu(adu[7:]) + 7
+    expected_response_size = expected_response_pdu_size_from_request_pdu(adu[7:]) + 7
     response_remainder = await reader.readexactly(
-        expected_response_size - exception_adu_size)
+        expected_response_size - exception_adu_size
+    )
 
     return parse_response_adu(response_error_adu + response_remainder, adu)

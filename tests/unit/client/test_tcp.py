@@ -1,6 +1,6 @@
 import struct
 
-from umodbus.client.tcp.tcp import _create_request_adu, _create_mbap_header
+from umodbus.client.tcp import _create_request_adu, _create_mbap_header
 
 
 def test_create_request_adu():
