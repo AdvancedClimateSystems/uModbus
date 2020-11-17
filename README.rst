@@ -91,7 +91,7 @@ Doing a Modbus request requires even less code:
 
 ..
     Because GitHub doesn't support the include directive the source of
-    scripts/examples/simple_data_store.py has been copied to this file.
+    scripts/examples/simple_tcp_client.py has been copied to this file.
 
 .. code:: python
 
@@ -102,6 +102,8 @@ Doing a Modbus request requires even less code:
 
     from umodbus import conf
     from umodbus.client import tcp
+    from umodbus.client.tcp.asynch import send_message
+
 
     # Enable values to be signed (default is False).
     conf.SIGNED_VALUES = True
@@ -124,6 +126,62 @@ Doing a Modbus request requires even less code:
         # Response depends on Modbus function code. This particular returns the
         # amount of coils written, in this case it is.
         response = tcp.send_message(message, sock)
+
+
+uModbus client I/O model is designed to work well with many asynchronous
+concurrency libraries including asyncio_, curio_, trio_, anyio_ and even
+greenlet based libraries like gevent_.
+
+As an example, the above client snippet can be made to work in a gevent
+context simply by replacing the ``import socket`` line with
+``from gevent import socket``.
+
+Here is the same request using any asyncio_ compatible StreamReader and
+StreamWriter objects:
+
+..
+    Because GitHub doesn't support the include directive the source of
+    scripts/examples/simple_asyncio_tcp_client.py has been copied to this file.
+
+.. code:: python
+
+    #!/usr/bin/env python
+    # scripts/examples/simple_asyncio_tcp_client.py
+    import asyncio
+
+    from umodbus import conf
+    from umodbus.client import tcp
+
+    # Enable values to be signed (default is False).
+    conf.SIGNED_VALUES = True
+
+
+    async def main():
+        # Parse command line arguments
+        parser = ArgumentParser()
+        parser.add_argument("-a", "--address", default="localhost:502")
+
+        args = parser.parse_args()
+        if ":" not in args.address:
+            args.address += ":502"
+        host, port = args.address.rsplit(":", 1)
+        port = int(port)
+
+        reader, writer = await asyncio.open_connection(host, port)
+
+        # Returns a message or Application Data Unit (ADU) specific for doing
+        # Modbus TCP/IP.
+        message = tcp.write_multiple_coils(slave_id=1, starting_address=1, values=[1, 0, 1, 1])
+
+        # Response depends on Modbus function code. This particular returns the
+        # amount of coils written, in this case it is.
+        response = await send_message(message, reader, writer)
+
+        writer.close()
+        await writer.wait_closed()
+
+
+    asyncio.run(main())
 
 
 Features
@@ -156,3 +214,8 @@ Climate Systems`_.
 .. _MODBUS Application Protocol Specification V1.1b3: http://modbus.org/docs/Modbus_Application_Protocol_V1_1b3.pdf
 .. _Mozilla Public License: https://github.com/AdvancedClimateSystems/uModbus/blob/develop/LICENSE
 .. _Read the Docs: http://umodbus.readthedocs.org/en/latest/
+.. _asyncio: https://docs.python.org/3/library/asyncio.html
+.. _curio: https://curio.rtfd.io/
+.. _trio: https://trio.rtfd.io/
+.. _anyio: https://anyio.rtfd.io/
+.. _gevent: http://www.gevent.org/

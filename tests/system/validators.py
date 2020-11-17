@@ -32,6 +32,11 @@ def validate_response_mbap(request_mbap, response):
     validate_unit_id(request_mbap, response)
 
 
+def validate_response_error(resp, function_code, error_code):
+    assert struct.unpack('>BB', resp[-2:]) == \
+        (0x80 + function_code, error_code)
+
+
 def validate_function_code(request, response):
     """ Validate if Function code in request and response equal. """
     assert struct.unpack('>B', request[7:8])[0] == \
