@@ -1,5 +1,5 @@
 #!/usr/bin/env python
-# scripts/examples/simple_async_tcp_client.py
+# scripts/examples/simple_asyncio_tcp_client.py
 import asyncio
 from argparse import ArgumentParser
 

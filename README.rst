@@ -141,12 +141,12 @@ StreamWriter objects:
 
 ..
     Because GitHub doesn't support the include directive the source of
-    scripts/examples/simple_tcp_client.py has been copied to this file.
+    scripts/examples/simple_asyncio_tcp_client.py has been copied to this file.
 
 .. code:: python
 
     #!/usr/bin/env python
-    # scripts/examples/simple_async_tcp_client.py
+    # scripts/examples/simple_asyncio_tcp_client.py
     import asyncio
 
     from umodbus import conf
