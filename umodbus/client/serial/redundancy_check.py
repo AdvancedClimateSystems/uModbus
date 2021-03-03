@@ -73,9 +73,11 @@ def validate_crc(msg):
     """
     if not struct.unpack('<H', get_crc(msg[:-2])) ==\
             struct.unpack('<H', msg[-2:]):
-        raise CRCError('CRC validation failed.')
+        raise CRCError(msg)
 
 
 class CRCError(Exception):
-    """ Valid error to raise when CRC isn't correct. """
-    pass
+    """CRC validation failed."""
+
+    def __str__(self):
+        return self.__doc__

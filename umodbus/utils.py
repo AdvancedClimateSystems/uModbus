@@ -138,6 +138,6 @@ def recv_exactly(recv_fn, size):
     response = b''.join(chunks)
 
     if len(response) != size:
-        raise ValueError
+        raise ValueError(response)
 
     return response
