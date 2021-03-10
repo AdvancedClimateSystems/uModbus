@@ -45,6 +45,7 @@ The lenght of this ADU is 8 bytes::
 import struct
 
 from umodbus.client.serial.redundancy_check import get_crc, validate_crc
+from umodbus.client.serial.redundancy_check import CRCError
 from umodbus.functions import (create_function_from_response_pdu,
                                expected_response_pdu_size_from_request_pdu,
                                pdu_to_function_code_or_raise_error, ReadCoils,
@@ -199,7 +200,13 @@ def raise_for_exception_adu(resp_adu):
     :raises ModbusError: When a response contains an error code.
     """
     resp_pdu = resp_adu[1:-2]
-    pdu_to_function_code_or_raise_error(resp_pdu)
+    try:
+        validate_crc(resp_adu)
+        pdu_to_function_code_or_raise_error(resp_pdu)
+    except CRCError:
+        # The response cannot be trusted at all, so ignore any
+        # possibly invalid function code.
+        pass
 
 
 def send_message(adu, serial_port):
