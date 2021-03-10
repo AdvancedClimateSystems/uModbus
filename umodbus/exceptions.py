@@ -10,7 +10,7 @@ class UndefinedModbusError(ModbusError):
         self.error_code = error_code
 
     def __str__(self):
-        return 'Non-standard Modbus error code %#02x received.' % self.error_code
+        return 'Non-standard Modbus error code %#04x received.' % self.error_code
 
 
 class IllegalFunctionError(ModbusError):
