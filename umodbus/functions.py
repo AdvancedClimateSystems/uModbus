@@ -104,11 +104,10 @@ REPORT_SERVER_ID = 17
 
 
 def pdu_to_function_code_or_raise_error(resp_pdu):
-    """ Parse response PDU and return of :class:`ModbusFunction` or
-    raise error.
+    """Parse response PDU and return function code or raise error.
 
     :param resp_pdu: PDU of response.
-    :return: Subclass of :class:`ModbusFunction` matching the response.
+    :return: Function code contained in the response.
     :raises ModbusError: When response contains error code.
     """
     function_code = struct.unpack('>B', resp_pdu[0:1])[0]
