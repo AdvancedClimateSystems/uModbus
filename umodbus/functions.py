@@ -119,7 +119,7 @@ def pdu_to_function_code_or_raise_error(resp_pdu):
             exception = error_code_to_exception_map[error_code]
             raise exception
         except KeyError as e:
-            raise UndefinedModbusError(e)
+            raise UndefinedModbusError(e.args[0])
 
     return function_code
 

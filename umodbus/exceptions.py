@@ -9,7 +9,7 @@ class UndefinedModbusError(ModbusError):
     def __init__(self, error_code):
         self.error_code = error_code
 
-    def __repr__(self):
+    def __str__(self):
         return 'Non-standard Modbus error code %#02x received.' % self.error_code
 
 
