@@ -3,6 +3,12 @@ class ModbusError(Exception):
     pass
 
 
+class ModbusFrameError(ModbusError):
+    """Reply from an unexpected slave, or an error in the received frame."""
+
+    pass
+
+
 class IllegalFunctionError(ModbusError):
     """ The function code received in the request is not an allowable action for
     the server.
