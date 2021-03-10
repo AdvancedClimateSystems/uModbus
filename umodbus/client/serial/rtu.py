@@ -53,6 +53,7 @@ from umodbus.functions import (create_function_from_response_pdu,
                                WriteSingleRegister, WriteMultipleCoils,
                                WriteMultipleRegisters)
 from umodbus.utils import recv_exactly
+from umodbus.exceptions import ModbusFrameError
 
 
 def _create_request_adu(slave_id, req_pdu):
@@ -173,9 +174,9 @@ def write_multiple_registers(slave_id, starting_address, values):
 
 def parse_response_adu(resp_adu, req_adu=None):
     """ Parse response ADU and return response data. Some functions require
-    request ADU to fully understand request ADU.
+    request ADU to fully understand response ADU.
 
-    :param resp_adu: Resonse ADU.
+    :param resp_adu: Response ADU.
     :param req_adu: Request ADU, default None.
     :return: Response data.
     """
@@ -216,6 +217,10 @@ def send_message(adu, serial_port):
     exception_adu_size = 5
     response_error_adu = recv_exactly(serial_port.read, exception_adu_size)
     raise_for_exception_adu(response_error_adu)
+
+    if response_error_adu[0:2] != adu[0:2]:
+        # Mismatch in response's slave address or function code
+        raise ModbusFrameError(response_error_adu)
 
     expected_response_size = \
         expected_response_pdu_size_from_request_pdu(adu[1:-2]) + 3
