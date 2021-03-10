@@ -3,6 +3,16 @@ class ModbusError(Exception):
     pass
 
 
+class UndefinedModbusError(ModbusError):
+    """Catch-all class for non-standard error codes."""
+
+    def __init__(self, error_code):
+        self.error_code = error_code
+
+    def __str__(self):
+        return 'Non-standard Modbus error code %#04x received.' % self.error_code
+
+
 class IllegalFunctionError(ModbusError):
     """ The function code received in the request is not an allowable action for
     the server.

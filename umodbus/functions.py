@@ -74,7 +74,7 @@ except ImportError:
 from umodbus import conf, log
 from umodbus.exceptions import (error_code_to_exception_map,
                                 IllegalDataValueError, IllegalFunctionError,
-                                IllegalDataAddressError)
+                                IllegalDataAddressError, UndefinedModbusError)
 from umodbus.utils import memoize, get_function_code_from_request_pdu
 
 # Function related to data access.
@@ -115,7 +115,11 @@ def pdu_to_function_code_or_raise_error(resp_pdu):
 
     if function_code not in function_code_to_function_map.keys():
         error_code = struct.unpack('>B', resp_pdu[1:2])[0]
-        raise error_code_to_exception_map[error_code]
+        try:
+            exception = error_code_to_exception_map[error_code]
+            raise exception
+        except KeyError as e:
+            raise UndefinedModbusError(e.args[0])
 
     return function_code
 
