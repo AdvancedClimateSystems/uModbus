@@ -211,6 +211,7 @@ def send_message(adu, serial_port):
     """
     serial_port.write(adu)
     serial_port.flush()
+    serial_port.reset_input_buffer()
 
     # Check exception ADU (which is shorter than all other responses) first.
     exception_adu_size = 5
