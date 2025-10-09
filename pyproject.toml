@@ -1,0 +1,48 @@
+[project]
+name = "umodbus"
+version = "1.0.4"
+description = "Implementation of the Modbus protocol in pure Python"
+readme = "README.rst"
+license="MPL-2.0"
+requires-python = ">=3.5,<3.10"
+dependencies = [
+    "pyserial~=3.4",
+]
+classifiers=[
+    "Development Status :: 6 - Mature",
+    "Intended Audience :: Developers",
+    "Operating System :: OS Independent",
+    "Programming Language :: Python :: 3.5",
+    "Programming Language :: Python :: 3.6",
+    "Programming Language :: Python :: 3.7",
+    "Programming Language :: Python :: 3.8",
+    "Programming Language :: Python :: 3.9",
+    "Topic :: Software Development :: Embedded Systems",
+]
+authors= [{name="Auke Willem Oosterhoff", email="a.oosterhoff@climotion.com" }]
+[project.urls]
+homepage = "https://github.com/AdvancedClimateSystems/uModbus"
+source = "https://github.com/AdvancedClimateSystems/uModbus"
+issues = "https://github.com/AdvancedClimateSystems/uModbus/issues"
+documentation = "https://umodbus.readthedocs.io/en/latest/"
+
+[dependency-groups]
+dev = [
+    "pytest==5.3.1",
+    "pytest-cov==2.8.1",
+    "sphinx==2.2.2",
+    "sphinx-rtd-theme==0.4.3",
+]
+
+[build-system]
+requires = ["setuptools>=61.0"]
+build-backend = "setuptools.build_meta"
+
+[tool.setuptools]
+packages=[
+    "umodbus",
+    "umodbus.client",
+    "umodbus.client.serial",
+    "umodbus.server",
+    "umodbus.server.serial",
+]
