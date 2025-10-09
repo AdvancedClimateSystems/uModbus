@@ -3,7 +3,7 @@
     V1.1b3`_
 
 The Protocol Data Unit (PDU) is the request or response message and is
-indepedent of the underlying communication layer. This module only implements
+independent of the underlying communication layer. This module only implements
 requests PDU's.
 
 A request PDU contains two parts: a function code and request data. A response
@@ -216,11 +216,11 @@ class ReadCoils(ModbusFunction):
         >>> struct.unpack('>BHH', b'\\x01\\x00d\\x00\\x03')
         (1, 100, 3)
 
-    The reponse PDU varies in length, depending on the request. Each 8 coils
+    The response PDU varies in length, depending on the request. Each 8 coils
     require 1 byte. The amount of bytes needed represent status of the coils to
     can be calculated with: bytes = ceil(quantity / 8). This response
     contains ceil(3 / 8) = 1 byte to describe the status of the coils. The
-    structure of a compleet response PDU looks like this:
+    structure of a complete response PDU looks like this:
 
         ================ ===============
         Field            Length (bytes)
@@ -311,7 +311,7 @@ class ReadCoils(ModbusFunction):
         bytes_ = [data[i:i + 8] for i in range(0, len(data), 8)]
 
         # Reduce each all bits per byte to a number. Byte
-        # [0, 0, 0, 0, 0, 1, 1, 1] is intepreted as binary en is decimal 3.
+        # [0, 0, 0, 0, 0, 1, 1, 1] is interpreted as binary en is decimal 3.
         for index, byte in enumerate(bytes_):
             bytes_[index] = \
                 reduce(lambda a, b: (a << 1) + b, list(reversed(byte)))
@@ -424,11 +424,11 @@ class ReadDiscreteInputs(ModbusFunction):
         >>> struct.unpack('>BHH', b'\\x02\\x00d\\x00\\x03')
         (2, 100, 3)
 
-    The reponse PDU varies in length, depending on the request. 8 inputs
+    The response PDU varies in length, depending on the request. 8 inputs
     require 1 byte. The amount of bytes needed represent status of the inputs
     to can be calculated with: bytes = ceil(quantity / 8). This response
     contains ceil(3 / 8) = 1 byte to describe the status of the inputs. The
-    structure of a compleet response PDU looks like this:
+    structure of a complete response PDU looks like this:
 
         ================ ===============
         Field            Length (bytes)
@@ -519,7 +519,7 @@ class ReadDiscreteInputs(ModbusFunction):
         bytes_ = [data[i:i + 8] for i in range(0, len(data), 8)]
 
         # Reduce each all bits per byte to a number. Byte
-        # [0, 0, 0, 0, 0, 1, 1, 1] is intepreted as binary en is decimal 3.
+        # [0, 0, 0, 0, 0, 1, 1, 1] is interpreted as binary en is decimal 3.
         for index, byte in enumerate(bytes_):
             bytes_[index] = \
                 reduce(lambda a, b: (a << 1) + b, list(reversed(byte)))
@@ -625,7 +625,7 @@ class ReadHoldingRegisters(ModbusFunction):
         >>> struct.unpack('>BHH', b'\\x03\\x00d\\x00\\x03')
         (3, 100, 3)
 
-    The reponse PDU varies in length, depending on the request. By default,
+    The response PDU varies in length, depending on the request. By default,
     holding registers are 16 bit (2 bytes) values. So values of 3 holding
     registers is expressed in 2 * 3 = 6 bytes.
 
@@ -800,7 +800,7 @@ class ReadInputRegisters(ModbusFunction):
         >>> struct.unpack('>BHH', b'\\x04\\x00d\\x00\\x03')
         (4, 100, 3)
 
-    The reponse PDU varies in length, depending on the request. By default,
+    The response PDU varies in length, depending on the request. By default,
     holding registers are 16 bit (2 bytes) values. So values of 3 holding
     registers is expressed in 2 * 3 = 6 bytes.
 
@@ -978,7 +978,7 @@ class WriteSingleCoil(ModbusFunction):
         >>> struct.unpack('>BHH', b'\\x05\\x00d\\xFF\\x00')
         (5, 100, 65280)
 
-    The reponse PDU is a copy of the request PDU.
+    The response PDU is a copy of the request PDU.
 
         ================ ===============
         Field            Length (bytes)
@@ -1125,7 +1125,7 @@ class WriteSingleRegister(ModbusFunction):
         >>> struct.unpack('>BHH', b'\\x06\\x00d\\x00\\x03')
         (6, 100, 3)
 
-    The reponse PDU is a copy of the request PDU.
+    The response PDU is a copy of the request PDU.
 
         ================ ===============
         Field            Length (bytes)
@@ -1274,7 +1274,7 @@ class WriteMultipleCoils(ModbusFunction):
         >>> struct.unpack('>BHHBB', b'\\x0f\\x00d\\x00\\x03\\x01\\x05')
         (16, 100, 3, 1, 5)
 
-    The reponse PDU is 5 bytes and contains following structure:
+    The response PDU is 5 bytes and contains following structure:
 
         ================ ===============
         Field            Length (bytes)
@@ -1314,7 +1314,7 @@ class WriteMultipleCoils(ModbusFunction):
         bytes_ = [self.values[i:i + 8] for i in range(0, len(self.values), 8)]
 
         # Reduce each all bits per byte to a number. Byte
-        # [0, 0, 0, 0, 0, 1, 1, 1] is intepreted as binary en is decimal 3.
+        # [0, 0, 0, 0, 0, 1, 1, 1] is interpreted as binary en is decimal 3.
         for index, byte in enumerate(bytes_):
             bytes_[index] = \
                 reduce(lambda a, b: (a << 1) + b, list(reversed(byte)))
@@ -1484,7 +1484,7 @@ class WriteMultipleRegisters(ModbusFunction):
         >>> struct.unpack('>BHHBH', b'\\x10\\x00d\\x00\\x01\\x02\\x00\\x05')
         (16, 100, 1, 2, 5)
 
-    The reponse PDU is 5 bytes and contains following structure:
+    The response PDU is 5 bytes and contains following structure:
 
         ================ ===============
         Field            Length (bytes)

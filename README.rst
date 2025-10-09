@@ -140,7 +140,7 @@ The following functions have been implemented for Modbus TCP and Modbus RTU:
 * 15: Write Multiple Coils
 * 16: Write Multiple Registers
 
-Other featues:
+Other features:
 
 * Support for signed and unsigned register values.
 

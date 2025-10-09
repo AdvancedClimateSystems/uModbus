@@ -227,7 +227,7 @@ def parse_response_adu(resp_adu, req_adu=None):
     """ Parse response ADU and return response data. Some functions require
     request ADU to fully understand request ADU.
 
-    :param resp_adu: Resonse ADU.
+    :param resp_adu: Response ADU.
     :param req_adu: Request ADU, default None.
     :return: Response data.
     """

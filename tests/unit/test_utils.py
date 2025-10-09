@@ -23,7 +23,7 @@ def test_log_to_stream():
 
 def test_unpack_mbap():
     """ MBAP should contain correct values for Transaction identifier, Protocol
-    identifier, Length and Unit identifer.
+    identifier, Length and Unit identifier.
     """
     assert unpack_mbap(b'\x00\x08\x00\x00\x00\x06\x01') == (8, 0, 6, 1)
 

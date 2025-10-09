@@ -18,7 +18,7 @@ from umodbus.client import tcp
 ])
 def test_request_returning_invalid_data_value_error(sock, mbap, function_code,
                                                     quantity):
-    """ Validate response PDU of request returning excepetion response with
+    """ Validate response PDU of request returning exception response with
     error code 3.
     """
     function_code, starting_address, quantity = (function_code, 0, quantity)
@@ -42,7 +42,7 @@ def test_request_returning_invalid_data_value_error(sock, mbap, function_code,
     (partial(tcp.write_multiple_registers, 1, 9, [1337, 15])),
 ])
 def test_request_returning_invalid_data_address_error(sock, function):
-    """ Validate response PDU of request returning excepetion response with
+    """ Validate response PDU of request returning exception response with
     error code 2.
     """
     adu = function()
@@ -68,7 +68,7 @@ def test_request_returning_invalid_data_address_error(sock, function):
     (partial(tcp.write_multiple_registers, 1, 666, [1337])),
 ])
 def test_request_returning_server_device_failure_error(sock, function):
-    """ Validate response PDU of request returning excepetion response with
+    """ Validate response PDU of request returning exception response with
     error code 4.
     """
     adu = function()

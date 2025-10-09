@@ -9,7 +9,7 @@ class Config(object):
     writing from and writing to coils or discrete inputs) from structs.
 
     .. note:: Its value should not be changed. This attribute exists to be
-        consistend with `MULTI_BIT_VALUE_FORMAT_CHARACTER`.
+        consistent with `MULTI_BIT_VALUE_FORMAT_CHARACTER`.
     """
 
     MULTI_BIT_VALUE_FORMAT_CHARACTER = 'H'

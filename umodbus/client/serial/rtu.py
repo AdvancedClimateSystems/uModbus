@@ -36,7 +36,7 @@ the length of 3 coils:
     >>> # Read coils, starting from coil 100 for the length of 3 coils.
     >>> adu = b'\\x01\\x01\\x00d\\x00\\x03=\\xd4'
 
-The lenght of this ADU is 8 bytes::
+The length of this ADU is 8 bytes::
 
     >>> len(adu)
     8
@@ -175,7 +175,7 @@ def parse_response_adu(resp_adu, req_adu=None):
     """ Parse response ADU and return response data. Some functions require
     request ADU to fully understand request ADU.
 
-    :param resp_adu: Resonse ADU.
+    :param resp_adu: Response ADU.
     :param req_adu: Request ADU, default None.
     :return: Response data.
     """

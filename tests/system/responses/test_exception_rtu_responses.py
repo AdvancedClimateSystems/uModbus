@@ -32,7 +32,7 @@ def test_no_response_for_request_with_invalid_crc(rtu_server):
 ])
 def test_request_returning_invalid_data_value_error(rtu_server, function_code,
                                                     quantity):
-    """ Validate response PDU of request returning excepetion response with
+    """ Validate response PDU of request returning exception response with
     error code 3.
     """
     starting_address = 0
@@ -59,7 +59,7 @@ def test_request_returning_invalid_data_value_error(rtu_server, function_code,
     (partial(rtu.write_multiple_registers, 1, 9, [1337, 15])),
 ])
 def test_request_returning_invalid_data_address_error(rtu_server, function):
-    """ Validate response PDU of request returning excepetion response with
+    """ Validate response PDU of request returning exception response with
     error code 2.
     """
     adu = function()
@@ -85,7 +85,7 @@ def test_request_returning_invalid_data_address_error(rtu_server, function):
     (partial(rtu.write_multiple_registers, 1, 666, [1337])),
 ])
 def test_request_returning_server_device_failure_error(rtu_server, function):
-    """ Validate response PDU of request returning excepetion response with
+    """ Validate response PDU of request returning exception response with
     error code 4.
     """
     adu = function()

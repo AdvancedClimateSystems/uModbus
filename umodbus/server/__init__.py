@@ -74,7 +74,7 @@ class AbstractRequestHandler(BaseRequestHandler):
         :param meta_data: A dict with meta data. It must at least contain
             key 'unit_id'.
         :param request_pdu: A bytearray containing request PDU.
-        :return: A bytearry containing reponse PDU.
+        :return: A bytearry containing response PDU.
         """
         try:
             function = create_function_from_request_pdu(request_pdu)

@@ -60,7 +60,7 @@ class AbstractSerialServer(object):
         raise NotImplementedError
 
     def serve_forever(self, poll_interval=0.5):
-        """ Wait for incomming requests. """
+        """ Wait for incoming requests. """
         self.serial_port.timeout = poll_interval
 
         while not self._shutdown_request:
@@ -92,7 +92,7 @@ class AbstractSerialServer(object):
         :param meta_data: A dict with meta data. It must at least contain
             key 'unit_id'.
         :param request_pdu: A bytearray containing request PDU.
-        :return: A bytearry containing reponse PDU.
+        :return: A bytearry containing response PDU.
         """
         try:
             function = create_function_from_request_pdu(request_pdu)

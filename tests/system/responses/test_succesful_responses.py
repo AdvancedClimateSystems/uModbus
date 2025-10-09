@@ -21,7 +21,7 @@ def enable_signed_values(request):
     tcp.read_discrete_inputs,
 ])
 def test_response_on_single_bit_value_read_requests(sock, function):
-    """ Validate response of a succesful Read Coils or Read Discrete Inputs
+    """ Validate response of a successful Read Coils or Read Discrete Inputs
     request.
     """
     slave_id, starting_address, quantity = (1, 0, 10)
@@ -35,7 +35,7 @@ def test_response_on_single_bit_value_read_requests(sock, function):
     tcp.read_input_registers,
 ])
 def test_response_on_multi_bit_value_read_requests(sock, function):
-    """ Validate response of a succesful Read Holding Registers or Read
+    """ Validate response of a successful Read Holding Registers or Read
     Input Registers request.
     """
     slave_id, starting_address, quantity = (1, 0, 10)
@@ -50,7 +50,7 @@ def test_response_on_multi_bit_value_read_requests(sock, function):
     (tcp.write_single_register, -1337),
 ])
 def test_response_single_value_write_request(sock, function, value):
-    """ Validate responde of succesful Read Single Coil and Read Single
+    """ Validate responde of successful Read Single Coil and Read Single
     Register request.
     """
     slave_id, starting_address, value = (1, 0, value)
@@ -64,7 +64,7 @@ def test_response_single_value_write_request(sock, function, value):
     (tcp.write_multiple_registers, [1337, 15]),
 ])
 def test_response_multi_value_write_request(sock, function, values):
-    """ Validate response of succesful Write Multiple Coils and Write Multiple
+    """ Validate response of successful Write Multiple Coils and Write Multiple
     Registers request.
 
     Both requests write 2 values, starting address is 0.
