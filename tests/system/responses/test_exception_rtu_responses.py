@@ -2,10 +2,9 @@ import pytest
 import struct
 from functools import partial
 
-from ..validators import validate_response_mbap
 
 from umodbus.client.serial import rtu
-from umodbus.client.serial.redundancy_check import (get_crc, validate_crc,
+from umodbus.client.serial.redundancy_check import (validate_crc,
                                                     add_crc, CRCError)
 
 

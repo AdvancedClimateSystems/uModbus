@@ -1,4 +1,3 @@
-import pytest
 
 from umodbus.route import DataRule
 
